@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لعبة ترتيب الأعداد تصاعدياً وتنازلياً - الصف الأول</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            touch-action: manipulation;
+            overscroll-behavior-y: none;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 50%, #fbcfe8 100%);
+        }
+        
+        .number-card {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: none;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.15), 0 15px 20px rgba(0,0,0,0.1);
+        }
+        .number-card:hover {
+            transform: translateY(-6px) scale(1.05);
+        }
+        .number-card:active {
+            transform: translateY(2px) scale(0.95);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+        }
+        .dragging {
+            opacity: 0.8;
+            transform: scale(1.2) rotate(5deg) !important;
+            z-index: 50;
+        }
+        
+        .bounce-fun {
+            animation: bounceFun 0.8s infinite alternate cubic-bezier(0.45, 0.05, 0.55, 0.95);
+        }
+        @keyframes bounceFun {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-12px) scale(1.08); }
+        }
+
+        .pulse-btn {
+            animation: pulseBtn 1.2s ease-in-out infinite;
+        }
+        @keyframes pulseBtn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        .pop-in {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.35);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px) rotate(-3deg); }
+            40%, 80% { transform: translateX(10px) rotate(3deg); }
+        }
+
+        .sparkle-bg {
+            background-image: radial-gradient(#6366f1 15%, transparent 16%), radial-gradient(#ec4899 15%, transparent 16%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-gray-800 overflow-x-hidden relative">
+    
+    <div class="absolute inset-0 sparkle-bg pointer-events-none"></div>
+
+    <header class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white py-2.5 px-3 sm:px-6 shadow-xl sticky top-0 z-20 border-b-4 border-yellow-300">
+        <div class="max-w-4xl mx-auto flex justify-between items-center gap-2">
+            <div class="flex items-center space-x-2 space-x-reverse min-w-0 flex-1">
+                <span class="text-2xl sm:text-4xl shrink-0 bounce-fun">🚀</span>
+                <div class="min-w-0 flex-1">
+                    <h1 class="text-sm sm:text-xl md:text-2xl font-black leading-snug break-words whitespace-normal text-white drop-shadow-md">بطل الأرقام الصغير</h1>
+                    <p id="game-subtitle" class="text-[10px] sm:text-xs text-yellow-200 font-bold truncate">الترتيب التصاعدي والتنازلي 📊</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 sm:space-x-4 space-x-reverse bg-white/20 backdrop-blur-md py-1 px-2.5 sm:px-4 rounded-2xl border-2 border-white/40 shrink-0 shadow-inner">
+                <div class="text-center">
+                    <span class="block text-[9px] sm:text-xs text-yellow-200 font-bold leading-none mb-1">النقاط ⭐</span>
+                    <span id="score" class="text-base sm:text-xl font-black text-yellow-300 leading-none drop-shadow">٠</span>
+                </div>
+                <div class="h-6 sm:h-8 w-0.5 bg-white/40"></div>
+                <div class="text-center">
+                    <span class="block text-[9px] sm:text-xs text-green-200 font-bold leading-none mb-1">المستوى 🏆</span>
+                    <span id="level" class="text-base sm:text-xl font-black text-green-300 leading-none drop-shadow">١</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto p-3 sm:p-5 flex-grow flex flex-col justify-between items-center gap-4 z-10">
+        
+        <div class="w-full bg-white/80 backdrop-blur-md rounded-2xl p-2 shadow-md border-2 border-purple-200 flex items-center justify-center gap-2">
+            <span class="text-xs sm:text-base font-black text-purple-900 shrink-0 ml-1">اختر الترتيب:</span>
+            <button id="mode-asc-btn" onclick="setMode('asc')" class="flex-1 py-2 px-3 rounded-xl font-black text-xs sm:text-base transition duration-200 flex items-center justify-center gap-1 shadow-sm bg-indigo-600 text-white scale-105 border-2 border-indigo-700">
+                <span>📈</span>
+                <span>تصاعدي (الأصغر ⬅️ الأكبر)</span>
+            </button>
+            <button id="mode-desc-btn" onclick="setMode('desc')" class="flex-1 py-2 px-3 rounded-xl font-black text-xs sm:text-base transition duration-200 flex items-center justify-center gap-1 shadow-sm bg-gray-100 text-gray-700 hover:bg-purple-100 border-2 border-gray-200">
+                <span>📉</span>
+                <span>تنازلي (الأكبر ⬅️ الأصغر)</span>
+            </button>
+        </div>
+
+        <div class="bg-white/95 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-xl w-full text-center border-4 border-yellow-400 transform transition-transform hover:scale-[1.01]">
+            <div id="instruction-title" class="text-base sm:text-xl md:text-2xl font-black text-indigo-900 flex items-center justify-center gap-2 flex-wrap">
+                <span class="text-2xl sm:text-3xl">🎯</span>
+                <span>رتب الأعداد من <span id="first-label" class="text-red-500 underline decoration-wavy">الأصغر</span> إلى <span id="second-label" class="text-green-600 underline decoration-wavy">الأكبر</span>:</span>
+            </div>
+            
+            <div class="flex justify-center items-center gap-3 mt-2 text-xs sm:text-base text-gray-700 font-black">
+                <span id="start-guide-tag" class="text-red-500 bg-red-100 px-3 py-1 rounded-full border border-red-300 shadow-sm shrink-0">الأصغر ⬅️</span>
+                <div id="guide-gradient" class="w-20 sm:w-36 h-3 bg-gradient-to-r from-red-400 via-yellow-400 to-green-500 rounded-full shadow-inner"></div>
+                <span id="end-guide-tag" class="text-green-600 bg-green-100 px-3 py-1 rounded-full border border-green-300 shadow-sm shrink-0">➡️ الأكبر</span>
+            </div>
+        </div>
+
+        <div class="w-full bg-white/90 backdrop-blur-md p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl border-4 border-indigo-200">
+            <div class="flex justify-between items-center mb-3 px-1 gap-1">
+                <p class="text-xs sm:text-base font-black text-indigo-900 leading-tight flex items-center gap-1">
+                    <span>✨</span> أماكن الترتيب (اضغط الرقم للتعديل):
+                </p>
+                <button id="clear-btn" onclick="clearSelection()" class="text-xs sm:text-sm font-black text-red-600 hover:text-red-800 bg-red-100 hover:bg-red-200 px-3 py-1.5 rounded-xl border-2 border-red-300 hidden shrink-0 shadow-sm transition active:scale-95">
+                    تفريغ الكل 🗑️
+                </button>
+            </div>
+            
+            <div id="target-slots" class="flex flex-wrap justify-center gap-2.5 sm:gap-4 dir-ltr py-2"></div>
+        </div>
+
+        <div class="w-full bg-amber-200/60 backdrop-blur-sm p-4 sm:p-5 rounded-2xl sm:rounded-3xl border-4 border-amber-300/80 shadow-md">
+            <p class="text-center text-xs sm:text-base font-black text-amber-900 mb-3 flex items-center justify-center gap-1">
+                <span>👇</span> اختر الأرقام بالترتيب المناسب:
+            </p>
+            <div id="source-numbers" class="flex flex-wrap justify-center gap-3 sm:gap-5 min-h-[95px] sm:min-h-[120px] items-center"></div>
+        </div>
+
+        <div class="w-full flex justify-center items-center my-1">
+            <button id="check-btn" onclick="checkAnswer()" disabled class="bg-gray-300 text-gray-500 font-black py-3 px-8 sm:py-4 sm:px-12 rounded-2xl shadow-lg text-lg sm:text-2xl transition duration-300 cursor-not-allowed w-full max-w-sm">
+                تحقق من الإجابة ✨
+            </button>
+        </div>
+
+        <div id="feedback" class="min-h-[45px] sm:min-h-[55px] text-center font-black text-base sm:text-2xl md:text-3xl transition-all flex items-center justify-center px-3 rounded-2xl"></div>
+
+    </main>
+
+    <footer class="p-3 sm:p-4 text-center pb-6 flex flex-col items-center gap-3 z-10">
+        <button id="reset-btn" onclick="startNewGame()" class="bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 active:scale-95 text-white font-black py-2.5 px-7 rounded-full shadow-lg text-sm sm:text-base transition duration-200 inline-flex items-center gap-2 border-2 border-white">
+            <span>🔄</span> سؤال جديد
+        </button>
+
+        <div class="text-xs sm:text-base font-black text-indigo-950 bg-white/90 px-5 py-2 rounded-full border-2 border-indigo-300 inline-flex items-center gap-2 shadow-md">
+            <span>✨</span>
+            <span>تصميم الأستاذ: فادي أبو الكباش</span>
+            <span>✨</span>
+        </div>
+    </footer>
+
+    <div id="success-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-xs sm:max-w-md w-full text-center shadow-2xl border-8 border-green-400 transform transition-all pop-in">
+            <div class="text-6xl sm:text-7xl mb-2 bounce-fun">🎉</div>
+            <h2 id="modal-title" class="text-2xl sm:text-4xl font-black text-indigo-950 mb-2">رائع جداً يا بطل!</h2>
+            <p id="modal-phrase" class="text-green-600 font-black mb-5 text-base sm:text-xl">أنت عبقري في الرياضيات! 🌟</p>
+            
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-2xl mb-4 flex justify-around border-2 border-indigo-100 shadow-inner">
+                <div>
+                    <span class="block text-xs sm:text-sm text-gray-600 font-bold mb-1">إجمالي النقاط ⭐</span>
+                    <span id="modal-score" class="text-2xl sm:text-3xl font-black text-indigo-600">٠</span>
+                </div>
+            </div>
+
+            <p class="text-xs sm:text-sm font-black text-indigo-900 mb-5 bg-indigo-100/80 py-2 px-3 rounded-xl border border-indigo-300 shadow-sm">
+                🎨 تصميم: الأستاذ فادي أبو الكباش
+            </p>
+
+            <button onclick="nextLevel()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black py-3.5 sm:py-4 rounded-2xl shadow-xl text-lg sm:text-2xl transition transform active:scale-95 border-b-4 border-green-800">
+                المرحلة التالية 🚀
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let sortMode = 'asc';
+        let currentLevel = 1;
+        let score = 0;
+        let originalNumbers = [];
+        let sortedNumbers = [];
+        let userSelection = [];
+        let countPerLevel = 4;
+        let isEvaluated = false;
+
+        function toHindiNumeral(num) {
+            const hindiDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return num.toString().replace(/\d/g, digit => hindiDigits[parseInt(digit)]);
+        }
+
+        const correctPhrases = [
+            "أحسنت يا بطل! إجابة صحيحة 🌟",
+            "إجابة رائعة وممتازة! ⭐",
+            "ممتاز جداً! ترتيب صحيح 🎉",
+            "يا لك من ذكي! بطل الأرقام 🧠✨",
+            "عمل ممتاز وتركيز عالي! 👍"
+        ];
+
+        const wrongPhrases = [
+            "الترتيب غير صحيح، جرب إعادة الترتيب! 🤔",
+            "ركز جيداً ودقق في المطلوب! 🧐",
+            "اضغط الأرقام لتعديل الترتيب 💪",
+            "حاول مرة أخرى، أنت قادر عليها! 🎈"
+        ];
+
+        const winPhrases = [
+            "أنت عبقري الرياضيات اليوم! 👑",
+            "ما شاء الله، ترتيب مثالي! 🌈",
+            "فخورون بك يا بطل المستقبل! 🚀",
+            "ذكاء خارق وتركيز ممتاز! 🥇"
+        ];
+
+        const cardColors = [
+            'bg-gradient-to-b from-red-400 to-red-600 border-red-700 text-white',
+            'bg-gradient-to-b from-blue-400 to-blue-600 border-blue-700 text-white',
+            'bg-gradient-to-b from-emerald-400 to-emerald-600 border-emerald-700 text-white',
+            'bg-gradient-to-b from-purple-400 to-purple-600 border-purple-700 text-white',
+            'bg-gradient-to-b from-pink-400 to-pink-600 border-pink-700 text-white',
+            'bg-gradient-to-b from-amber-400 to-amber-600 border-amber-700 text-white'
+        ];
+
+        const playSound = (type) => {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+
+                if (type === 'click') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.setValueAtTime(450, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.08);
+
+                } else if (type === 'correct') {
+                    const notes = [523.25, 659.25, 783.99, 1046.5];
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+                        gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.25);
+                        osc.start(ctx.currentTime + idx * 0.08);
+                        osc.stop(ctx.currentTime + idx * 0.08 + 0.25);
+                    });
+
+                } else if (type === 'wrong') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.setValueAtTime(240, ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(140, ctx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+
+                } else if (type === 'applause') {
+                    const fanfareNotes = [440, 554.37, 659.25, 880, 1046.5];
+                    fanfareNotes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.1);
+                        gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.1 + 0.35);
+                        osc.start(ctx.currentTime + idx * 0.1);
+                        osc.stop(ctx.currentTime + idx * 0.1 + 0.35);
+                    });
+
+                    const bufferSize = ctx.sampleRate * 1.2;
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+
+                    for (let i = 0; i < 25; i++) {
+                        const timeOffset = Math.random() * 1.0;
+                        const noise = ctx.createBufferSource();
+                        noise.buffer = buffer;
+                        const filter = ctx.createBiquadFilter();
+                        filter.type = 'bandpass';
+                        filter.frequency.value = 800 + Math.random() * 1000;
+                        const gain = ctx.createGain();
+                        gain.gain.setValueAtTime(0.08, ctx.currentTime + timeOffset);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + timeOffset + 0.09);
+
+                        noise.connect(filter);
+                        filter.connect(gain);
+                        gain.connect(ctx.destination);
+                        noise.start(ctx.currentTime + timeOffset);
+                        noise.stop(ctx.currentTime + timeOffset + 0.1);
+                    }
+                }
+            } catch (e) {}
+        };
+
+        function setMode(mode) {
+            if (sortMode === mode) return;
+            playSound('click');
+            sortMode = mode;
+
+            const ascBtn = document.getElementById('mode-asc-btn');
+            const descBtn = document.getElementById('mode-desc-btn');
+            const subtitle = document.getElementById('game-subtitle');
+
+            if (mode === 'asc') {
+                ascBtn.className = "flex-1 py-2 px-3 rounded-xl font-black text-xs sm:text-base transition duration-200 flex items-center justify-center gap-1 shadow-sm bg-indigo-600 text-white scale-105 border-2 border-indigo-700";
+                descBtn.className = "flex-1 py-2 px-3 rounded-xl font-black text-xs sm:text-base transition duration-200 flex items-center justify-center gap-1 shadow-sm bg-gray-100 text-gray-700 hover:bg-purple-100 border-2 border-gray-200";
+                subtitle.innerText = "الترتيب التصاعدي 📈";
+            } else {
+                descBtn.className = "flex-1 py-2 px-3 rounded-xl font-black text-xs sm:text-base transition duration-200 flex items-center justify-center gap-1 shadow-sm bg-purple-600 text-white scale-105 border-2 border-purple-700";
+                ascBtn.className = "flex-1 py-2 px-3 rounded-xl font-black text-xs sm:text-base transition duration-200 flex items-center justify-center gap-1 shadow-sm bg-gray-100 text-gray-700 hover:bg-purple-100 border-2 border-gray-200";
+                subtitle.innerText = "الترتيب التنازلي 📉";
+            }
+
+            updateInstructionBanner();
+            initGame();
+        }
+
+        function updateInstructionBanner() {
+            const firstLabel = document.getElementById('first-label');
+            const secondLabel = document.getElementById('second-label');
+            const startGuideTag = document.getElementById('start-guide-tag');
+            const endGuideTag = document.getElementById('end-guide-tag');
+            const guideGradient = document.getElementById('guide-gradient');
+
+            if (sortMode === 'asc') {
+                firstLabel.innerText = "الأصغر";
+                firstLabel.className = "text-red-500 underline decoration-wavy";
+                secondLabel.innerText = "الأكبر";
+                secondLabel.className = "text-green-600 underline decoration-wavy";
+
+                startGuideTag.innerText = "الأصغر ⬅️";
+                startGuideTag.className = "text-red-500 bg-red-100 px-3 py-1 rounded-full border border-red-300 shadow-sm shrink-0";
+                
+                endGuideTag.innerText = "➡️ الأكبر";
+                endGuideTag.className = "text-green-600 bg-green-100 px-3 py-1 rounded-full border border-green-300 shadow-sm shrink-0";
+
+                guideGradient.className = "w-20 sm:w-36 h-3 bg-gradient-to-r from-red-400 via-yellow-400 to-green-500 rounded-full shadow-inner";
+            } else {
+                firstLabel.innerText = "الأكبر";
+                firstLabel.className = "text-green-600 underline decoration-wavy";
+                secondLabel.innerText = "الأصغر";
+                secondLabel.className = "text-red-500 underline decoration-wavy";
+
+                startGuideTag.innerText = "الأكبر ⬅️";
+                startGuideTag.className = "text-green-600 bg-green-100 px-3 py-1 rounded-full border border-green-300 shadow-sm shrink-0";
+                
+                endGuideTag.innerText = "➡️ الأصغر";
+                endGuideTag.className = "text-red-500 bg-red-100 px-3 py-1 rounded-full border border-red-300 shadow-sm shrink-0";
+
+                guideGradient.className = "w-20 sm:w-36 h-3 bg-gradient-to-r from-green-500 via-yellow-400 to-red-400 rounded-full shadow-inner";
+            }
+        }
+
+        function initGame() {
+            isEvaluated = false;
+            generateNumbers();
+            renderSlots();
+            renderSourceCards();
+            updateCheckButtonState();
+            updateUI();
+            clearFeedback();
+        }
+
+        function generateNumbers() {
+            let maxNumber = 10;
+            countPerLevel = 4;
+
+            if (currentLevel > 3 && currentLevel <= 6) {
+                maxNumber = 20;
+                countPerLevel = 4;
+            } else if (currentLevel > 6) {
+                maxNumber = 20;
+                countPerLevel = 5;
+            }
+
+            let set = new Set();
+            while (set.size < countPerLevel) {
+                let num = Math.floor(Math.random() * maxNumber) + 1;
+                set.add(num);
+            }
+
+            originalNumbers = Array.from(set);
+
+            if (sortMode === 'asc') {
+                sortedNumbers = [...originalNumbers].sort((a, b) => a - b);
+            } else {
+                sortedNumbers = [...originalNumbers].sort((a, b) => b - a);
+            }
+
+            shuffleArray(originalNumbers);
+            userSelection = [];
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function renderSlots() {
+            const slotsContainer = document.getElementById('target-slots');
+            slotsContainer.innerHTML = '';
+
+            for (let i = 0; i < countPerLevel; i++) {
+                const isFilled = i < userSelection.length;
+                const val = isFilled ? toHindiNumeral(userSelection[i]) : '';
+
+                const slot = document.createElement('div');
+                slot.dataset.slotIndex = i;
+                
+                let borderStyle = 'border-dashed border-gray-300 bg-gray-50/80';
+                if (isFilled) {
+                    borderStyle = 'border-indigo-600 bg-indigo-50 font-black text-indigo-900 shadow-md pop-in cursor-pointer hover:bg-red-100 hover:border-red-500 hover:text-red-600';
+                }
+
+                slot.className = `target-slot w-16 h-20 sm:w-24 sm:h-28 rounded-2xl sm:rounded-3xl border-3 sm:border-4 ${borderStyle} text-3xl sm:text-5xl font-black flex items-center justify-center relative transition-all duration-200 transform hover:scale-105`;
+
+                if (isFilled) {
+                    slot.innerText = val;
+                    slot.onclick = () => unselectNumberAt(i);
+                } else {
+                    const label = document.createElement('span');
+                    label.className = 'text-xs sm:text-sm font-black text-indigo-400 pointer-events-none absolute bottom-1 sm:bottom-2';
+                    label.innerText = `موقع ${toHindiNumeral(i + 1)}`;
+                    slot.appendChild(label);
+                }
+
+                slotsContainer.appendChild(slot);
+            }
+
+            const clearBtn = document.getElementById('clear-btn');
+            if (userSelection.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+        }
+
+        function renderSourceCards() {
+            const sourceContainer = document.getElementById('source-numbers');
+            sourceContainer.innerHTML = '';
+
+            originalNumbers.forEach((num, index) => {
+                const isSelected = userSelection.includes(num);
+
+                if (!isSelected) {
+                    const card = document.createElement('div');
+                    const colorClass = cardColors[index % cardColors.length];
+                    
+                    card.className = `number-card w-16 h-20 sm:w-24 sm:h-28 ${colorClass} font-black text-3xl sm:text-5xl rounded-2xl sm:rounded-3xl border-b-6 sm:border-b-8 flex items-center justify-center cursor-pointer select-none active:scale-95 pop-in`;
+                    card.innerText = toHindiNumeral(num);
+                    card.dataset.number = num;
+
+                    card.onclick = () => selectNumber(num);
+                    setupTouchDrag(card, num);
+
+                    sourceContainer.appendChild(card);
+                }
+            });
+        }
+
+        function setupTouchDrag(card, num) {
+            let initialX = 0, initialY = 0;
+            let currentX = 0, currentY = 0;
+
+            card.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                initialX = touch.clientX;
+                initialY = touch.clientY;
+                card.classList.add('dragging');
+            }, { passive: true });
+
+            card.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                currentX = touch.clientX - initialX;
+                currentY = touch.clientY - initialY;
+                card.style.transform = `translate(${currentX}px, ${currentY}px) scale(1.2) rotate(5deg)`;
+            }, { passive: true });
+
+            card.addEventListener('touchend', (e) => {
+                card.classList.remove('dragging');
+                card.style.transform = '';
+
+                const touch = e.changedTouches[0];
+                const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                const slot = dropTarget ? dropTarget.closest('.target-slot') : null;
+
+                if (slot) {
+                    selectNumber(num);
+                }
+            });
+        }
+
+        function selectNumber(num) {
+            if (userSelection.length < countPerLevel && !userSelection.includes(num)) {
+                playSound('click');
+                userSelection.push(num);
+                isEvaluated = false;
+                clearFeedback();
+                renderSlots();
+                renderSourceCards();
+                updateCheckButtonState();
+            }
+        }
+
+        function unselectNumberAt(index) {
+            playSound('click');
+            userSelection.splice(index, 1);
+            isEvaluated = false;
+            clearFeedback();
+            renderSlots();
+            renderSourceCards();
+            updateCheckButtonState();
+        }
+
+        function clearSelection() {
+            playSound('click');
+            userSelection = [];
+            isEvaluated = false;
+            clearFeedback();
+            renderSlots();
+            renderSourceCards();
+            updateCheckButtonState();
+        }
+
+        function updateCheckButtonState() {
+            const checkBtn = document.getElementById('check-btn');
+            if (userSelection.length === countPerLevel) {
+                checkBtn.disabled = false;
+                checkBtn.className = "bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-600 hover:to-emerald-700 active:scale-95 text-white font-black py-3 px-8 sm:py-4 sm:px-12 rounded-2xl shadow-xl text-lg sm:text-2xl transition duration-300 pulse-btn cursor-pointer w-full max-w-sm border-b-4 border-green-800";
+            } else {
+                checkBtn.disabled = true;
+                checkBtn.className = "bg-gray-300 text-gray-500 font-black py-3 px-8 sm:py-4 sm:px-12 rounded-2xl shadow-md text-lg sm:text-2xl transition duration-300 cursor-not-allowed w-full max-w-sm";
+            }
+        }
+
+        function checkAnswer() {
+            if (userSelection.length !== countPerLevel) return;
+
+            isEvaluated = true;
+            let isCorrect = true;
+
+            for (let i = 0; i < countPerLevel; i++) {
+                if (userSelection[i] !== sortedNumbers[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            const slots = document.getElementById('target-slots');
+
+            if (isCorrect) {
+                playSound('correct');
+                const phrase = correctPhrases[Math.floor(Math.random() * correctPhrases.length)];
+                showFeedback(phrase, 'text-green-700 bg-green-100/90 border-2 border-green-300 shadow-md pop-in');
+                handleSuccess();
+            } else {
+                playSound('wrong');
+                const phrase = wrongPhrases[Math.floor(Math.random() * wrongPhrases.length)];
+                showFeedback(phrase, 'text-red-700 bg-red-100/90 border-2 border-red-300 shadow-md');
+
+                slots.classList.add('shake');
+                setTimeout(() => slots.classList.remove('shake'), 500);
+            }
+        }
+
+        function showFeedback(msg, colorClass) {
+            const feedbackEl = document.getElementById('feedback');
+            feedbackEl.innerText = msg;
+            feedbackEl.className = `min-h-[45px] sm:min-h-[55px] text-center font-black text-base sm:text-2xl md:text-3xl transition-all flex items-center justify-center px-3 rounded-2xl ${colorClass}`;
+        }
+
+        function clearFeedback() {
+            const feedbackEl = document.getElementById('feedback');
+            feedbackEl.innerText = '';
+        }
+
+        function handleSuccess() {
+            playSound('applause');
+            score += 10;
+            updateUI();
+
+            const winPhrase = winPhrases[Math.floor(Math.random() * winPhrases.length)];
+            document.getElementById('modal-phrase').innerText = winPhrase;
+
+            setTimeout(() => {
+                document.getElementById('modal-score').innerText = toHindiNumeral(score);
+                document.getElementById('success-modal').classList.remove('hidden');
+            }, 700);
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            document.getElementById('success-modal').classList.add('hidden');
+            initGame();
+        }
+
+        function startNewGame() {
+            initGame();
+        }
+
+        function updateUI() {
+            document.getElementById('score').innerText = toHindiNumeral(score);
+            document.getElementById('level').innerText = toHindiNumeral(currentLevel);
+        }
+
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
