@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الطاقة الشمسية - تكنولوجيا الصف التاسع</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-fast {
+            animation: spin 0.2s linear infinite;
+        }
+        .animate-spin-medium {
+            animation: spin 0.8s linear infinite;
+        }
+        .animate-spin-slow {
+            animation: spin 2s linear infinite;
+        }
+        @keyframes flow {
+            0% { stroke-dashoffset: 20; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .wire-flow {
+            stroke-dasharray: 6, 6;
+            animation: flow 0.8s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 py-3 px-4 md:px-6 shadow-md flex flex-wrap justify-between items-center gap-3">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <span class="text-2xl md:text-3xl">☀️</span>
+            <div>
+                <h1 class="text-base md:text-xl font-bold text-amber-400">مختبر الطاقة الشمسية التفاعلي</h1>
+                <p class="text-xs text-slate-400">منهاج التكنولوجيا - الصف التاسع الأساسي</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs md:text-sm">
+                النقاط: <span id="score" class="font-bold text-emerald-400">0</span>
+            </div>
+            <button onclick="openQuiz()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs md:text-sm transition shadow">
+                اختبر معلوماتك 📝
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-3 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 max-w-7xl mx-auto w-full">
+
+        <!-- Left Column: Controls & Lab Setup -->
+        <div class="lg:col-span-2 flex flex-col gap-4 md:gap-6">
+            
+            <!-- Simulation Canvas Area -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden flex flex-col items-center justify-center min-h-[380px] md:min-h-[420px]">
+                <div class="absolute top-3 right-3 bg-slate-900/80 px-3 py-1 rounded-full text-xs text-amber-300 border border-amber-500/30 z-20">
+                    لوحة التحكّم المرئية
+                </div>
+
+                <!-- SVG Graphics Simulation with Correct Realistic Wiring -->
+                <div class="w-full max-w-xl h-64 md:h-72 relative flex items-center justify-between px-4 md:px-10 mt-4">
+                    
+                    <!-- Sun Object -->
+                    <div id="sun-container" class="absolute transition-all duration-500 flex flex-col items-center z-20" style="top: 10px; left: 50%; transform: translateX(-50%);">
+                        <div class="text-4xl md:text-5xl animate-pulse">☀️</div>
+                        <span class="text-[10px] md:text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded mt-1">الشمس</span>
+                    </div>
+
+                    <!-- Solar Panel (Larger Size) with Shade overlay -->
+                    <div class="flex flex-col items-center z-10 relative">
+                        <div id="panel-box" class="w-36 md:w-44 h-26 md:h-32 bg-blue-900 border-4 border-blue-500 rounded-xl shadow-2xl flex flex-col justify-between p-3 relative overflow-hidden transition-transform duration-300">
+                            <!-- Cell Grid Pattern -->
+                            <div class="grid grid-cols-3 gap-1.5 h-full">
+                                <div class="bg-blue-700 rounded-sm"></div>
+                                <div class="bg-blue-700 rounded-sm"></div>
+                                <div class="bg-blue-700 rounded-sm"></div>
+                                <div class="bg-blue-700 rounded-sm"></div>
+                                <div class="bg-blue-700 rounded-sm"></div>
+                                <div class="bg-blue-700 rounded-sm"></div>
+                            </div>
+                            <!-- Terminal Connectors (On the right edge facing the motor) -->
+                            <div class="absolute -right-2 top-8 w-4 h-4 bg-red-600 rounded-full border-2 border-white shadow-md flex items-center justify-center text-[8px] text-white font-bold">+</div>
+                            <div class="absolute -right-2 bottom-8 w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-md flex items-center justify-center text-[8px] text-white font-bold">-</div>
+
+                            <!-- Shade Layer -->
+                            <div id="shade-overlay" class="absolute inset-0 bg-slate-900/85 transition-all duration-300 flex items-center justify-center text-xs text-amber-200 font-bold hidden">
+                                مظلل
+                            </div>
+                        </div>
+                        <span class="text-xs md:text-sm text-slate-200 mt-2 font-bold">الخلية الشمسية</span>
+                    </div>
+
+                    <!-- Connecting Wires (Corrected direct straight/bridged connection from Panel terminals to Motor terminals) -->
+                    <svg class="absolute inset-0 w-full h-full pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Red Wire (+) from Panel (+) to Motor (+) -->
+                        <path id="wire-red" d="M 335 152 L 415 152" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+                        <path id="wire-red-flow" d="M 335 152 L 415 152" fill="none" stroke="#fca5a5" stroke-width="2.5" class="wire-flow hidden" />
+                        
+                        <!-- Blue Wire (-) from Panel (-) to Motor (-) -->
+                        <path id="wire-blue" d="M 335 212 L 415 212" fill="none" stroke="#2563eb" stroke-width="5" stroke-linecap="round" />
+                        <path id="wire-blue-flow" d="M 335 212 L 415 212" fill="none" stroke="#93c5fd" stroke-width="2.5" class="wire-flow hidden" />
+                    </svg>
+
+                    <!-- Electric Motor & Fan -->
+                    <div class="flex flex-col items-center z-10">
+                        <div class="w-20 h-20 md:w-24 md:h-24 bg-slate-700 border-4 border-slate-500 rounded-full flex items-center justify-center shadow-xl relative">
+                            <!-- Motor Terminals (On the left edge facing the panel) -->
+                            <div class="absolute -left-2 top-8 w-4 h-4 bg-red-600 rounded-full border-2 border-white shadow-md"></div>
+                            <div class="absolute -left-2 bottom-8 w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-md"></div>
+
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-900 rounded-full flex items-center justify-center text-xs md:text-sm font-bold text-slate-300">M</div>
+                            <div id="fan" class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-24 md:w-28 h-4 bg-emerald-400/90 rounded-full absolute shadow-md"></div>
+                                <div class="w-4 h-24 md:h-28 bg-emerald-400/90 rounded-full absolute shadow-md"></div>
+                                <div class="w-6 h-6 bg-slate-900 rounded-full z-10"></div>
+                            </div>
+                        </div>
+                        <span class="text-xs md:text-sm text-slate-200 mt-2 font-bold">المحرك الكهربائي</span>
+                    </div>
+                </div>
+
+                <!-- Status Banner inside canvas -->
+                <div id="status-message" class="mt-4 text-center text-xs md:text-sm bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-700 w-full font-medium">
+                    قم بتعديل زاوية الشمس أو حالة التظليل لمشاهدة تأثيرها على التيار وسرعة المحرك.
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                
+                <!-- Angle Slider -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs md:text-sm">
+                        <label class="font-medium text-slate-200">زاوية سقوط أشعة الشمس:</label>
+                        <span id="angle-val" class="bg-blue-600 px-2 py-0.5 rounded font-bold text-white">90° (عمودية تماماً)</span>
+                    </div>
+                    <input type="range" id="angle-slider" min="0" max="90" value="90" step="5" 
+                           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                           oninput="updateSimulation()">
+                    <div class="flex justify-between text-[10px] md:text-xs text-slate-400">
+                        <span>0° (مائلة جداً)</span>
+                        <span>45° (متوسطة)</span>
+                        <span>90° (عمودية مثالية)</span>
+                    </div>
+                </div>
+
+                <!-- Shading Mode Selection -->
+                <div class="space-y-2">
+                    <label class="text-xs md:text-sm font-medium text-slate-200 block">حالة تظليل الخلية الشمسية:</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setShadeMode('none')" id="btn-none" class="bg-emerald-600 text-white py-1.5 px-2 rounded-lg text-xs font-bold transition border border-emerald-500">غير مغطاة</button>
+                        <button onclick="setShadeMode('partial')" id="btn-partial" class="bg-slate-700 text-slate-300 py-1.5 px-2 rounded-lg text-xs transition border border-slate-600">جزء مغطى</button>
+                        <button onclick="setShadeMode('full')" id="btn-full" class="bg-slate-700 text-slate-300 py-1.5 px-2 rounded-lg text-xs transition border border-slate-600">كلية المغطاة</button>
+                    </div>
+                    <input type="hidden" id="shade-mode" value="none">
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Right Column: Measurements & Educational Info -->
+        <div class="flex flex-col gap-4 md:gap-6">
+            
+            <!-- Measurements Card -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-3 md:space-y-4">
+                <h2 class="text-base md:text-lg font-bold text-amber-400 border-b border-slate-700 pb-2 flex items-center justify-between">
+                    <span>قراءات أجهزة القياس</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">مباشر</span>
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3">
+                    <!-- Voltage -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">الجهد ($V$):</span>
+                        <span id="volt-display" class="text-sm md:text-lg font-mono font-bold text-cyan-400">12.0 V</span>
+                    </div>
+                    <!-- Current -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">التيار ($I$):</span>
+                        <span id="curr-display" class="text-sm md:text-lg font-mono font-bold text-amber-400">1.50 A</span>
+                    </div>
+                    <!-- Power -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">القدرة ($P$):</span>
+                        <span id="power-display" class="text-sm md:text-lg font-mono font-bold text-emerald-400">18.0 W</span>
+                    </div>
+                    <!-- Motor Speed -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">سرعة المحرك:</span>
+                        <span id="speed-display" class="text-xs md:text-sm font-bold text-purple-400">سريعة جداً 🚀</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Educational Concept Box (الصف التاسع) -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl flex-1 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm md:text-md font-bold text-amber-400 mb-2">💡 مفاهيم تكنولوجية مستفادة:</h3>
+                    <ul class="text-[11px] md:text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
+                        <li><strong>توصيل الأسلاك:</strong> تنتقل الطاقة الكهربائية المولدة من الخلية عبر أسلاك التوصيل إلى المحرك مباشرة لتشغيله.</li>
+                        <li><strong>الزاوية والتظليل:</strong> أي تغيير في زاوية سقوط أشعة الشمس أو حدوث تظليل يؤثر بشكل مباشر على قيمة التيار المتدفق وسرعة دوران المحرك.</li>
+                    </ul>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-700 text-center">
+                    <button onclick="resetSimulation()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">
+                        إعادة ضبط التجربة 🔄
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer Signature -->
+    <footer class="bg-slate-800 border-t border-slate-700 py-3 text-center text-xs text-slate-400">
+        تصميم الاستاذ فادي ابو الكباش © 2026
+    </footer>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <h2 class="text-lg md:text-xl font-bold text-amber-400 mb-4 flex justify-between items-center">
+                <span>اختبار معلومات التكنولوجيا</span>
+                <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </h2>
+            
+            <div class="space-y-4">
+                <p class="text-xs md:text-sm font-medium text-slate-200">ما دور أسلاك التوصيل الواصلة بين الخلية الشمسية والمحرك الكهربائي؟</p>
+                
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="checkAnswer(0)" class="w-full text-right bg-slate-900 hover:bg-slate-700 p-2.5 md:p-3 rounded-xl text-xs md:text-sm border border-slate-700 transition">أ) تثبيت الخلية فقط دون نقل طاقة.</button>
+                    <button onclick="checkAnswer(1)" class="w-full text-right bg-slate-900 hover:bg-slate-700 p-2.5 md:p-3 rounded-xl text-xs md:text-sm border border-slate-700 transition">ب) نقل التيار الكهربائي الناتج عن امتصاص الفوتونات إلى المحرك لتشغيله.</button>
+                    <button onclick="checkAnswer(2)" class="w-full text-right bg-slate-900 hover:bg-slate-700 p-2.5 md:p-3 rounded-xl text-xs md:text-sm border border-slate-700 transition">ج) حجب أشعة الشمس الزائدة.</button>
+                </div>
+                
+                <div id="quiz-feedback" class="text-xs p-3 rounded-lg hidden"></div>
+            </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeQuiz()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2 rounded-lg text-xs font-bold">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let score = 0;
+
+        function setShadeMode(mode) {
+            document.getElementById('shade-mode').value = mode;
+            
+            ['none', 'partial', 'full'].forEach(m => {
+                const btn = document.getElementById(`btn-${m}`);
+                btn.className = "bg-slate-700 text-slate-300 py-1.5 px-2 rounded-lg text-xs transition border border-slate-600";
+            });
+
+            const activeBtn = document.getElementById(`btn-${mode}`);
+            if (mode === 'none') activeBtn.className = "bg-emerald-600 text-white py-1.5 px-2 rounded-lg text-xs font-bold transition border border-emerald-500";
+            else if (mode === 'partial') activeBtn.className = "bg-amber-600 text-white py-1.5 px-2 rounded-lg text-xs font-bold transition border border-amber-500";
+            else if (mode === 'full') activeBtn.className = "bg-rose-600 text-white py-1.5 px-2 rounded-lg text-xs font-bold transition border border-rose-500";
+
+            const overlay = document.getElementById('shade-overlay');
+            if (mode === 'none') {
+                overlay.classList.add('hidden');
+                overlay.style.width = '100%';
+            } else if (mode === 'partial') {
+                overlay.classList.remove('hidden');
+                overlay.style.width = '50%';
+                overlay.innerText = 'جزء مغطى';
+            } else if (mode === 'full') {
+                overlay.classList.remove('hidden');
+                overlay.style.width = '100%';
+                overlay.innerText = 'مغطاة كلياً';
+            }
+
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const angle = parseInt(document.getElementById('angle-slider').value);
+            const shadeMode = document.getElementById('shade-mode').value;
+
+            let angleDesc = `${angle}° `;
+            if (angle === 90) angleDesc += "(عمودية تماماً)";
+            else if (angle >= 60) angleDesc += "(شبه عمودية)";
+            else if (angle >= 30) angleDesc += "(مائلة متوسطة)";
+            else angleDesc += "(مائلة جداً)";
+            
+            document.getElementById('angle-val').innerText = angleDesc;
+
+            const sunContainer = document.getElementById('sun-container');
+            const leftOffset = 50 - (90 - angle) * 0.45;
+            const topOffset = 10 + (90 - angle) * 0.25;
+            sunContainer.style.left = `${leftOffset}%`;
+            sunContainer.style.top = `${topOffset}px`;
+
+            const angleRad = (angle * Math.PI) / 180;
+            let shadeFactor = 1.0;
+            if (shadeMode === 'partial') shadeFactor = 0.5;
+            if (shadeMode === 'full') shadeFactor = 0.0;
+
+            const efficiencyFactor = Math.sin(angleRad) * shadeFactor;
+
+            const voltage = (12.0 * efficiencyFactor).toFixed(2);
+            const current = (1.50 * efficiencyFactor).toFixed(2);
+            const power = (voltage * current).toFixed(2);
+
+            document.getElementById('volt-display').innerText = `${voltage} V`;
+            document.getElementById('curr-display').innerText = `${current} A`;
+            document.getElementById('power-display').innerText = `${power} W`;
+
+            const fan = document.getElementById('fan');
+            const speedDisplay = document.getElementById('speed-display');
+            const statusMsg = document.getElementById('status-message');
+            const wireRedFlow = document.getElementById('wire-red-flow');
+            const wireBlueFlow = document.getElementById('wire-blue-flow');
+
+            fan.className = "absolute inset-0 flex items-center justify-center";
+            
+            if (efficiencyFactor > 0.8) {
+                fan.classList.add('animate-spin-fast');
+                speedDisplay.innerText = "سريعة جداً 🚀";
+                statusMsg.innerHTML = "✨ أداء ممتاز! الخلية تولد أقصى تيار وينتقل عبر الأسلاك الواضحة للمحرك مباشرة.";
+                wireRedFlow.classList.remove('hidden');
+                wireBlueFlow.classList.remove('hidden');
+            } else if (efficiencyFactor > 0.3) {
+                fan.classList.add('animate-spin-medium');
+                speedDisplay.innerText = "متوسطة ⚡";
+                statusMsg.innerHTML = "🌤️ أداء متوسط؛ التيار المنتقل عبر الأسلاك أقل بسبب زاوية الميل أو التظليل الجزئي.";
+                wireRedFlow.classList.remove('hidden');
+                wireBlueFlow.classList.remove('hidden');
+            } else if (efficiencyFactor > 0.01) {
+                fan.classList.add('animate-spin-slow');
+                speedDisplay.innerText = "بطيئة 🐢";
+                statusMsg.innerHTML = "⚠️ تيار ضعيف جداً يمر في الأسلاك بسبب حجب الضوء أو ميلان زاوية الشمس.";
+                wireRedFlow.classList.remove('hidden');
+                wireBlueFlow.classList.remove('hidden');
+            } else {
+                speedDisplay.innerText = "متوقف 🛑";
+                statusMsg.innerHTML = "❌ لا يوجد تيار كهربائي يمر عبر الأسلاك (الخلية مغطاة كلياً أو الزاوية صفر).";
+                wireRedFlow.classList.add('hidden');
+                wireBlueFlow.classList.add('hidden');
+            }
+        }
+
+        function resetSimulation() {
+            document.getElementById('angle-slider').value = 90;
+            setShadeMode('none');
+        }
+
+        function openQuiz() {
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            document.getElementById('quiz-modal').classList.add('flex');
+        }
+
+        function closeQuiz() {
+            document.getElementById('quiz-modal').classList.remove('flex');
+            document.getElementById('quiz-modal').classList.add('hidden');
+        }
+
+        function checkAnswer(optionIndex) {
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.classList.remove('hidden');
+            
+            if (optionIndex === 1) {
+                feedback.className = "text-xs p-3 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/30";
+                feedback.innerHTML = "إجابة صحيحة! أحسنت. الأسلاك تربط الخلية بالمحرك لتنقل التيار الكهربائي الناتج.";
+                score += 10;
+                document.getElementById('score').innerText = score;
+            } else {
+                feedback.className = "text-xs p-3 rounded-lg bg-rose-950 text-rose-300 border border-rose-500/30";
+                feedback.innerHTML = "إجابة خاطئة. تذكر أن أسلاك التوصيل هي حلقة الوصل لنقل الطاقة الكهربائية للمحرك.";
+            }
+        }
+
+        window.onload = function() {
+            updateSimulation();
+        }
+    </script>
+</body>
+</html>
