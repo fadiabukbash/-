@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة التوربين المائي - تكنولوجيا الصف التاسع</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-fast {
+            animation: spin 0.12s linear infinite;
+        }
+        .animate-spin-medium {
+            animation: spin 0.4s linear infinite;
+        }
+        .animate-spin-slow {
+            animation: spin 1.2s linear infinite;
+        }
+        @keyframes waterfall {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 40px; }
+        }
+        .waterfall-flow {
+            background: linear-gradient(180deg, rgba(6,182,212,0.8) 0%, rgba(59,130,246,0.9) 100%);
+            background-size: 100% 20px;
+            animation: waterfall 0.4s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 py-3 px-4 md:px-6 shadow-md flex flex-wrap justify-between items-center gap-3">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <span class="text-2xl md:text-3xl">🌊</span>
+            <div>
+                <h1 class="text-base md:text-xl font-bold text-cyan-400">مختبر شلال التوربين المائي</h1>
+                <p class="text-xs text-slate-400">منهاج التكنولوجيا - الصف التاسع الأساسي</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <div class="bg-slate-700 px-3 py-1.5 rounded-lg text-xs md:text-sm">
+                النقاط: <span id="score" class="font-bold text-emerald-400">0</span>
+            </div>
+            <button onclick="openQuiz()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs md:text-sm transition shadow">
+                اختبر معلوماتك 📝
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-3 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 max-w-7xl mx-auto w-full">
+
+        <!-- Left Column: Controls & Lab Setup -->
+        <div class="lg:col-span-2 flex flex-col gap-4 md:gap-6">
+            
+            <!-- Simulation Canvas Area -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl relative overflow-hidden flex flex-col items-center justify-center min-h-[400px] md:min-h-[440px]">
+                <div class="absolute top-3 right-3 bg-slate-900/80 px-3 py-1 rounded-full text-xs text-cyan-300 border border-cyan-500/30 z-20">
+                    محاكاة الشلال والتوربين والمصباح
+                </div>
+
+                <!-- Simulation Visual Layout -->
+                <div class="w-full max-w-xl h-72 md:h-80 relative flex flex-col items-center justify-center mt-4">
+                    
+                    <!-- Waterfall Source / Dam Pipe -->
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
+                        <div class="bg-slate-700 border-2 border-cyan-400 px-4 py-1 rounded-t-xl text-[11px] text-cyan-200 font-bold shadow">
+                            صمام شلال الماء الساقط 🚰
+                        </div>
+                        <!-- Actual Falling Water Stream directly over the turbine -->
+                        <div id="waterfall-stream" class="w-12 h-32 waterfall-flow shadow-[0_0_15px_rgba(6,182,212,0.6)] transition-all duration-300"></div>
+                    </div>
+
+                    <!-- Lower Assembly: Turbine connected to Lamp via Wires -->
+                    <div class="w-full flex items-center justify-between px-6 absolute bottom-6 z-10">
+                        
+                        <!-- Water Turbine & Generator -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-24 md:w-28 md:h-28 bg-slate-700 border-4 border-cyan-500 rounded-full flex items-center justify-center shadow-2xl relative">
+                                <!-- Turbine Hub -->
+                                <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-xs font-bold text-cyan-300 z-20">T</div>
+                                <!-- Spinning Blades -->
+                                <div id="turbine-fan" class="absolute inset-0 flex items-center justify-center z-10">
+                                    <div class="w-28 md:w-32 h-4 bg-cyan-300 rounded-full absolute shadow-lg"></div>
+                                    <div class="w-4 h-28 md:h-32 bg-cyan-300 rounded-full absolute shadow-lg"></div>
+                                    <div class="w-8 h-8 bg-slate-900 rounded-full z-30"></div>
+                                </div>
+                            </div>
+                            <span class="text-xs md:text-sm text-slate-200 mt-2 font-bold">التوربين المائي والمولد</span>
+                        </div>
+
+                        <!-- Connecting Power Wires -->
+                        <div class="flex-1 px-4 relative flex items-center justify-center">
+                            <svg class="absolute w-full h-12 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M 0 15 Q 100 -5 200 15" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" />
+                                <path d="M 0 35 Q 100 15 200 35" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" />
+                            </svg>
+                            <span class="text-[10px] text-slate-400 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-700 z-20">أسلاك التوصيل</span>
+                        </div>
+
+                        <!-- Electric Lamp -->
+                        <div class="flex flex-col items-center">
+                            <div id="lamp-box" class="w-20 h-20 md:w-24 md:h-24 bg-slate-800 border-4 border-slate-600 rounded-2xl flex items-center justify-center shadow-2xl relative transition-all duration-300">
+                                <span id="lamp-icon" class="text-4xl md:text-5xl opacity-25">💡</span>
+                            </div>
+                            <span class="text-xs md:text-sm text-slate-200 mt-2 font-bold">المصباح الكهربائي</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Status Banner inside canvas -->
+                <div id="status-message" class="mt-4 text-center text-xs md:text-sm bg-slate-900/80 px-4 py-2.5 rounded-xl border border-slate-700 w-full font-medium">
+                    قم بتغيير كمية وسرعة تساقط المياه عبر الشلال لمشاهدة تأثيرها الفوري على التوربين والمصباح.
+                </div>
+            </div>
+
+            <!-- Controls Panel -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-4">
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center text-xs md:text-sm">
+                        <label class="font-medium text-slate-200">تحكم بكمية وسقوط الماء من الشلال:</label>
+                        <span id="flow-val" class="bg-cyan-600 px-2 py-0.5 rounded font-bold text-white">تدفق قوي جداً (100%)</span>
+                    </div>
+                    <input type="range" id="flow-slider" min="0" max="100" value="100" step="10" 
+                           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                           oninput="updateSimulation()">
+                    <div class="flex justify-between text-[10px] md:text-xs text-slate-400">
+                        <span>0% (مغلق تماماً)</span>
+                        <span>50% (تدفق متوسط)</span>
+                        <span>100% (شلال قوي جداً)</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Measurements & Educational Info -->
+        <div class="flex flex-col gap-4 md:gap-6">
+            
+            <!-- Measurements Card -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl space-y-3 md:space-y-4">
+                <h2 class="text-base md:text-lg font-bold text-cyan-400 border-b border-slate-700 pb-2 flex items-center justify-between">
+                    <span>قراءات أجهزة القياس</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded">مباشر</span>
+                </h2>
+
+                <div class="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3">
+                    <!-- Voltage -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">الجهد ($V$):</span>
+                        <span id="volt-display" class="text-sm md:text-lg font-mono font-bold text-cyan-400">12.0 V</span>
+                    </div>
+                    <!-- Current -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">التيار ($I$):</span>
+                        <span id="curr-display" class="text-sm md:text-lg font-mono font-bold text-amber-400">1.20 A</span>
+                    </div>
+                    <!-- Power -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">القدرة ($P$):</span>
+                        <span id="power-display" class="text-sm md:text-lg font-mono font-bold text-emerald-400">14.4 W</span>
+                    </div>
+                    <!-- Turbine Speed -->
+                    <div class="bg-slate-900 p-2.5 md:p-3 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <span class="text-xs md:text-sm text-slate-300">سرعة التوربين:</span>
+                        <span id="speed-display" class="text-xs md:text-sm font-bold text-purple-400">سريعة جداً 🚀</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Educational Concept Box (الصف التاسع) -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-6 shadow-xl flex-1 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm md:text-md font-bold text-cyan-400 mb-2">💡 مفاهيم تكنولوجية مستفادة:</h3>
+                    <ul class="text-[11px] md:text-xs text-slate-300 space-y-2 list-disc list-inside leading-relaxed">
+                        <li><strong>شلال المياه:</strong> يوضح سقوط الماء فوق الشلال تحول الطاقة الكامنة إلى طاقة حركية تدير التوربين.</li>
+                        <li><strong>العلاقة الطردية:</strong> بزيادة كمية المياه الساقطة، ترتفع سرعة دوران التوربين، فيرتفع الجهد والتيار وتشتعل إضاءة المصباح بقوة.</li>
+                    </ul>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-700 text-center">
+                    <button onclick="resetSimulation()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">
+                        إعادة ضبط التجربة 🔄
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer Signature -->
+    <footer class="bg-slate-800 border-t border-slate-700 py-3 text-center text-xs text-slate-400">
+        تصميم الاستاذ فادي ابو الكباش © 2026
+    </footer>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <h2 class="text-lg md:text-xl font-bold text-cyan-400 mb-4 flex justify-between items-center">
+                <span>اختبار معلومات التكنولوجيا</span>
+                <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg">✕</button>
+            </h2>
+            
+            <div class="space-y-4">
+                <p class="text-xs md:text-sm font-medium text-slate-200">ماذا يلاحظ الطالب عند زيادة كمية الماء الساقط من الشلال فوق التوربين المائي؟</p>
+                
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="checkAnswer(0)" class="w-full text-right bg-slate-900 hover:bg-slate-700 p-2.5 md:p-3 rounded-xl text-xs md:text-sm border border-slate-700 transition">أ) ينطفئ المصباح تماماً.</button>
+                    <button onclick="checkAnswer(1)" class="w-full text-right bg-slate-900 hover:bg-slate-700 p-2.5 md:p-3 rounded-xl text-xs md:text-sm border border-slate-700 transition">ب) ترتفع سرعة التوربين ويزداد الجهد والتيار وتشتعل إضاءة المصباح بقوة.</button>
+                    <button onclick="checkAnswer(2)" class="w-full text-right bg-slate-900 hover:bg-slate-700 p-2.5 md:p-3 rounded-xl text-xs md:text-sm border border-slate-700 transition">ج) لا توجد أي تأثيرات على القياسات.</button>
+                </div>
+                
+                <div id="quiz-feedback" class="text-xs p-3 rounded-lg hidden"></div>
+            </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeQuiz()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-950 px-4 py-2 rounded-lg text-xs font-bold">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let score = 0;
+
+        function updateSimulation() {
+            const flow = parseInt(document.getElementById('flow-slider').value);
+
+            let flowDesc = `${flow}% `;
+            if (flow >= 80) flowDesc += "(شلال قوي جداً 🌊)";
+            else if (flow >= 40) flowDesc += "(تدفق متوسط 💧)";
+            else if (flow > 0) flowDesc += "(تدفق ضعيف 💦)";
+            else flowDesc += "(مغلق تماماً ⏹️)";
+            
+            document.getElementById('flow-val').innerText = flowDesc;
+
+            const factor = flow / 100;
+            const voltage = (12.0 * factor).toFixed(2);
+            const current = (1.20 * factor).toFixed(2);
+            const power = (voltage * current).toFixed(2);
+
+            document.getElementById('volt-display').innerText = `${voltage} V`;
+            document.getElementById('curr-display').innerText = `${current} A`;
+            document.getElementById('power-display').innerText = `${power} W`;
+
+            const turbineFan = document.getElementById('turbine-fan');
+            const speedDisplay = document.getElementById('speed-display');
+            const statusMsg = document.getElementById('status-message');
+            const lampIcon = document.getElementById('lamp-icon');
+            const lampBox = document.getElementById('lamp-box');
+            const waterfallStream = document.getElementById('waterfall-stream');
+
+            turbineFan.className = "absolute inset-0 flex items-center justify-center z-10";
+            waterfallStream.style.height = `${Math.max(20, factor * 128)}px`;
+            waterfallStream.style.opacity = Math.max(0.2, factor);
+
+            if (factor > 0.7) {
+                turbineFan.classList.add('animate-spin-fast');
+                speedDisplay.innerText = "سريعة جداً 🚀";
+                statusMsg.innerHTML = "✨ شلال مائي قوي جداً يسكب الماء فوق التوربين! يدور بأقصى سرعة مولداً أعلى جهد لإضاءة المصباح بكامل طاقته.";
+                lampIcon.style.opacity = "1";
+                lampBox.className = "w-20 h-20 md:w-24 md:h-24 bg-amber-500 border-4 border-amber-300 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.9)] relative transition-all duration-300";
+            } else if (factor > 0.3) {
+                turbineFan.classList.add('animate-spin-medium');
+                speedDisplay.innerText = "متوسطة ⚡";
+                statusMsg.innerHTML = "💧 تدفق مائي متوسط من الشلال؛ سرعة التوربين مقبولة وإضاءة المصباح متوسطة.";
+                lampIcon.style.opacity = "0.7";
+                lampBox.className = "w-20 h-20 md:w-24 md:h-24 bg-amber-600/70 border-4 border-amber-400/60 rounded-2xl flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.5)] relative transition-all duration-300";
+            } else if (factor > 0.05) {
+                turbineFan.classList.add('animate-spin-slow');
+                speedDisplay.innerText = "بطيئة 🐢";
+                statusMsg.innerHTML = "⚠️ تدفق مائي ضعيف ساقط على التوربين؛ الطاقة المتولدة قليلة والمصباح يضيء بضعف.";
+                lampIcon.style.opacity = "0.4";
+                lampBox.className = "w-20 h-20 md:w-24 md:h-24 bg-slate-800 border-4 border-slate-600 rounded-2xl flex items-center justify-center shadow-none relative transition-all duration-300";
+            } else {
+                speedDisplay.innerText = "متوقف 🛑";
+                statusMsg.innerHTML = "❌ الشلال مغلق تماماً ولا يوجد ماء ساقط؛ التوربين متوقف والمصباح مطفأ.";
+                lampIcon.style.opacity = "0.2";
+                lampBox.className = "w-20 h-20 md:w-24 md:h-24 bg-slate-800 border-4 border-slate-600 rounded-2xl flex items-center justify-center shadow-none relative transition-all duration-300";
+            }
+        }
+
+        function resetSimulation() {
+            document.getElementById('flow-slider').value = 100;
+            updateSimulation();
+        }
+
+        function openQuiz() {
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            document.getElementById('quiz-modal').classList.add('flex');
+        }
+
+        function closeQuiz() {
+            document.getElementById('quiz-modal').classList.remove('flex');
+            document.getElementById('quiz-modal').classList.add('hidden');
+        }
+
+        function checkAnswer(optionIndex) {
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.classList.remove('hidden');
+            
+            if (optionIndex === 1) {
+                feedback.className = "text-xs p-3 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/30";
+                feedback.innerHTML = "إجابة صحيحة! أحسنت. تدفق الماء الساقط من الشلال يحرك التوربين بقوة لترتفع القياسات وتشتعل اللمبة.";
+                score += 10;
+                document.getElementById('score').innerText = score;
+            } else {
+                feedback.className = "text-xs p-3 rounded-lg bg-rose-950 text-rose-300 border border-rose-500/30";
+                feedback.innerHTML = "إجابة خاطئة. تذكر أن زيادة تدفق شلال المياه تزيد طاقة التوربين الكهربائية.";
+            }
+        }
+
+        window.onload = function() {
+            updateSimulation();
+        }
+    </script>
+</body>
+</html>
