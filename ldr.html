@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محاكاة دارة غياب الضوء - التكنولوجيا للصف الثامن</title>
+    <!-- خط القاهرة من Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            margin: 0;
+            padding: clamp(8px, 2vw, 20px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .game-card {
+            background: #1e293b;
+            border-radius: clamp(18px, 3vw, 30px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.25);
+            width: 100%;
+            max-width: 1050px;
+            padding: clamp(12px, 2vw, 22px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(10px, 1.8vw, 18px);
+            border: 2px solid #38bdf8;
+            position: relative;
+        }
+
+        /* رأس الصفحة */
+        .header-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: clamp(8px, 1.8vw, 14px) clamp(12px, 2.5vw, 22px);
+            border-radius: clamp(12px, 2vw, 20px);
+            border: 2px solid #334155;
+            gap: 10px;
+        }
+
+        .title-box {
+            font-size: clamp(0.95rem, 3vw, 1.35rem);
+            font-weight: 900;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-box {
+            font-size: clamp(0.8rem, 2.2vw, 1.05rem);
+            font-weight: 800;
+            color: #facc15;
+            background: #1e293b;
+            padding: 5px 14px;
+            border-radius: 12px;
+            border: 1px solid #eab308;
+            white-space: nowrap;
+        }
+
+        /* المساحة الرئيسية للمحاكاة */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .top-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 100%;
+        }
+
+        /* لوحة المخطط الإلكتروني */
+        .board-container {
+            background: #0f172a;
+            border: 2px dashed #475569;
+            border-radius: 20px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: 100%;
+        }
+
+        .board-title {
+            font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        /* المخطط الإلكتروني المنهاجي المباشر */
+        .schematic-svg-container {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 5 / 3.8;
+            max-height: 380px;
+            background: #090d16;
+            border-radius: 15px;
+            border: 2px solid #334155;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* خطوط التوصيل وحركات التيار */
+        .wire {
+            stroke: #475569;
+            stroke-width: 2.5;
+            fill: none;
+            transition: all 0.3s;
+        }
+
+        .wire.active {
+            stroke: #334155;
+            stroke-width: 3;
+        }
+
+        /* حركات مسار الجهد والتيار المباشرة عبر SVG */
+        .current-path {
+            fill: none;
+            stroke-dasharray: 8 8;
+            stroke-linecap: round;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .current-path.flow-active {
+            opacity: 1;
+            animation: currentFlow 0.8s linear infinite;
+        }
+
+        .current-path.day-flow {
+            stroke: #38bdf8;
+            stroke-width: 3.5;
+            filter: drop-shadow(0 0 5px #38bdf8);
+        }
+
+        .current-path.night-flow {
+            stroke: #facc15;
+            stroke-width: 3.5;
+            filter: drop-shadow(0 0 6px #facc15);
+        }
+
+        .current-path.led-flow {
+            stroke: #22c55e;
+            stroke-width: 4;
+            filter: drop-shadow(0 0 6px #22c55e);
+        }
+
+        @keyframes currentFlow {
+            from { stroke-dashoffset: 32; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* نقاط التوصيل والمكونات الشفافة قبل التركيب */
+        .symbol-group {
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.18;
+        }
+
+        .symbol-group.placed {
+            opacity: 1;
+            filter: drop-shadow(0 0 6px #38bdf8);
+        }
+
+        .symbol-group.drag-over-zone {
+            opacity: 0.75;
+            filter: drop-shadow(0 0 12px #facc15);
+        }
+
+        .symbol-group.drag-over-zone rect.hit-area {
+            fill: rgba(250, 204, 21, 0.2);
+            stroke: #facc15;
+            stroke-width: 2;
+        }
+
+        .symbol-group:hover {
+            opacity: 0.45;
+        }
+
+        /* تأثير توهج ثنائي LED داخل المخطط عند التشغيل */
+        #led-triangle {
+            transition: all 0.3s ease;
+        }
+
+        .symbol-group.led-glowing #led-triangle {
+            fill: #facc15 !important;
+            stroke: #fef08a !important;
+            filter: drop-shadow(0 0 12px #facc15) drop-shadow(0 0 25px #facc15);
+        }
+
+        .symbol-group.led-glowing .led-ray {
+            stroke: #fef08a !important;
+            fill: #fef08a !important;
+            animation: pulseRay 0.8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseRay {
+            0% { opacity: 0.6; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 8px #facc15); }
+        }
+
+        /* خزانة المكونات الإلكترونية بالرموز الرسمية */
+        .components-pool {
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.4s ease;
+            width: 100%;
+        }
+
+        .pool-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .pool-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .comp-card {
+            background: #1e293b;
+            border: 2px solid #475569;
+            border-radius: 12px;
+            padding: 8px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: grab;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            min-height: 85px;
+            touch-action: none;
+        }
+
+        .comp-card:active {
+            cursor: grabbing;
+        }
+
+        .comp-card:hover {
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+            background: #243447;
+        }
+
+        .comp-card.placed {
+            opacity: 0.2;
+            pointer-events: none;
+            border-color: #22c55e;
+            background: #064e3b;
+            cursor: default;
+        }
+
+        .comp-symbol-preview {
+            width: 100%;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .comp-name {
+            font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+            font-weight: 800;
+            color: #e2e8f0;
+            text-align: center;
+            line-height: 1.2;
+            pointer-events: none;
+        }
+
+        /* العنصر العائم أثناء السحب باللمس */
+        #drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            width: 90px;
+            height: 80px;
+            background: #0284c7;
+            border: 2px solid #facc15;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1.1);
+            display: none;
+        }
+
+        /* شريط التحكم بشدة إضاءة الغرفة - يحل مكان خزانة المكونات بعد التركيب */
+        .environment-control {
+            width: 100%;
+            background: #0f172a;
+            border: 2px solid #facc15;
+            border-radius: 20px;
+            padding: 16px 24px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.25);
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slider-label {
+            font-size: clamp(0.9rem, 2.3vw, 1.15rem);
+            font-weight: 800;
+            color: #facc15;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .light-slider {
+            width: 100%;
+            height: 14px;
+            border-radius: 7px;
+            background: linear-gradient(90deg, #020617 0%, #fef08a 100%);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* المحاكاة المرئية لعمل الدارة */
+        .simulation-status {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #0f172a;
+            padding: 10px 15px;
+            border-radius: 15px;
+            border: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            font-weight: 800;
+        }
+
+        .lamp-bulb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #475569;
+            box-shadow: 0 0 0px transparent;
+            transition: all 0.3s;
+        }
+
+        .lamp-bulb.on {
+            background: #facc15;
+            box-shadow: 0 0 20px #facc15, 0 0 35px #facc15;
+        }
+
+        /* قسم الاستنتاجات العلمية التعليمية المباشرة */
+        .conclusions-section {
+            width: 100%;
+            background: #0f172a;
+            border: 2px solid #3b82f6;
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.1);
+        }
+
+        .conclusions-header {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 900;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px dashed #1e40af;
+            padding-bottom: 8px;
+        }
+
+        .conclusions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .conclusions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .conclusion-card {
+            background: #1e293b;
+            border: 1.5px solid #334155;
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.2s;
+        }
+
+        .conclusion-card:hover {
+            transform: translateY(-3px);
+            border-color: #38bdf8;
+        }
+
+        .conc-num {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #facc15;
+            background: #0284c7;
+            padding: 2px 10px;
+            border-radius: 20px;
+            width: fit-content;
+        }
+
+        .conc-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .conc-text {
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        /* التحكم بالأزرار والتوقيع */
+        .controls {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            font-weight: 900;
+            font-family: 'Cairo', sans-serif;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reset {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 0 #991b1b;
+        }
+
+        .btn-reset:hover { background: #dc2626; }
+
+        /* التوقيع */
+        .designer-credit {
+            font-size: clamp(0.75rem, 2.2vw, 1rem);
+            font-weight: 900;
+            color: #38bdf8;
+            background: #0f172a;
+            padding: 6px 20px;
+            border-radius: 50px;
+            border: 1.5px solid #38bdf8;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+
+<!-- العنصر العائم عند السحب باللمس -->
+<div id="drag-ghost"></div>
+
+<div class="game-card">
+    <!-- الهيدر -->
+    <div class="header-bar">
+        <div class="title-box">🔌 نشاط (1:1:2): دارة غياب الضوء (الكتاب المدرسي)</div>
+        <div class="badge-box">تكنولوجيا - الصف الثامن 🏫</div>
+    </div>
+
+    <!-- المساحة العملية -->
+    <div class="workspace">
+        <div class="top-section">
+            <!-- لوحة رسم المخطط الإلكتروني المعياري -->
+            <div class="board-container">
+                <div class="board-title">المخطط الكهرومغناطيسي لدارة غياب الضوء (اسحب القطعة لمكانها)</div>
+                <div class="schematic-svg-container" id="svg-container">
+                    <svg viewBox="0 0 500 380" id="circuit-svg">
+                        <!-- خطوط التوصيل (Wires) -->
+                        <path class="wire" id="wire-vcc" d="M 120 40 L 420 40" />
+                        <path class="wire" id="wire-gnd" d="M 120 340 L 420 340" />
+
+                        <!-- Branch 1 (Left): R2 + R3 + LDR -->
+                        <path class="wire" d="M 120 40 L 120 70" />
+                        <path class="wire" d="M 120 130 L 120 200" />
+                        <path class="wire" d="M 120 200 L 120 260" />
+                        <path class="wire" d="M 120 310 L 120 340" />
+                        <path class="wire" id="wire-base-node" d="M 120 200 L 170 200" />
+                        <path class="wire" id="wire-base-in" d="M 220 200 L 260 200" />
+
+                        <!-- Branch 2 (Middle): R1 + LED (D1) + Transistor T1 -->
+                        <path class="wire" d="M 310 40 L 310 70" />
+                        <path class="wire" d="M 310 120 L 310 145" />
+                        <path class="wire" id="wire-collector" d="M 310 185 L 310 200" />
+                        <path class="wire" id="wire-emitter" d="M 310 260 L 310 340" />
+
+                        <!-- Branch 3 (Right): Battery 9V -->
+                        <path class="wire" d="M 420 40 L 420 160" />
+                        <path class="wire" d="M 420 210 L 420 340" />
+
+                        <!-- مسارات حركة التيار الكهربائي المتحركة تفاعلياً -->
+                        <path class="current-path day-flow" id="path-day-flow" d="M 420 160 L 420 40 L 120 40 L 120 340 L 420 340 L 420 210" />
+                        <path class="current-path night-flow" id="path-night-flow" d="M 420 160 L 420 40 L 120 40 L 120 200 L 260 200 L 295 200" />
+                        <path class="current-path led-flow" id="path-led-flow" d="M 420 160 L 420 40 L 310 40 L 310 340 L 420 340 L 420 210" />
+
+                        <!-- نقاط التوصيل (Junctions) -->
+                        <circle cx="120" cy="40" r="3.5" fill="#38bdf8"/>
+                        <circle cx="310" cy="40" r="3.5" fill="#38bdf8"/>
+                        <circle cx="120" cy="340" r="3.5" fill="#38bdf8"/>
+                        <circle cx="310" cy="340" r="3.5" fill="#38bdf8"/>
+                        <circle cx="120" cy="200" r="3.5" fill="#38bdf8"/>
+
+                        <!-- رموز المكونات الإلكترونية التفاعلية مع مساحات استقبال واسعة -->
+
+                        <!-- 1. المقاومة R2 (100KΩ) -->
+                        <g class="symbol-group" id="sym-resistor100k" data-type="resistor100k" onclick="quickPlace('resistor100k')">
+                            <rect class="hit-area" x="85" y="55" width="70" height="85" fill="transparent" style="pointer-events: all;"/>
+                            <path d="M 120 70 L 126 75 L 114 85 L 126 95 L 114 105 L 126 115 L 114 125 L 120 130" stroke="#f8fafc" stroke-width="2.5" fill="none"/>
+                            <text x="135" y="95" fill="#e2e8f0" font-size="11" font-weight="bold">م2</text>
+                            <text x="135" y="112" fill="#38bdf8" font-size="11" font-weight="bold">100KΩ</text>
+                        </g>
+
+                        <!-- 2. المجس الضوئي LDR -->
+                        <g class="symbol-group" id="sym-ldr" data-type="ldr" onclick="quickPlace('ldr')">
+                            <rect class="hit-area" x="45" y="245" width="95" height="85" fill="transparent" style="pointer-events: all;"/>
+                            <circle cx="120" cy="285" r="22" stroke="#f8fafc" stroke-width="2" fill="#1e293b"/>
+                            <path d="M 120 263 L 124 268 L 116 276 L 124 284 L 116 292 L 124 300 L 120 307" stroke="#f8fafc" stroke-width="2" fill="none"/>
+                            <line x1="82" y1="262" x2="102" y2="277" stroke="#facc15" stroke-width="2"/>
+                            <polygon points="102,277 94,272 98,280" fill="#facc15"/>
+                            <line x1="72" y1="272" x2="92" y2="287" stroke="#facc15" stroke-width="2"/>
+                            <polygon points="92,287 84,282 88,290" fill="#facc15"/>
+                            <text x="50" y="300" fill="#38bdf8" font-size="11" font-weight="bold">مجس ضوئي</text>
+                            <text x="70" y="315" fill="#e2e8f0" font-size="10" font-weight="bold">LDR</text>
+                        </g>
+
+                        <!-- 3. المقاومة R3 (1KΩ) -->
+                        <g class="symbol-group" id="sym-resistor1k" data-type="resistor1k" onclick="quickPlace('resistor1k')">
+                            <rect class="hit-area" x="155" y="170" width="80" height="60" fill="transparent" style="pointer-events: all;"/>
+                            <path d="M 170 200 L 175 194 L 183 206 L 191 194 L 199 206 L 207 194 L 215 206 L 220 200" stroke="#f8fafc" stroke-width="2.5" fill="none"/>
+                            <text x="180" y="185" fill="#e2e8f0" font-size="11" font-weight="bold">م3</text>
+                            <text x="180" y="225" fill="#38bdf8" font-size="11" font-weight="bold">1KΩ</text>
+                        </g>
+
+                        <!-- 4. المقاومة R1 (330Ω) -->
+                        <g class="symbol-group" id="sym-resistor330" data-type="resistor330" onclick="quickPlace('resistor330')">
+                            <rect class="hit-area" x="275" y="55" width="80" height="75" fill="transparent" style="pointer-events: all;"/>
+                            <path d="M 310 70 L 316 75 L 304 85 L 316 95 L 304 105 L 316 115 L 310 120" stroke="#f8fafc" stroke-width="2.5" fill="none"/>
+                            <text x="325" y="90" fill="#e2e8f0" font-size="11" font-weight="bold">م1</text>
+                            <text x="325" y="108" fill="#38bdf8" font-size="11" font-weight="bold">330Ω</text>
+                        </g>
+
+                        <!-- 5. الثنائي الباعث للضوء LED (D1) -->
+                        <g class="symbol-group" id="sym-led" data-type="led" onclick="quickPlace('led')">
+                            <rect class="hit-area" x="275" y="130" x2="385" width="95" height="65" fill="transparent" style="pointer-events: all;"/>
+                            <polygon id="led-triangle" points="300,145 320,145 310,165" fill="#1e293b" stroke="#f8fafc" stroke-width="2"/>
+                            <line x1="300" y1="165" x2="320" y2="165" stroke="#f8fafc" stroke-width="2.5"/>
+                            <line x1="310" y1="165" x2="310" y2="185" stroke="#f8fafc" stroke-width="2"/>
+                            
+                            <line class="led-ray" x1="326" y1="150" x2="340" y2="140" stroke="#facc15" stroke-width="2"/>
+                            <polygon class="led-ray" points="340,140 332,143 336,149" fill="#facc15"/>
+                            <line class="led-ray" x1="330" y1="160" x2="344" y2="150" stroke="#facc15" stroke-width="2"/>
+                            <polygon class="led-ray" points="344,150 336,153 340,159" fill="#facc15"/>
+                            
+                            <text x="330" y="175" fill="#e2e8f0" font-size="11" font-weight="bold">D1</text>
+                            <text x="350" y="175" fill="#38bdf8" font-size="11" font-weight="bold">LED</text>
+                        </g>
+
+                        <!-- 6. الترانزستور T1 (BC547 NPN) -->
+                        <g class="symbol-group" id="sym-transistor" data-type="transistor" onclick="quickPlace('transistor')">
+                            <rect class="hit-area" x="250" y="185" width="110" height="90" fill="transparent" style="pointer-events: all;"/>
+                            <circle cx="310" cy="230" r="28" stroke="#f8fafc" stroke-width="2" fill="#1e293b"/>
+                            <line x1="295" y1="212" x2="295" y2="248" stroke="#f8fafc" stroke-width="4"/>
+                            <line x1="260" y1="200" x2="295" y2="200" stroke="#f8fafc" stroke-width="2"/>
+                            <line x1="295" y1="200" x2="295" y2="230" stroke="#f8fafc" stroke-width="2"/>
+                            <line x1="295" y1="218" x2="310" y2="200" stroke="#f8fafc" stroke-width="2"/>
+                            <line x1="295" y1="242" x2="310" y2="260" stroke="#f8fafc" stroke-width="2"/>
+                            <polygon points="310,260 300,252 306,246" fill="#f8fafc"/>
+                            <text x="270" y="193" fill="#facc15" font-size="11" font-weight="bold">B</text>
+                            <text x="316" y="200" fill="#facc15" font-size="11" font-weight="bold">C</text>
+                            <text x="316" y="268" fill="#facc15" font-size="11" font-weight="bold">E</text>
+                            <text x="345" y="225" fill="#e2e8f0" font-size="11" font-weight="bold">T1</text>
+                            <text x="345" y="240" fill="#38bdf8" font-size="10" font-weight="bold">BC547</text>
+                        </g>
+
+                        <!-- 7. بطارية 9V (Battery) -->
+                        <g class="symbol-group" id="sym-battery" data-type="battery" onclick="quickPlace('battery')">
+                            <rect class="hit-area" x="385" y="145" width="85" height="100" fill="transparent" style="pointer-events: all;"/>
+                            <line x1="405" y1="160" x2="435" y2="160" stroke="#ef4444" stroke-width="3.5"/>
+                            <line x1="412" y1="175" x2="428" y2="175" stroke="#38bdf8" stroke-width="2"/>
+                            <line x1="405" y1="190" x2="435" y2="190" stroke="#ef4444" stroke-width="3.5"/>
+                            <line x1="412" y1="205" x2="428" y2="205" stroke="#38bdf8" stroke-width="2"/>
+                            <text x="442" y="170" fill="#ef4444" font-size="12" font-weight="bold">+</text>
+                            <text x="442" y="215" fill="#38bdf8" font-size="12" font-weight="bold">-</text>
+                            <text x="410" y="235" fill="#facc15" font-size="11" font-weight="bold">بطارية 9V</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- خزانة القطع الإلكترونية برمز المخطط الرسمية -->
+            <div class="components-pool" id="components-pool">
+                <div class="board-title">اسحب الرمز الإلكتروني وضعْهُ بمكانه:</div>
+                <div class="pool-grid">
+                    <!-- المقاومة R2 100K -->
+                    <div class="comp-card" id="card-resistor100k" draggable="true" data-type="resistor100k" onclick="selectComponent('resistor100k')">
+                        <div class="comp-symbol-preview">
+                            <svg viewBox="0 0 100 40" width="80" height="30">
+                                <path d="M 10 20 L 20 20 L 25 10 L 35 30 L 45 10 L 55 30 L 65 10 L 75 30 L 80 20 L 90 20" stroke="#38bdf8" stroke-width="2.5" fill="none"/>
+                            </svg>
+                        </div>
+                        <span class="comp-name">م2 (100KΩ)</span>
+                    </div>
+
+                    <!-- المجس الضوئي LDR -->
+                    <div class="comp-card" id="card-ldr" draggable="true" data-type="ldr" onclick="selectComponent('ldr')">
+                        <div class="comp-symbol-preview">
+                            <svg viewBox="0 0 100 40" width="80" height="35">
+                                <circle cx="50" cy="20" r="14" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+                                <path d="M 50 10 L 53 14 L 47 18 L 53 22 L 47 26 L 50 30" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+                                <line x1="22" y1="8" x2="36" y2="17" stroke="#facc15" stroke-width="2"/>
+                                <polygon points="36,17 30,13 33,19" fill="#facc15"/>
+                            </svg>
+                        </div>
+                        <span class="comp-name">مجس ضوئي (LDR)</span>
+                    </div>
+
+                    <!-- المقاومة R3 1K -->
+                    <div class="comp-card" id="card-resistor1k" draggable="true" data-type="resistor1k" onclick="selectComponent('resistor1k')">
+                        <div class="comp-symbol-preview">
+                            <svg viewBox="0 0 100 40" width="80" height="30">
+                                <path d="M 10 20 L 20 20 L 25 10 L 35 30 L 45 10 L 55 30 L 65 10 L 75 30 L 80 20 L 90 20" stroke="#38bdf8" stroke-width="2.5" fill="none"/>
+                            </svg>
+                        </div>
+                        <span class="comp-name">م3 (1KΩ)</span>
+                    </div>
+
+                    <!-- المقاومة R1 330 -->
+                    <div class="comp-card" id="card-resistor330" draggable="true" data-type="resistor330" onclick="selectComponent('resistor330')">
+                        <div class="comp-symbol-preview">
+                            <svg viewBox="0 0 100 40" width="80" height="30">
+                                <path d="M 10 20 L 20 20 L 25 10 L 35 30 L 45 10 L 55 30 L 65 10 L 75 30 L 80 20 L 90 20" stroke="#38bdf8" stroke-width="2.5" fill="none"/>
+                            </svg>
+                        </div>
+                        <span class="comp-name">م1 (330Ω)</span>
+                    </div>
+
+                    <!-- ثنائي LED D1 -->
+                    <div class="comp-card" id="card-led" draggable="true" data-type="led" onclick="selectComponent('led')">
+                        <div class="comp-symbol-preview">
+                            <svg viewBox="0 0 100 40" width="80" height="35">
+                                <line x1="20" y1="20" x2="40" y2="20" stroke="#38bdf8" stroke-width="2"/>
+                                <polygon points="40,10 40,30 60,20" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+                                <line x1="60" y1="10" x2="60" y2="30" stroke="#38bdf8" stroke-width="2"/>
+                                <line x1="60" y1="20" x2="80" y2="20" stroke="#38bdf8" stroke-width="2"/>
+                                <line x1="62" y1="8" x2="74" y2="2" stroke="#facc15" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                        <span class="comp-name">ثنائي باث للضوء LED</span>
+                    </div>
+
+                    <!-- الترانزستور BC547 -->
+                    <div class="comp-card" id="card-transistor" draggable="true" data-type="transistor" onclick="selectComponent('transistor')">
+                        <div class="comp-symbol-preview">
+                            <svg viewBox="0 0 100 40" width="80" height="35">
+                                <circle cx="50" cy="20" r="16" stroke="#38bdf8" stroke-width="1.5" fill="none"/>
+                                <line x1="42" y1="10" x2="42" y2="30" stroke="#38bdf8" stroke-width="3"/>
+                                <line x1="25" y1="20" x2="42" y2="20" stroke="#38bdf8" stroke-width="1.5"/>
+                                <line x1="42" y1="14" x2="58" y2="6" stroke="#38bdf8" stroke-width="1.5"/>
+                                <line x1="42" y1="26" x2="58" y2="34" stroke="#38bdf8" stroke-width="1.5"/>
+                                <polygon points="58,34 50,29 53,24" fill="#38bdf8"/>
+                            </svg>
+                        </div>
+                        <span class="comp-name">ترانزستور BC547</span>
+                    </div>
+
+                    <!-- البطارية 9V -->
+                    <div class="comp-card" id="card-battery" style="grid-column: span 2;" draggable="true" data-type="battery" onclick="selectComponent('battery')">
+                        <div class="comp-symbol-preview">
+                            <svg viewBox="0 0 120 40" width="100" height="30">
+                                <line x1="20" y1="20" x2="45" y2="20" stroke="#38bdf8" stroke-width="2"/>
+                                <line x1="45" y1="8" x2="45" y2="32" stroke="#ef4444" stroke-width="3"/>
+                                <line x1="55" y1="14" x2="55" y2="26" stroke="#38bdf8" stroke-width="2"/>
+                                <line x1="65" y1="8" x2="65" y2="32" stroke="#ef4444" stroke-width="3"/>
+                                <line x1="75" y1="14" x2="75" y2="26" stroke="#38bdf8" stroke-width="2"/>
+                                <line x1="75" y1="20" x2="100" y2="20" stroke="#38bdf8" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <span class="comp-name">بطارية 9 فولت (9V)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شريط التحكم بشدة إضاءة الغرفة - يحل مكان خزانة المكونات بعد التركيب الصحيح -->
+            <div class="environment-control" id="env-control">
+                <div class="slider-label">
+                    <span>☀️ إضاءة ساحة التجربة (تغطية المجس الضوئي LDR):</span>
+                    <span id="light-val-text" style="color: #facc15;">ضوء مباشر (المجس مكشوف)</span>
+                </div>
+                <input type="range" min="0" max="100" value="100" class="light-slider" id="light-slider" oninput="updateLightSimulation(this.value)">
+            </div>
+        </div>
+
+        <!-- شريط حالة المصباح والدارة -->
+        <div class="simulation-status">
+            <div class="status-item">
+                <span>حالة الثنائي LED:</span>
+                <div class="lamp-bulb" id="status-bulb"></div>
+                <span id="status-text" style="color: #94a3b8;">مطفي (في الضوء)</span>
+            </div>
+            <div class="status-item">
+                <span>حالة الترانزستور T1:</span>
+                <span id="transistor-status" style="color: #ef4444;">مغلق (OFF) - حالة قطع</span>
+            </div>
+            <div class="status-item">
+                <span>مقاومة LDR:</span>
+                <span id="ldr-status" style="color: #38bdf8;">منخفضة (يمر التيار للأرضي)</span>
+            </div>
+        </div>
+
+        <!-- قسم الاستنتاجات العلمية التعليمية المباشرة -->
+        <div class="conclusions-section">
+            <div class="conclusions-header">
+                <span>💡</span>
+                <span>استنتاجات نشاط دارة غياب الضوء (الدرس والتجربة):</span>
+            </div>
+            <div class="conclusions-grid">
+                <div class="conclusion-card">
+                    <span class="conc-num">استنتاج ١</span>
+                    <span class="conc-title">تأثير الضوء على LDR</span>
+                    <span class="conc-text">عند سقوط الضوء على المجس الضوئي (LDR)، تقل مقاومته جداً فينساب معظم التيار الكهربائي نحو الأرضي (GND) دون المرور لقاعدة الترانزستور.</span>
+                </div>
+                <div class="conclusion-card">
+                    <span class="conc-num">استنتاج ٢</span>
+                    <span class="conc-title">تأثير غياب الضوء (الظلام)</span>
+                    <span class="conc-text">عند تغطية المجس الضوئي (غياب الضوء)، ترتفع مقاومة LDR جداً فيُجبر التيار على المرور عبر المقاومة M3 نحو قاعدة الترانزستور (B).</span>
+                </div>
+                <div class="conclusion-card">
+                    <span class="conc-num">استنتاج ٣</span>
+                    <span class="conc-title">عمل الترانزستور كمفتاح</span>
+                    <span class="conc-text">عند وصول تيار كافٍ للقاعدة (B) يفتح الترانزستور T1 (حالة وصل ON) وتكتمل دارة ثنائي الـ LED فيتوهج بوضوح تلقائياً.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- الأزرار والتوقيع -->
+    <div class="controls">
+        <button class="btn btn-reset" onclick="resetCircuit()">إعادة تركيب المخطط 🔄</button>
+    </div>
+
+    <div class="designer-credit">
+        <span>✨ تصميم الأستاذ: فادي أبو الكباش ✨</span>
+    </div>
+</div>
+
+<script>
+    // حالة القطع المترتبة
+    const componentsState = {
+        resistor100k: false,
+        ldr: false,
+        resistor1k: false,
+        resistor330: false,
+        led: false,
+        transistor: false,
+        battery: false
+    };
+
+    let selectedComp = null;
+    let activeDragType = null;
+
+    // محاكاة الأصوات
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'click') {
+            osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        } else if (type === 'lightOn') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        } else if (type === 'win') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.35);
+        }
+    }
+
+    // إعداد نظام سحب وإسقاط هجين يعمل باللمس والماوس معاً على كل الأجهزة
+    function setupDragAndDrop() {
+        const cards = document.querySelectorAll('.comp-card');
+        const symbolGroups = document.querySelectorAll('.symbol-group');
+        const ghost = document.getElementById('drag-ghost');
+
+        // HTML5 Drag & Drop للكمبيوتر
+        cards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                const type = card.dataset.type;
+                if (componentsState[type]) return;
+                activeDragType = type;
+                e.dataTransfer.setData('text/plain', type);
+                card.style.opacity = '0.4';
+            });
+
+            card.addEventListener('dragend', () => {
+                card.style.opacity = componentsState[card.dataset.type] ? '0.2' : '1';
+                activeDragType = null;
+            });
+
+            // الأحداث الخاصة باللمس للشاشات الذكية والأجهزة اللوحية
+            card.addEventListener('touchstart', (e) => {
+                const type = card.dataset.type;
+                if (componentsState[type]) return;
+
+                activeDragType = type;
+                const touch = e.touches[0];
+
+                // إعداد العنصر العائم
+                ghost.innerHTML = card.innerHTML;
+                ghost.style.display = 'flex';
+                ghost.style.left = touch.clientX + 'px';
+                ghost.style.top = touch.clientY + 'px';
+
+                card.style.opacity = '0.4';
+            }, { passive: true });
+
+            card.addEventListener('touchmove', (e) => {
+                if (!activeDragType) return;
+                const touch = e.touches[0];
+
+                // تحريك العنصر العائم مع الإصبع
+                ghost.style.left = touch.clientX + 'px';
+                ghost.style.top = touch.clientY + 'px';
+
+                // فحص العنصر المستهدف باللمس
+                const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                const targetGroup = elem ? elem.closest('.symbol-group') : null;
+
+                symbolGroups.forEach(group => group.classList.remove('drag-over-zone'));
+
+                if (targetGroup && !componentsState[targetGroup.dataset.type]) {
+                    if (targetGroup.dataset.type === activeDragType) {
+                        targetGroup.classList.add('drag-over-zone');
+                    }
+                }
+            }, { passive: true });
+
+            card.addEventListener('touchend', (e) => {
+                if (!activeDragType) return;
+                const touch = e.changedTouches[0];
+
+                // إخفاء العائم
+                ghost.style.display = 'none';
+
+                const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+                const targetGroup = elem ? elem.closest('.symbol-group') : null;
+
+                symbolGroups.forEach(group => group.classList.remove('drag-over-zone'));
+
+                if (targetGroup) {
+                    const zoneType = targetGroup.dataset.type;
+                    if (activeDragType === zoneType) {
+                        placeComponent(zoneType);
+                    }
+                }
+
+                card.style.opacity = componentsState[card.dataset.type] ? '0.2' : '1';
+                activeDragType = null;
+            });
+        });
+
+        // أحداث drop للماوس
+        symbolGroups.forEach(group => {
+            group.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const type = group.dataset.type;
+                if (!componentsState[type] && activeDragType === type) {
+                    group.classList.add('drag-over-zone');
+                }
+            });
+
+            group.addEventListener('dragleave', () => {
+                group.classList.remove('drag-over-zone');
+            });
+
+            group.addEventListener('drop', (e) => {
+                e.preventDefault();
+                group.classList.remove('drag-over-zone');
+                const droppedType = e.dataTransfer.getData('text/plain') || activeDragType;
+                const zoneType = group.dataset.type;
+
+                if (droppedType === zoneType) {
+                    placeComponent(zoneType);
+                }
+            });
+        });
+    }
+
+    // تحديد قطعة بالنقر المباشر كخيار بديل وسريع
+    function selectComponent(type) {
+        if (componentsState[type]) return;
+        selectedComp = type;
+        playSound('click');
+        placeComponent(type);
+    }
+
+    // تركيب مباشر بنقرة واحدة
+    function quickPlace(type) {
+        placeComponent(type);
+    }
+
+    // تركيب القطعة في مكانها بالمخطط
+    function placeComponent(type) {
+        if (componentsState[type]) return;
+
+        componentsState[type] = true;
+        playSound('click');
+
+        // تحديث المخطط الإلكتروني
+        const sym = document.getElementById(`sym-${type}`);
+        const card = document.getElementById(`card-${type}`);
+
+        if (sym) sym.classList.add('placed');
+        if (card) card.classList.add('placed');
+
+        // فحص اكتمال المخطط
+        checkCircuitCompletion();
+    }
+
+    // التحقق من اكتمال تركيب كافة القطع بالمخطط
+    function checkCircuitCompletion() {
+        const allPlaced = Object.values(componentsState).every(val => val === true);
+
+        if (allPlaced) {
+            playSound('win');
+
+            // إخفاء خزانة القطع وإظهار شريط الإضاءة أسفل المخطط
+            const pool = document.getElementById('components-pool');
+            const envControl = document.getElementById('env-control');
+
+            if (pool) pool.style.display = 'none';
+            if (envControl) envControl.style.display = 'flex';
+
+            // تفعيل خطوط التوصيل
+            document.querySelectorAll('.wire').forEach(w => w.classList.add('active'));
+
+            // ابدأ حركة التيار المباشرة لحالة الضوء الافتراضية
+            updateLightSimulation(100);
+
+            confetti({
+                particleCount: 90,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            Swal.fire({
+                title: 'رَائِعٌ جِدّاً يَا بَطَل! 👏⚡',
+                text: 'قُمْتَ بِتَوْصِيلِ جَمِيعِ العَنَاصِرِ الإِلِكْتَرُونِيَّةِ كَمَا فِي كِتَابِ التَّكْنُولُوجِيَا! الان اِسْحَبْ شَرِيطَ الضَّوْءِ نَحْوَ الظَّلَامِ (تَغْطِيَةِ المَجَسِّ LDR) لِتَرَى حَرَكَةَ التَّيَّارِ وَتَوَهُّجَ ثُنَائِيِّ الـ LED!',
+                icon: 'success',
+                confirmButtonText: 'تَجْرِبَةُ تَغْطِيَةِ المَجَسِّ 🌙',
+                confirmButtonColor: '#38bdf8'
+            });
+        }
+    }
+
+    // محاكاة غياب الضوء عند تحريك الشريط وحركة مسارات التيار
+    function updateLightSimulation(val) {
+        const bulb = document.getElementById('status-bulb');
+        const statusText = document.getElementById('status-text');
+        const transStatus = document.getElementById('transistor-status');
+        const ldrStatus = document.getElementById('ldr-status');
+        const lightText = document.getElementById('light-val-text');
+        const symLed = document.getElementById('sym-led');
+
+        const pathDay = document.getElementById('path-day-flow');
+        const pathNight = document.getElementById('path-night-flow');
+        const pathLed = document.getElementById('path-led-flow');
+
+        const allPlaced = Object.values(componentsState).every(v => v === true);
+
+        if (val < 35) { // عند تغطية LDR بحلول الظلام
+            lightText.innerText = 'تَغْطِيَةُ المَجَسِّ (ظَلاَمٌ / غِيَابُ الضَّوْءِ) 🌙';
+            lightText.style.color = '#38bdf8';
+
+            if (!bulb.classList.contains('on')) {
+                playSound('lightOn');
+            }
+
+            bulb.classList.add('on');
+            if (symLed) symLed.classList.add('led-glowing');
+
+            statusText.innerText = 'مُضاء (يَعْمَلُ عِنْدَ غِيَابِ الضَّوْءِ)';
+            statusText.style.color = '#facc15';
+
+            transStatus.innerText = 'مُفَعَّل (ON) - حالة وصل (انحياز أمامي)';
+            transStatus.style.color = '#22c55e';
+
+            ldrStatus.innerText = 'عَالِيَةٌ جِدّاً (يَمُرُّ التَّيَّارُ لِقَاعِدَةِ التَّرَانْزِسْتُور B)';
+            ldrStatus.style.color = '#facc15';
+
+            if (allPlaced) {
+                if (pathDay) pathDay.classList.remove('flow-active');
+                if (pathNight) pathNight.classList.add('flow-active');
+                if (pathLed) pathLed.classList.add('flow-active');
+            }
+        } else { // عند وجود الضوء على المجس
+            lightText.innerText = 'ضوء مباشر (المجس مكشوف) ☀️';
+            lightText.style.color = '#facc15';
+
+            bulb.classList.remove('on');
+            if (symLed) symLed.classList.remove('led-glowing');
+
+            statusText.innerText = 'مُطْفَأ (في الضَّوْءِ)';
+            statusText.style.color = '#94a3b8';
+
+            transStatus.innerText = 'مُغْلَق (OFF) - حالة قطع';
+            transStatus.style.color = '#ef4444';
+
+            ldrStatus.innerText = 'مُنْخَفِضَةٌ (يمر التيار للأرضي)';
+            ldrStatus.style.color = '#38bdf8';
+
+            if (allPlaced) {
+                if (pathNight) pathNight.classList.remove('flow-active');
+                if (pathLed) pathLed.classList.remove('flow-active');
+                if (pathDay) pathDay.classList.add('flow-active');
+            }
+        }
+    }
+
+    // إعادة المخطط للبداية
+    function resetCircuit() {
+        Object.keys(componentsState).forEach(key => {
+            componentsState[key] = false;
+            const sym = document.getElementById(`sym-${key}`);
+            const card = document.getElementById(`card-${key}`);
+            if (sym) sym.classList.remove('placed');
+            if (card) card.classList.remove('placed');
+        });
+
+        const symLed = document.getElementById('sym-led');
+        if (symLed) symLed.classList.remove('led-glowing');
+
+        // إظهار خزانة القطع الإلكترونية مجدداً وإخفاء شريط الإضاءة
+        const pool = document.getElementById('components-pool');
+        const envControl = document.getElementById('env-control');
+
+        if (pool) pool.style.display = 'flex';
+        if (envControl) envControl.style.display = 'none';
+
+        document.querySelectorAll('.current-path').forEach(p => p.classList.remove('flow-active'));
+        document.querySelectorAll('.wire').forEach(w => w.classList.remove('active'));
+
+        document.getElementById('light-slider').value = 100;
+        updateLightSimulation(100);
+    }
+
+    window.onload = () => {
+        setupDragAndDrop();
+    };
+</script>
+
+</body>
+</html>
