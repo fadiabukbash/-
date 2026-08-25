@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>دارة منبه نزول المطر والمحاليل الناقلة</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font (Tajawal) -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .drop-zone {
+            transition: all 0.25s ease;
+        }
+
+        .drop-zone.active-target {
+            border-color: #0284c7 !important;
+            background-color: rgba(186, 230, 253, 0.6) !important;
+            box-shadow: 0 0 15px rgba(2, 132, 199, 0.5);
+            transform: scale(1.02);
+        }
+
+        .item-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .item-card.selected {
+            border-color: #0284c7 !important;
+            background-color: #e0f2fe !important;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.4);
+            transform: scale(1.03);
+        }
+
+        /* Bell ringing animation */
+        @keyframes ring {
+            0% { transform: rotate(0deg); }
+            15% { transform: rotate(18deg); }
+            30% { transform: rotate(-18deg); }
+            45% { transform: rotate(14deg); }
+            60% { transform: rotate(-14deg); }
+            75% { transform: rotate(8deg); }
+            90% { transform: rotate(-8deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .ringing {
+            animation: ring 0.4s infinite;
+        }
+
+        /* Rain Drop Animation */
+        @keyframes dropFall {
+            0% { transform: translateY(-10px); opacity: 1; }
+            80% { transform: translateY(50px); opacity: 0.9; }
+            100% { transform: translateY(65px); opacity: 0; }
+        }
+
+        .drop-anim {
+            animation: dropFall 0.8s linear infinite;
+        }
+
+        /* Electric Flow Animation for SVG wires */
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        .current-flow {
+            stroke-dasharray: 6, 6;
+            animation: dash 0.6s linear infinite;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 md:p-6 text-gray-800">
+
+    <!-- Header -->
+    <header class="text-center my-2">
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-sky-900 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-cloud-showers-heavy text-sky-600"></i>
+            نشاط تفاعلي: دارة منبه نزول المطر
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">
+            مادة التكنولوجيا - الصف الثامن (محاكاة المخطط المدرسـي لبيان التوصيل الكهربائي)
+        </p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        
+        <!-- Sidebar Controls & Assembly Panel -->
+        <section class="lg:col-span-4 flex flex-col gap-3">
+            
+            <!-- Instruction Box -->
+            <div class="glass-card p-3.5 rounded-2xl shadow-sm border-r-4 border-sky-600">
+                <h2 class="font-bold text-sm sm:text-base text-sky-900 flex items-center gap-2">
+                    <span id="step-number" class="bg-sky-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shrink-0">1</span>
+                    <span id="step-title">تجميع عناصر المخطط</span>
+                </h2>
+                <p id="step-desc" class="text-xs text-gray-700 mt-1.5 leading-relaxed">
+                    انقر على القطعة من الصندوق ثم انقر على موقعها المطابق لمخطط الكتاب لتركيبها.
+                </p>
+            </div>
+
+            <!-- Components Toolbox -->
+            <div id="toolbox-card" class="glass-card p-3.5 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm mb-2.5 border-b pb-2 flex items-center justify-between">
+                    <span><i class="fa-solid fa-toolbox text-sky-600 ml-1"></i> صندوق العناصر</span>
+                    <span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full">انقر للتركيب</span>
+                </h3>
+                <div id="toolbox" class="grid grid-cols-2 gap-2">
+                    <!-- Items generated by JS -->
+                </div>
+            </div>
+
+            <!-- Testing Controls Panel (Hidden initially) -->
+            <div id="controls-panel" class="glass-card p-3.5 rounded-2xl shadow-sm hidden flex-col gap-2.5">
+                <h3 class="font-bold text-gray-800 text-xs sm:text-sm border-b pb-1.5 text-center">
+                    <i class="fa-solid fa-vial-circle-check text-purple-600 ml-1"></i> اختبار التوصيل ومسار التيار
+                </h3>
+
+                <!-- Substance Selector -->
+                <div class="flex flex-col gap-1 text-xs">
+                    <label class="font-bold text-gray-700">1. ضع المادة في الكأس (بين أ، ب):</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-select-salt" onclick="chooseSubstance('salt')" class="py-2 px-2 bg-amber-100 border-2 border-amber-400 text-amber-900 rounded-xl font-bold flex items-center justify-center gap-1 hover:bg-amber-200">
+                            <i class="fa-solid fa-cubes-stacked text-amber-600"></i> ملح طعام
+                        </button>
+                        <button id="btn-select-sugar" onclick="chooseSubstance('sugar')" class="py-2 px-2 bg-slate-100 border-2 border-gray-300 text-gray-700 rounded-xl font-bold flex items-center justify-center gap-1 hover:bg-slate-200">
+                            <i class="fa-solid fa-cube text-gray-400"></i> سكر
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Add Water Action Button -->
+                <button id="add-water-btn" onclick="addWater()" disabled class="w-full mt-1 bg-sky-600 hover:bg-sky-700 disabled:opacity-40 text-white font-bold py-2.5 px-3 rounded-xl shadow text-xs sm:text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-droplet"></i> 2. إضافة قطرات الماء (المطر)
+                </button>
+
+                <!-- Reset Button -->
+                <button id="reset-btn" onclick="resetApp()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-1.5 px-3 rounded-xl shadow text-xs transition mt-1">
+                    <i class="fa-solid fa-rotate-right ml-1"></i> إعادة التجربة
+                </button>
+            </div>
+
+        </section>
+
+        <!-- Assembly & Simulation Canvas Area (Matching Textbook Diagram) -->
+        <section class="lg:col-span-8 glass-card p-2 sm:p-4 rounded-3xl shadow-lg flex flex-col items-center justify-center min-h-[380px] sm:min-h-[440px] relative">
+            
+            <!-- Experiment Board matching Book Image Style -->
+            <div id="board" class="relative w-full max-w-[530px] h-[340px] sm:h-[380px] bg-yellow-50/40 border-4 border-amber-200/80 rounded-2xl shadow-inner overflow-hidden flex items-center justify-center">
+
+                <!-- Visual Bell Waves Indicator -->
+                <div id="sound-waves" class="hidden absolute left-[12%] top-[45%]">
+                    <span class="animate-ping absolute inline-flex h-16 w-16 rounded-full bg-amber-400 opacity-75"></span>
+                </div>
+
+                <!-- Electric Current Path Indicator Banner -->
+                <div id="current-status-tag" class="absolute top-2 left-2 z-30 bg-white/90 px-2.5 py-1 rounded-lg border border-gray-200 text-[11px] font-bold text-gray-600 flex items-center gap-1">
+                    <i class="fa-solid fa-bolt text-gray-400" id="bolt-icon"></i>
+                    <span id="current-status-text">حالة التيار: الدارة مفتوحة</span>
+                </div>
+
+                <!-- Circuit Wires SVG (Positioned precisely to connect Battery, Bell, and Terminals A & B) -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" id="wires-svg" viewBox="0 0 530 380" preserveAspectRatio="none">
+                    <!-- Wire 1: Bell (Left ~80,180) to Terminal A (Center-Left ~235,328) -->
+                    <path id="wire1" d="M 80 190 C 80 290, 160 328, 235 328" stroke="#94a3b8" stroke-width="4" fill="none" stroke-dasharray="6,6" />
+                    
+                    <!-- Wire 2: Terminal B (Center-Right ~295,328) to Battery (Right ~450,190) -->
+                    <path id="wire2" d="M 295 328 C 370 328, 450 290, 450 190" stroke="#94a3b8" stroke-width="4" fill="none" stroke-dasharray="6,6" />
+                    
+                    <!-- Wire 3: Top Connecting Wire: Battery (Right ~450,150) to Bell (Left ~80,150) -->
+                    <path id="wire3" d="M 450 150 C 450 70, 80 70, 80 150" stroke="#94a3b8" stroke-width="4" fill="none" stroke-dasharray="6,6" />
+
+                    <!-- Current Direction Arrows (Hidden initially) -->
+                    <g id="current-arrows" class="hidden">
+                        <!-- Arrow 1: Towards Bell -->
+                        <polygon points="150,320 162,328 150,336" fill="#eab308" />
+                        <!-- Arrow 2: Towards Battery -->
+                        <polygon points="380,328 368,320 368,336" fill="#eab308" />
+                        <!-- Arrow 3: Battery to Bell (Top wire) -->
+                        <polygon points="265,62 253,70 265,78" fill="#eab308" />
+                    </g>
+                </svg>
+
+                <!-- Drop Targets (Matched to textbook layout) -->
+                
+                <!-- 1. Beaker & Funnel Center Target -->
+                <div data-target="beaker" onclick="handleTargetClick('beaker')" class="drop-zone absolute bottom-6 left-1/2 -translate-x-1/2 w-48 sm:w-52 h-52 sm:h-56 border-2 border-dashed border-sky-400 rounded-xl flex flex-col items-center justify-center bg-white/40 cursor-pointer">
+                    <span class="text-xs text-sky-800 font-bold text-center pointer-events-none px-2">الكأس الزجاجي والقمع</span>
+                </div>
+
+                <!-- 2. Battery Target (Right Side) -->
+                <div data-target="battery" onclick="handleTargetClick('battery')" class="drop-zone absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 w-20 sm:w-24 h-28 sm:h-32 border-2 border-dashed border-sky-400 rounded-xl flex items-center justify-center bg-white/40 cursor-pointer">
+                    <span class="text-xs text-sky-800 font-bold text-center pointer-events-none px-2">بطاريات (3V)</span>
+                </div>
+
+                <!-- 3. Bell Target (Left Side) -->
+                <div data-target="bell" onclick="handleTargetClick('bell')" class="drop-zone absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 w-22 sm:w-24 h-22 sm:h-24 border-2 border-dashed border-sky-400 rounded-2xl flex items-center justify-center bg-white/40 cursor-pointer">
+                    <span class="text-xs text-sky-800 font-bold text-center pointer-events-none px-2">جرس كهربائي</span>
+                </div>
+
+                <!-- Water Drop Animation from Funnel -->
+                <div id="water-drops" class="hidden absolute top-24 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+                    <i class="fa-solid fa-droplet text-sky-500 text-sm drop-anim"></i>
+                    <i class="fa-solid fa-droplet text-sky-500 text-xs drop-anim" style="animation-delay: 0.3s"></i>
+                </div>
+
+                <!-- Terminals (أ) and (ب) in Beaker Bottom (Visible with wires) -->
+                <div id="terminals-container" class="absolute bottom-9 left-1/2 -translate-x-1/2 z-30 flex items-center gap-10 pointer-events-none">
+                    <div class="flex flex-col items-center">
+                        <div class="w-3.5 h-3.5 rounded-full bg-black border-2 border-white shadow-md"></div>
+                        <span class="text-xs font-black text-red-600 font-sans mt-0.5">أ</span>
+                    </div>
+                    <div id="gap-bridge" class="w-12 h-1 bg-transparent border-b-2 border-dashed border-gray-400"></div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-3.5 h-3.5 rounded-full bg-black border-2 border-white shadow-md"></div>
+                        <span class="text-xs font-black text-red-600 font-sans mt-0.5">ب</span>
+                    </div>
+                </div>
+
+                <!-- Substance Solid/Liquid Solution Layer -->
+                <div id="substance-layer" class="hidden absolute bottom-11 left-1/2 -translate-x-1/2 w-32 h-5 rounded-b-lg z-20 text-[10px] text-center font-bold flex items-center justify-center shadow-sm">
+                    -
+                </div>
+
+            </div>
+
+            <!-- Live Status Message Box -->
+            <div id="status-bar" class="w-full max-w-[530px] mt-2.5 p-2.5 bg-white rounded-xl border border-sky-200 text-center font-bold text-xs sm:text-sm text-sky-900 shadow-sm flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-info text-sky-500 text-sm sm:text-base shrink-0"></i>
+                <span id="status-text">انقر على قطعة من صندوق العناصر لتركيب الدارة كما في الكتاب.</span>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Explanations & Conclusions Panel -->
+    <section id="conclusions-section" class="max-w-6xl mx-auto w-full mt-5 hidden">
+        <div class="glass-card p-4 sm:p-6 rounded-3xl shadow-lg border-t-4 border-emerald-500 bg-gradient-to-br from-emerald-50 to-teal-50">
+            
+            <h2 class="text-lg sm:text-2xl font-extrabold text-emerald-900 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-lightbulb text-emerald-600"></i>
+                شرح مسار التيار والاستنتاجات العلمية:
+            </h2>
+
+            <!-- Current Path Explanation Box -->
+            <div id="path-explanation" class="mb-4 p-3.5 bg-white rounded-2xl border border-emerald-200 text-xs sm:text-sm leading-relaxed">
+                <!-- Dynamic text injected by JS -->
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                
+                <!-- Salt Conclusion -->
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-emerald-100">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">1</span>
+                        <h3 class="font-bold text-xs sm:text-sm text-emerald-900">محلول الملح (دارة مغلقة)</h3>
+                    </div>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        عند ذوبان الملح ($NaCl$) في ماء المطر، تتفكك أيوناته إلى أيونات حرة الحركة ($Na^+$, $Cl^-$). تعبر هذه الأيونات الفجوة بين الطرفين (أ، ب) فتغلق الدارة ويمر التيار فيدق الجرس.
+                    </p>
+                </div>
+
+                <!-- Sugar Conclusion -->
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-emerald-100">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="w-6 h-6 rounded-full bg-amber-600 text-white text-xs font-bold flex items-center justify-center">2</span>
+                        <h3 class="font-bold text-xs sm:text-sm text-amber-900">محلول السكر (دارة مفتوحة)</h3>
+                    </div>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        عند ذوبان السكر يتفكك إلى جزيئات متعادلة كهربائياً بدون أيونات حرة. لا يستطيع التيار العبور بين الطرفين (أ، ب) فتبقى الدارة مفتوحة ولا يعمل الجرس.
+                    </p>
+                </div>
+
+                <!-- Application Conclusion -->
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-emerald-100">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span class="w-6 h-6 rounded-full bg-sky-600 text-white text-xs font-bold flex items-center justify-center">3</span>
+                        <h3 class="font-bold text-xs sm:text-sm text-sky-900">مبدأ عمل مجسات المطر</h3>
+                    </div>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        تُستغل خاصية التوصيل الكهربائي للمحاليل في صناعة مجسات وكواشف المطر بالسيارات وأنظمة الإنذار للفيضانات والزراعة الذكية.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-600 my-3 flex flex-col items-center justify-center gap-1">
+        <div>تكنولوجيا الصف الثامن - منهاج فلسطين التعليمي</div>
+        <div class="font-bold text-sky-800 bg-sky-100 px-3.5 py-1 rounded-full shadow-sm text-xs mt-0.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 ml-1"></i>
+            تنسيق وتصميم الأستاذ: فادي أبو الكباش
+        </div>
+    </footer>
+
+    <!-- Audio & Simulation Logic Scripts -->
+    <script>
+        let audioCtx = null;
+
+        function playBellSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(820, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.35);
+            } catch (e) {
+                console.log("Audio play notice");
+            }
+        }
+
+        let bellInterval = null;
+
+        function startBellLoop() {
+            if (!bellInterval) {
+                playBellSound();
+                bellInterval = setInterval(playBellSound, 350);
+            }
+        }
+
+        function stopBellLoop() {
+            if (bellInterval) {
+                clearInterval(bellInterval);
+                bellInterval = null;
+            }
+        }
+
+        // Components Data matching Textbook Illustration
+        const items = [
+            { id: 'beaker', name: 'الكأس والقمع', icon: 'fa-filter', color: 'text-pink-600' },
+            { id: 'battery', name: 'بطاريات (3V)', icon: 'fa-battery-full', color: 'text-emerald-600' },
+            { id: 'bell', name: 'جرس كهربائي', icon: 'fa-bell', color: 'text-amber-500' }
+        ];
+
+        let assembled = { beaker: false, battery: false, bell: false };
+        let selectedItemId = null;
+        let chosenSubstance = null; // 'salt' or 'sugar'
+
+        const toolbox = document.getElementById('toolbox');
+        const statusBar = document.getElementById('status-text');
+
+        // Render Components Toolbox
+        function renderToolbox() {
+            toolbox.innerHTML = '';
+            let remaining = 0;
+
+            items.forEach(item => {
+                if (!assembled[item.id]) {
+                    remaining++;
+                    const el = document.createElement('div');
+                    const isSelected = selectedItemId === item.id;
+
+                    el.className = `item-card glass-card p-2.5 rounded-xl border flex flex-col items-center justify-center text-center gap-1 ${isSelected ? 'selected' : 'border-sky-100 hover:bg-sky-50'}`;
+                    el.onclick = () => selectItem(item.id);
+
+                    el.innerHTML = `
+                        <i class="fa-solid ${item.icon} text-xl sm:text-2xl ${item.color}"></i>
+                        <span class="text-[11px] font-bold text-gray-700 pointer-events-none">${item.name}</span>
+                    `;
+
+                    toolbox.appendChild(el);
+                }
+            });
+
+            updateTargetHighlights();
+
+            // When Assembly Complete
+            if (remaining === 0) {
+                document.getElementById('toolbox-card').classList.add('hidden');
+                document.getElementById('controls-panel').classList.remove('hidden');
+                document.getElementById('controls-panel').classList.add('flex');
+
+                document.getElementById('step-number').innerText = '2';
+                document.getElementById('step-title').innerText = 'اختبار التوصيل والفيزياء';
+                document.getElementById('step-desc').innerText = 'اختر إضافة (ملح) أو (سكر) للكأس، ثم أضف قطرات المطر لمراقبة مسار التيار والجرس!';
+                statusBar.innerText = 'اكتمل المخطط! اختر المادة (ملح طعام أم سكر) للبدء.';
+            }
+        }
+
+        function selectItem(id) {
+            if (selectedItemId === id) {
+                selectedItemId = null;
+                statusBar.innerText = 'انقر على قطعة من الصندوق ثم انقر على مكانها في المخطط.';
+            } else {
+                selectedItemId = id;
+                const itemObj = items.find(i => i.id === id);
+                statusBar.innerText = `تم تحديد (${itemObj.name}). انقر على موقعه المخصص المضاء بالأزرق في المخطط.`;
+            }
+            renderToolbox();
+        }
+
+        function updateTargetHighlights() {
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const target = zone.dataset.target;
+                if (selectedItemId && selectedItemId === target && !assembled[target]) {
+                    zone.classList.add('active-target');
+                } else {
+                    zone.classList.remove('active-target');
+                }
+            });
+        }
+
+        function handleTargetClick(targetId) {
+            if (!selectedItemId) {
+                if (!assembled[targetId]) {
+                    statusBar.innerText = 'الرجاء النقر على القطعة في الصندوق أولاً لتحديدها.';
+                }
+                return;
+            }
+
+            if (selectedItemId === targetId) {
+                assembled[targetId] = true;
+                placeComponent(targetId);
+                selectedItemId = null;
+                renderToolbox();
+            } else {
+                statusBar.innerText = 'المكان غير مطابق! اختر الموقع المخصص المضاء باللون الأزرق.';
+            }
+        }
+
+        function placeComponent(id) {
+            const zone = document.querySelector(`[data-target="${id}"]`);
+
+            if (id === 'beaker') {
+                // Render Beaker & Pink Funnel matching book diagram
+                zone.innerHTML = `
+                    <div class="relative w-full h-full flex flex-col items-center justify-end pb-2 z-20 pointer-events-none">
+                        <!-- Funnel SVG -->
+                        <svg class="w-28 sm:w-32 h-24 sm:h-28 text-pink-400 drop-shadow" viewBox="0 0 100 100" fill="currentColor">
+                            <polygon points="10,10 90,10 58,60 58,95 42,95 42,60" fill="#f472b6" stroke="#db2777" stroke-width="2" />
+                        </svg>
+                        <!-- Glass Beaker Outline -->
+                        <div class="w-32 sm:w-36 h-24 border-b-4 border-x-4 border-sky-400/80 rounded-b-2xl bg-sky-50/30 -mt-10 flex items-end justify-center">
+                        </div>
+                        <span class="text-[10px] font-extrabold text-sky-900 mt-0.5">كأس زجاجي + قمع</span>
+                    </div>
+                `;
+            } else if (id === 'battery') {
+                // Battery Illustration matching book (3V)
+                zone.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-2 z-20 pointer-events-none">
+                        <div class="flex flex-col items-center gap-0.5 my-1">
+                            <div class="w-4 h-1.5 bg-gray-400 rounded-t"></div>
+                            <div class="w-10 h-16 bg-gradient-to-b from-gray-200 to-gray-400 border-2 border-gray-600 rounded flex flex-col items-center justify-center text-[9px] font-bold text-gray-800 shadow">
+                                <span>بطاريات</span>
+                                <span class="text-amber-700 font-extrabold">3V</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (id === 'bell') {
+                // Bell Illustration matching book
+                zone.innerHTML = `
+                    <div class="flex flex-col items-center justify-center p-2 z-20 pointer-events-none">
+                        <div class="w-14 h-14 rounded-full bg-amber-400 border-2 border-amber-600 flex items-center justify-center shadow-md relative">
+                            <i class="fa-solid fa-bell text-2xl text-amber-900"></i>
+                            <div class="w-3.5 h-3.5 bg-red-600 rounded-full absolute -bottom-1 -left-1 border border-white"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-700 mt-1">جرس كهربائي</span>
+                    </div>
+                `;
+            }
+
+            zone.classList.remove('border-dashed', 'border-sky-400', 'bg-white/40', 'active-target');
+            zone.classList.add('border-solid', 'border-transparent', 'bg-transparent');
+            statusBar.innerText = `تم تركيب عنصر المخطط بنجاح!`;
+        }
+
+        // Choose Salt or Sugar
+        function chooseSubstance(type) {
+            chosenSubstance = type;
+            const layer = document.getElementById('substance-layer');
+            layer.classList.remove('hidden');
+
+            const btnSalt = document.getElementById('btn-select-salt');
+            const btnSugar = document.getElementById('btn-select-sugar');
+
+            if (type === 'salt') {
+                btnSalt.className = 'py-2 px-2 bg-amber-500 border-2 border-amber-600 text-white rounded-xl font-bold flex items-center justify-center gap-1 shadow-sm';
+                btnSugar.className = 'py-2 px-2 bg-slate-100 border-2 border-gray-200 text-gray-600 rounded-xl font-bold flex items-center justify-center gap-1 opacity-60';
+
+                layer.className = 'absolute bottom-11 left-1/2 -translate-x-1/2 w-32 h-4 bg-amber-100 border border-amber-300 rounded-b-lg z-20 text-[10px] text-amber-900 text-center font-bold flex items-center justify-center shadow-sm';
+                layer.innerText = 'ملح طعام جاف';
+                statusBar.innerText = 'تم وضع الملح الجاف بين أ و ب. الملح الجاف لا ينقل التيار لأن أيوناته مقيدة. أضف الماء الآن.';
+            } else {
+                btnSugar.className = 'py-2 px-2 bg-slate-700 border-2 border-slate-800 text-white rounded-xl font-bold flex items-center justify-center gap-1 shadow-sm';
+                btnSalt.className = 'py-2 px-2 bg-amber-100 border-2 border-amber-200 text-amber-800 rounded-xl font-bold flex items-center justify-center gap-1 opacity-60';
+
+                layer.className = 'absolute bottom-11 left-1/2 -translate-x-1/2 w-32 h-4 bg-white border border-gray-300 rounded-b-lg z-20 text-[10px] text-gray-700 text-center font-bold flex items-center justify-center shadow-sm';
+                layer.innerText = 'سكر جاف';
+                statusBar.innerText = 'تم وضع السكر بين أ و ب. أضف الماء لملاحظة التأثير على الدارة والإنذار.';
+            }
+
+            // Reset current wires state
+            resetCurrentWires();
+            document.getElementById('add-water-btn').disabled = false;
+        }
+
+        function setCircuitActive(active) {
+            const w1 = document.getElementById('wire1');
+            const w2 = document.getElementById('wire2');
+            const w3 = document.getElementById('wire3');
+            const bridge = document.getElementById('gap-bridge');
+            const arrows = document.getElementById('current-arrows');
+            const bolt = document.getElementById('bolt-icon');
+            const statusText = document.getElementById('current-status-text');
+
+            if (active) {
+                w1.setAttribute('stroke', '#eab308');
+                w2.setAttribute('stroke', '#eab308');
+                w3.setAttribute('stroke', '#eab308');
+                
+                w1.classList.add('current-flow');
+                w2.classList.add('current-flow');
+                w3.classList.add('current-flow');
+
+                bridge.className = 'w-12 h-1.5 bg-sky-400 border-b-2 border-sky-600 animate-pulse'; // Solved bridge!
+                arrows.classList.remove('hidden');
+
+                bolt.className = 'fa-solid fa-bolt text-amber-500 animate-bounce';
+                statusText.innerText = 'حالة التيار: الدارة مغلقة (يسري التيار الكهربائي)';
+                statusText.parentElement.className = 'absolute top-2 left-2 z-30 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-300 text-[11px] font-bold text-amber-900 shadow-sm';
+            } else {
+                w1.setAttribute('stroke', '#94a3b8');
+                w2.setAttribute('stroke', '#94a3b8');
+                w3.setAttribute('stroke', '#94a3b8');
+
+                w1.classList.remove('current-flow');
+                w2.classList.remove('current-flow');
+                w3.classList.remove('current-flow');
+
+                bridge.className = 'w-12 h-1 bg-transparent border-b-2 border-dashed border-gray-400';
+                arrows.classList.add('hidden');
+
+                bolt.className = 'fa-solid fa-bolt text-gray-400';
+                statusText.innerText = 'حالة التيار: الدارة مفتوحة (التيار متوقف)';
+                statusText.parentElement.className = 'absolute top-2 left-2 z-30 bg-white/90 px-2.5 py-1 rounded-lg border border-gray-200 text-[11px] font-bold text-gray-600';
+            }
+        }
+
+        function resetCurrentWires() {
+            stopBellLoop();
+            document.getElementById('water-drops').classList.add('hidden');
+            document.getElementById('sound-waves').classList.add('hidden');
+            
+            const bellZone = document.querySelector('[data-target="bell"]');
+            if (bellZone) {
+                const icon = bellZone.querySelector('i');
+                if (icon) icon.classList.remove('ringing');
+            }
+
+            setCircuitActive(false);
+        }
+
+        // Add Water Step
+        function addWater() {
+            if (!chosenSubstance) return;
+
+            document.getElementById('water-drops').classList.remove('hidden');
+            document.getElementById('add-water-btn').disabled = true;
+
+            const layer = document.getElementById('substance-layer');
+            const pathExp = document.getElementById('path-explanation');
+
+            if (chosenSubstance === 'salt') {
+                layer.className = 'absolute bottom-11 left-1/2 -translate-x-1/2 w-32 h-6 bg-sky-200/90 border border-sky-500 rounded-b-xl z-20 text-[10px] text-sky-900 text-center font-bold flex items-center justify-center shadow-sm';
+                layer.innerText = 'محلول ملحي (ناقل)';
+
+                setTimeout(() => {
+                    setCircuitActive(true);
+
+                    const bellZone = document.querySelector('[data-target="bell"]');
+                    const icon = bellZone.querySelector('i');
+                    if (icon) icon.classList.add('ringing');
+                    
+                    document.getElementById('sound-waves').classList.remove('hidden');
+                    startBellLoop();
+
+                    statusBar.innerHTML = '<span class="text-emerald-700 font-extrabold"><i class="fa-solid fa-bell-concierge ml-1 animate-bounce"></i> اكتملت الدارة ودق الجرس! ذاب الملح وأصبحت الأيونات ناقلة للتيار بين (أ، ب).</span>';
+
+                    pathExp.innerHTML = `
+                        <div class="font-bold text-emerald-800 mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-route text-emerald-600"></i> مسار التيار الكهربائي (عند إضافة الملح والماء):
+                        </div>
+                        <p class="text-gray-700">
+                            يخرج التيار من البطاريات ($3\text{V}$) مراراً عبر السلك إلى الطرف <strong>(ب)</strong>، ثم يعبر الكأس عبر <strong>الأيونات الحرة في المحلول الملحي</strong> للوصول إلى الطرف <strong>(أ)</strong>، ليكمل مساره نحو <strong>الجرس الكهربائي</strong> فيعمل المنبه، وتعود الدارة للمصدر (دارة مغلقة بامتياز).
+                        </p>
+                    `;
+
+                    document.getElementById('conclusions-section').classList.remove('hidden');
+                    document.getElementById('conclusions-section').scrollIntoView({ behavior: 'smooth' });
+                }, 400);
+
+            } else if (chosenSubstance === 'sugar') {
+                layer.className = 'absolute bottom-11 left-1/2 -translate-x-1/2 w-32 h-6 bg-blue-100/90 border border-blue-300 rounded-b-xl z-20 text-[10px] text-blue-900 text-center font-bold flex items-center justify-center shadow-sm';
+                layer.innerText = 'محلول سكري (غير ناقل)';
+
+                setCircuitActive(false);
+
+                setTimeout(() => {
+                    statusBar.innerHTML = '<span class="text-red-600 font-extrabold"><i class="fa-solid fa-bell-slash ml-1"></i> لم يعمل الجرس! انحل السكر إلى جزيئات متعادلة لا تنقل التيار، فبقيت الدارة مفتوحة عند (أ، ب).</span>';
+
+                    pathExp.innerHTML = `
+                        <div class="font-bold text-red-800 mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-ban text-red-600"></i> مسار التيار الكهربائي (عند إضافة السكر والماء):
+                        </div>
+                        <p class="text-gray-700">
+                            ينطلق التيار من البطارية نحو الطرف <strong>(ب)</strong> ولكن <strong>يتوقف تماماً في قاع الكأس</strong>؛ لأن المحلول السكري يحتوي على جزيئات غير مشحونة ولا توجد أيونات حرة لنقل الشحنة إلى الطرف <strong>(أ)</strong>، فتتوقف الشحنات ولا يصل التيار للجرس (دارة مفتوحة).
+                        </p>
+                    `;
+
+                    document.getElementById('conclusions-section').classList.remove('hidden');
+                    document.getElementById('conclusions-section').scrollIntoView({ behavior: 'smooth' });
+                }, 400);
+            }
+        }
+
+        // Reset App
+        function resetApp() {
+            stopBellLoop();
+            assembled = { beaker: false, battery: false, bell: false };
+            selectedItemId = null;
+            chosenSubstance = null;
+
+            document.getElementById('toolbox-card').classList.remove('hidden');
+            document.getElementById('controls-panel').classList.add('hidden');
+            document.getElementById('conclusions-section').classList.add('hidden');
+            document.getElementById('water-drops').classList.add('hidden');
+            document.getElementById('sound-waves').classList.add('hidden');
+            document.getElementById('substance-layer').classList.add('hidden');
+
+            setCircuitActive(false);
+
+            const targets = [
+                { id: 'beaker', name: 'الكأس الزجاجي والقمع', style: 'bottom-6 left-1/2 -translate-x-1/2 w-48 sm:w-52 h-52 sm:h-56 rounded-xl' },
+                { id: 'battery', name: 'بطاريات (3V)', style: 'right-4 sm:right-6 top-1/2 -translate-y-1/2 w-20 sm:w-24 h-28 sm:h-32 rounded-xl' },
+                { id: 'bell', name: 'جرس كهربائي', style: 'left-4 sm:left-6 top-1/2 -translate-y-1/2 w-22 sm:w-24 h-22 sm:h-24 rounded-2xl' }
+            ];
+
+            targets.forEach(t => {
+                const zone = document.querySelector(`[data-target="${t.id}"]`);
+                zone.className = `drop-zone absolute ${t.style} border-2 border-dashed border-sky-400 flex items-center justify-center bg-white/40 cursor-pointer`;
+                zone.innerHTML = `<span class="text-xs text-sky-800 font-bold text-center pointer-events-none px-2">${t.name}</span>`;
+            });
+
+            document.getElementById('step-number').innerText = '1';
+            document.getElementById('step-title').innerText = 'تجميع عناصر المخطط';
+            document.getElementById('step-desc').innerText = 'انقر على القطعة من الصندوق ثم انقر على موقعها المطابق لمخطط الكتاب لتركيبها.';
+            statusBar.innerText = 'انقر على قطعة من صندوق العناصر لتركيب الدارة كما في الكتاب.';
+
+            renderToolbox();
+        }
+
+        window.onload = () => {
+            renderToolbox();
+        };
+    </script>
+</body>
+</html>
