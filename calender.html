@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقويم الأكاديمي 2026/2027 - مدرسة عسقلان الأساسية للبنين</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+        }
+
+        /* Red Animated Placeholder Styling */
+        #searchInput::placeholder {
+            color: #dc2626 !important;
+            font-size: 11.5px !important;
+            font-weight: 700 !important;
+            opacity: 0.95;
+        }
+
+        @media (min-width: 640px) {
+            #searchInput::placeholder {
+                font-size: 12.5px !important;
+            }
+        }
+
+        /* Custom Shading Styles */
+        .shaded-gray {
+            background-color: #e2e8f0 !important;
+            color: #1e293b !important;
+            font-weight: 700;
+        }
+
+        .shaded-gold {
+            background-color: #fef08a !important;
+            color: #854d0e !important;
+            font-weight: 700;
+        }
+
+        .crossed-cell {
+            background: linear-gradient(to top right, transparent calc(50% - 1.5px), #94a3b8 , transparent calc(50% + 1.5px));
+            background-color: #f8fafc;
+            color: #94a3b8;
+        }
+
+        /* User Selected Red Cell Style */
+        .selected-red {
+            background-color: #dc2626 !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            box-shadow: inset 0 0 0 2px #991b1b, 0 2px 8px rgba(220, 38, 38, 0.4);
+            transform: scale(1.05);
+            transition: all 0.15s ease-in-out;
+        }
+
+        /* Highlight animation for search */
+        .search-match {
+            animation: pulse-ring 1.5s infinite;
+            background-color: #059669 !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            box-shadow: 0 0 14px rgba(5, 150, 105, 0.8);
+            transform: scale(1.12);
+            z-index: 30;
+            position: relative;
+            border-radius: 4px;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(5, 150, 105, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+        }
+
+        /* Print Specific Optimization for A4 Full Page Landscape */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 4mm;
+            }
+            
+            html, body {
+                width: 100% !important;
+                height: 100% !important;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .print-card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 2mm !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .print-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+                width: 100% !important;
+            }
+
+            table {
+                font-size: 11px !important;
+                width: 100% !important;
+            }
+
+            th, td {
+                padding: 3.5px 2px !important;
+            }
+
+            .school-header-print {
+                margin-bottom: 8px !important;
+                padding-bottom: 6px !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between p-2 md:p-6">
+
+    <div class="max-w-7xl mx-auto w-full space-y-4">
+        
+        <!-- Main Document Container -->
+        <main class="bg-white rounded-3xl p-3 md:p-6 shadow-sm border border-slate-200 print-card space-y-4">
+            
+            <!-- Unified Official Header -->
+            <header class="border-b-2 border-slate-800 pb-3 space-y-3">
+                
+                <!-- Official Title & School Info Banner -->
+                <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                    
+                    <!-- Right: Official School Info with Logo -->
+                    <div class="flex items-center gap-3 text-center md:text-right">
+                        <div class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-2xl flex items-center justify-center shadow-md border-2 border-amber-400 flex-shrink-0 overflow-hidden p-0.5">
+                            <img src="1000174387_2.png" alt="شعار مدرسة عسقلان" class="w-full h-full object-contain rounded-xl" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23065f46%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22/></svg>'">
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-500 whitespace-nowrap">وزارة التربية والتعليم</h3>
+                            <h3 class="text-xs font-bold text-slate-600 whitespace-nowrap">مديرية التربية والتعليم / الخليل</h3>
+                            <h2 class="text-base md:text-xl font-black text-emerald-900 mt-0.5 whitespace-nowrap">مدرسة عسقلان الأساسية للبنين</h2>
+                        </div>
+                    </div>
+
+                    <!-- Center: Calendar Title Banner -->
+                    <div class="text-center bg-slate-50 border border-slate-300 px-4 py-2 rounded-2xl shadow-sm w-full md:w-auto">
+                        <h1 class="text-base md:text-lg font-black text-slate-900 whitespace-nowrap">التقويم الأكاديمي والزمني</h1>
+                        <p class="text-xs font-bold text-emerald-800 whitespace-nowrap">توزيع الأسابيع للعام الدراسي 2026 / 2027 م</p>
+                    </div>
+
+                    <!-- Left: Year Badge -->
+                    <div class="hidden md:flex items-center">
+                        <span class="bg-emerald-50 border border-emerald-200 text-emerald-800 font-extrabold text-xs px-3 py-1.5 rounded-xl whitespace-nowrap">
+                            العام الدراسي: 2026 – 2027
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Interactive Control Bar (Search Box + Print Button) -->
+                <div class="no-print flex flex-col sm:flex-row items-center gap-2.5 pt-2 border-t border-slate-100">
+                    
+                    <!-- Flexible Animated Red Search Box -->
+                    <div class="relative w-full flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute right-3 top-2.5 text-rose-500 text-xs sm:text-sm z-10"></i>
+                        <input type="text" id="searchInput" oninput="handleSearch()" class="w-full pl-8 pr-9 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white transition shadow-inner">
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute left-2.5 top-2 text-slate-400 hover:text-slate-700 text-xs bg-slate-200 hover:bg-slate-300 rounded-full w-5 h-5 flex items-center justify-center transition z-10">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Compact Print Button -->
+                    <button onclick="triggerPrint()" class="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-200 flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer flex-shrink-0">
+                        <i class="fa-solid fa-print text-xs sm:text-sm"></i>
+                        <span class="whitespace-nowrap">طباعة التقويم A4</span>
+                    </button>
+                </div>
+
+                <!-- Search Results Status Output (Clean Grid Box) -->
+                <div id="searchResultsBar" class="no-print hidden mt-2 pt-2.5 border-t border-slate-200 bg-slate-50 p-3.5 rounded-2xl space-y-3 shadow-inner">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                        <span id="searchResultText" class="text-xs font-bold text-slate-800"></span>
+                        <button onclick="clearSearch()" class="text-xs text-rose-600 hover:text-rose-800 font-bold underline bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">إلغاء البحث</button>
+                    </div>
+                    <div id="statusDetailsBox" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-1"></div>
+                </div>
+            </header>
+
+            <!-- Dynamic Statistics & Filter Legend (No Print) -->
+            <div class="no-print space-y-3">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200 flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold flex-shrink-0">
+                            <i class="fa-solid fa-calendar-week"></i>
+                        </div>
+                        <div class="whitespace-nowrap">
+                            <span class="block text-[11px] text-slate-500 font-semibold">أسابيع الفصل الأول</span>
+                            <span class="text-xs sm:text-sm font-black text-slate-800">19 أسبوعاً</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200 flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold flex-shrink-0">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+                        <div class="whitespace-nowrap">
+                            <span class="block text-[11px] text-slate-500 font-semibold">أسابيع الفصل الثاني</span>
+                            <span class="text-xs sm:text-sm font-black text-slate-800">20 أسبوعاً</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200 flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0">
+                            <i class="fa-solid fa-pen-ruler"></i>
+                        </div>
+                        <div class="whitespace-nowrap">
+                            <span class="block text-[11px] text-slate-500 font-semibold">الامتحانات النهائية</span>
+                            <span class="text-xs sm:text-sm font-black text-slate-800">محددة بالذهبي</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200 flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center font-bold flex-shrink-0">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="whitespace-nowrap">
+                            <span class="block text-[11px] text-slate-500 font-semibold">مناسبات وعطل</span>
+                            <span class="text-xs sm:text-sm font-black text-slate-800">محددة بالرمادي</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend Filter -->
+                <div class="bg-slate-50 rounded-2xl p-2.5 border border-slate-200 flex flex-wrap items-center justify-between gap-2.5 text-xs font-bold text-slate-600">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-slate-400 font-bold flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-solid fa-filter text-slate-400"></i>
+                            <span>تصفية الألوان:</span>
+                        </span>
+                        
+                        <button onclick="filterByType('all')" id="btnFilterAll" class="px-3 py-1 rounded-lg border border-slate-300 bg-slate-800 text-white font-bold transition whitespace-nowrap">
+                            الكل
+                        </button>
+                        <button onclick="filterByType('gray')" id="btnFilterGray" class="flex items-center gap-2 px-3 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-200 text-slate-700 transition whitespace-nowrap">
+                            <span class="w-3.5 h-3.5 rounded bg-slate-300 inline-block border border-slate-400 flex-shrink-0"></span>
+                            <span>مناسبات / تقييمات / عطل رسمية (رمادي)</span>
+                        </button>
+                        <button onclick="filterByType('gold')" id="btnFilterGold" class="flex items-center gap-2 px-3 py-1 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 transition whitespace-nowrap">
+                            <span class="w-3.5 h-3.5 rounded bg-amber-300 inline-block border border-amber-400 flex-shrink-0"></span>
+                            <span>فترة الامتحانات النهائية (ذهبي)</span>
+                        </button>
+                    </div>
+                    <div class="text-slate-400 font-semibold text-xs flex items-center gap-1 whitespace-nowrap">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>انقر على أي تاريخ لتظليله بالأحمر (يتغير تلقائياً عند اختيار غيره)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendars Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 print-grid">
+                
+                <!-- الفصل الدراسي الأول Table Card -->
+                <div class="bg-white rounded-2xl border border-slate-300 overflow-hidden shadow-sm flex flex-col justify-between">
+                    <div>
+                        <!-- Header -->
+                        <div class="bg-gradient-to-r from-emerald-800 to-emerald-700 text-white px-3.5 py-2.5 font-bold flex items-center justify-between border-b border-emerald-900 gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <i class="fa-solid fa-calendar-days text-emerald-200 flex-shrink-0"></i>
+                                <span class="text-xs sm:text-sm md:text-base font-black whitespace-nowrap">الفصل الدراسي الأول</span>
+                            </div>
+                            <span class="text-[11px] sm:text-xs bg-emerald-950/40 text-emerald-100 px-2.5 py-1 rounded-full border border-emerald-500/30 whitespace-nowrap flex-shrink-0">19 أسبوعاً دراسياً</span>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-center border-collapse text-xs md:text-sm" id="tableSem1">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-800 font-extrabold border-b border-slate-300">
+                                        <th class="py-2 px-1 border-l border-slate-300 bg-slate-200/70 w-10 whitespace-nowrap">أسبوع</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الأحد</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الإثنين</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الثلاثاء</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الأربعاء</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الخميس</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 text-rose-700 bg-rose-50/50 whitespace-nowrap">الجمعة</th>
+                                        <th class="py-2 px-1 text-rose-700 bg-rose-50/50 whitespace-nowrap">السبت</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 bg-white" id="sem1Body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-1.5 text-center text-[11px] text-slate-600 border-t border-slate-200 font-semibold whitespace-nowrap">
+                        نهاية الفصل الدراسي الأول: 2027/01/16
+                    </div>
+                </div>
+
+                <!-- الفصل الدراسي الثاني Table Card -->
+                <div class="bg-white rounded-2xl border border-slate-300 overflow-hidden shadow-sm flex flex-col justify-between">
+                    <div>
+                        <!-- Header -->
+                        <div class="bg-gradient-to-r from-blue-800 to-indigo-700 text-white px-3.5 py-2.5 font-bold flex items-center justify-between border-b border-blue-900 gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <i class="fa-solid fa-calendar-days text-blue-200 flex-shrink-0"></i>
+                                <span class="text-xs sm:text-sm md:text-base font-black whitespace-nowrap">الفصل الدراسي الثاني</span>
+                            </div>
+                            <span class="text-[11px] sm:text-xs bg-blue-950/40 text-blue-100 px-2.5 py-1 rounded-full border border-blue-500/30 whitespace-nowrap flex-shrink-0">20 أسبوعاً دراسياً</span>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-center border-collapse text-xs md:text-sm" id="tableSem2">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-800 font-extrabold border-b border-slate-300">
+                                        <th class="py-2 px-1 border-l border-slate-300 bg-slate-200/70 w-10 whitespace-nowrap">أسبوع</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الأحد</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الإثنين</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الثلاثاء</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الأربعاء</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 whitespace-nowrap">الخميس</th>
+                                        <th class="py-2 px-1 border-l border-slate-300 text-rose-700 bg-rose-50/50 whitespace-nowrap">الجمعة</th>
+                                        <th class="py-2 px-1 text-rose-700 bg-rose-50/50 whitespace-nowrap">السبت</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 bg-white" id="sem2Body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-1.5 text-center text-[11px] text-slate-600 border-t border-slate-200 font-semibold whitespace-nowrap">
+                        نهاية العام الدراسي: 2027/06/19
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Official Printable Footer -->
+            <footer class="pt-3 border-t border-slate-300 flex flex-col md:flex-row justify-between items-center text-xs text-slate-700 font-bold gap-2">
+                <div class="whitespace-nowrap">
+                    <span>مدرسة عسقلان الأساسية للبنين</span>
+                    <span class="mx-2 text-slate-400">|</span>
+                    <span>العام الدراسي 2026 - 2027</span>
+                </div>
+                <div class="text-slate-700 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 whitespace-nowrap">
+                    تصميم الأستاذ فادي أبو الكباش
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Script Section -->
+    <script>
+        const dayNamesMap = {
+            sun: 'الأحد',
+            mon: 'الإثنين',
+            tue: 'الثلاثاء',
+            wed: 'الأربعاء',
+            thu: 'الخميس',
+            fri: 'الجمعة',
+            sat: 'السبت'
+        };
+
+        // Semester 1 Data (19 Weeks)
+        const sem1Data = [
+            { week: 1, sun: '09/06', mon: '09/07', tue: '09/08', wed: '09/09', thu: '09/10', fri: '09/11', sat: '09/12', highlights: {} },
+            { week: 2, sun: '09/13', mon: '09/14', tue: '09/15', wed: '09/16', thu: '09/17', fri: '09/18', sat: '09/19', highlights: {} },
+            { week: 3, sun: '09/20', mon: '09/21', tue: '09/22', wed: '09/23', thu: '09/24', fri: '09/25', sat: '09/26', highlights: {} },
+            { week: 4, sun: '09/27', mon: '09/28', tue: '09/29', wed: '09/30', thu: '10/01', fri: '10/02', sat: '10/03', highlights: {} },
+            { week: 5, sun: '10/04', mon: '10/05', tue: '10/06', wed: '10/07', thu: '10/08', fri: '10/09', sat: '10/10', highlights: {} },
+            { week: 6, sun: '10/11', mon: '10/12', tue: '10/13', wed: '10/14', thu: '10/15', fri: '10/16', sat: '10/17', highlights: {} },
+            { week: 7, sun: '10/18', mon: '10/19', tue: '10/20', wed: '10/21', thu: '10/22', fri: '10/23', sat: '10/24', highlights: {} },
+            { week: 8, sun: '10/25', mon: '10/26', tue: '10/27', wed: '10/28', thu: '10/29', fri: '10/30', sat: '10/31', highlights: {} },
+            { week: 9, sun: '11/01', mon: '11/02', tue: '11/03', wed: '11/04', thu: '11/05', fri: '11/06', sat: '11/07', highlights: {} },
+            { week: 10, sun: '11/08', mon: '11/09', tue: '11/10', wed: '11/11', thu: '11/12', fri: '11/13', sat: '11/14', highlights: {} },
+            { week: 11, sun: '11/15', mon: '11/16', tue: '11/17', wed: '11/18', thu: '11/19', fri: '11/20', sat: '11/21', highlights: { sun: 'gray', mon: 'gray' } },
+            { week: 12, sun: '11/22', mon: '11/23', tue: '11/24', wed: '11/25', thu: '11/26', fri: '11/27', sat: '11/28', highlights: {} },
+            { week: 13, sun: '11/29', mon: '11/30', tue: '12/01', wed: '12/02', thu: '12/03', fri: '12/04', sat: '12/05', highlights: {} },
+            { week: 14, sun: '12/06', mon: '12/07', tue: '12/08', wed: '12/09', thu: '12/10', fri: '12/11', sat: '12/12', highlights: {} },
+            { week: 15, sun: '12/13', mon: '12/14', tue: '12/15', wed: '12/16', thu: '12/17', fri: '12/18', sat: '12/19', highlights: {} },
+            { week: 16, sun: '12/20', mon: '12/21', tue: '12/22', wed: '12/23', thu: '12/24', fri: '12/25', sat: '12/26', highlights: {} },
+            { week: 17, sun: '12/27', mon: '12/28', tue: '12/29', wed: '12/30', thu: '12/31', fri: '01/01', sat: '01/02', highlights: { sun: 'gold', mon: 'gold', tue: 'gold', wed: 'gold', thu: 'gold' } },
+            { week: 18, sun: '01/03', mon: '01/04', tue: '01/05', wed: '01/06', thu: '01/07', fri: '01/08', sat: '01/09', highlights: { sun: 'gold', mon: 'gold', tue: 'gray', wed: 'gold', thu: 'gold' } },
+            { week: 19, sun: '01/10', mon: '01/11', tue: '01/12', wed: '01/13', thu: '01/14', fri: '01/15', sat: '01/16', highlights: { sun: 'gray', mon: 'gray', tue: 'gray' } }
+        ];
+
+        // Semester 2 Data (20 Weeks)
+        const sem2Data = [
+            { week: 1, sun: '—', mon: '02/01', tue: '02/02', wed: '02/03', thu: '02/04', fri: '02/05', sat: '02/06', highlights: { sun: 'crossed' } },
+            { week: 2, sun: '02/07', mon: '02/08', tue: '02/09', wed: '02/10', thu: '02/11', fri: '02/12', sat: '02/13', highlights: {} },
+            { week: 3, sun: '02/14', mon: '02/15', tue: '02/16', wed: '02/17', thu: '02/18', fri: '02/19', sat: '02/20', highlights: {} },
+            { week: 4, sun: '02/21', mon: '02/22', tue: '02/23', wed: '02/24', thu: '02/25', fri: '02/26', sat: '02/27', highlights: {} },
+            { week: 5, sun: '02/28', mon: '03/01', tue: '03/02', wed: '03/03', thu: '03/04', fri: '03/05', sat: '03/06', highlights: {} },
+            { week: 6, sun: '03/07', mon: '03/08', tue: '03/09', wed: '03/10', thu: '03/11', fri: '03/12', sat: '03/13', highlights: { sun: 'gray', mon: 'gray', tue: 'gray', wed: 'gray', thu: 'gray', fri: 'gray', sat: 'gray' } },
+            { week: 7, sun: '03/14', mon: '03/15', tue: '03/16', wed: '03/17', thu: '03/18', fri: '03/19', sat: '03/20', highlights: {} },
+            { week: 8, sun: '03/21', mon: '03/22', tue: '03/23', wed: '03/24', thu: '03/25', fri: '03/26', sat: '03/27', highlights: {} },
+            { week: 9, sun: '03/28', mon: '03/29', tue: '03/30', wed: '03/31', thu: '04/01', fri: '04/02', sat: '04/03', highlights: {} },
+            { week: 10, sun: '04/04', mon: '04/05', tue: '04/06', wed: '04/07', thu: '04/08', fri: '04/09', sat: '04/10', highlights: {} },
+            { week: 11, sun: '04/11', mon: '04/12', tue: '04/13', wed: '04/14', thu: '04/15', fri: '04/16', sat: '04/17', highlights: {} },
+            { week: 12, sun: '04/18', mon: '04/19', tue: '04/20', wed: '04/21', thu: '04/22', fri: '04/23', sat: '04/24', highlights: {} },
+            { week: 13, sun: '04/25', mon: '04/26', tue: '04/27', wed: '04/28', thu: '04/29', fri: '04/30', sat: '05/01', highlights: {} },
+            { week: 14, sun: '05/02', mon: '05/03', tue: '05/04', wed: '05/05', thu: '05/06', fri: '05/07', sat: '05/08', highlights: { sun: 'gray' } },
+            { week: 15, sun: '05/09', mon: '05/10', tue: '05/11', wed: '05/12', thu: '05/13', fri: '05/14', sat: '05/15', highlights: {} },
+            { week: 16, sun: '05/16', mon: '05/17', tue: '05/18', wed: '05/19', thu: '05/20', fri: '05/21', sat: '05/22', highlights: { sun: 'gray', mon: 'gray', tue: 'gray', wed: 'gray', thu: 'gray', fri: 'gray', sat: 'gray' } },
+            { week: 17, sun: '05/23', mon: '05/24', tue: '05/25', wed: '05/26', thu: '05/27', fri: '05/28', sat: '05/29', highlights: {} },
+            { week: 18, sun: '05/30', mon: '05/31', tue: '06/01', wed: '06/02', thu: '06/03', fri: '06/04', sat: '06/05', highlights: { wed: 'gold', thu: 'gold' } },
+            { week: 19, sun: '06/06', mon: '06/07', tue: '06/08', wed: '06/09', thu: '06/10', fri: '06/11', sat: '06/12', highlights: { sun: 'gold', mon: 'gold', tue: 'gold', wed: 'gold', thu: 'gold' } },
+            { week: 20, sun: '06/13', mon: '06/14', tue: '06/15', wed: '06/16', thu: '06/17', fri: '06/18', sat: '06/19', highlights: { sun: 'gold', mon: 'gold', tue: 'gold', wed: 'gold', thu: 'gold', fri: 'gray', sat: 'gray' } }
+        ];
+
+        // Animated Search Placeholder Script
+        const searchPrompts = [
+            "ابحث عن تاريخ (مثلاً 15/9)... 🔍",
+            "ابحث عن دوام أو عطلة (09/15)... 🏫",
+            "ابحث عن مواعيد الامتحانات... 📝",
+            "ابحث عن عطل أو مناسبات... 🌴"
+        ];
+
+        let promptIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let typingSpeed = 80;
+
+        function typeAnimatedPlaceholder() {
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) return;
+
+            if (searchInput.value.length > 0) {
+                setTimeout(typeAnimatedPlaceholder, 1000);
+                return;
+            }
+
+            const currentPrompt = searchPrompts[promptIndex];
+
+            if (isDeleting) {
+                searchInput.setAttribute('placeholder', currentPrompt.substring(0, charIndex--));
+                typingSpeed = 35;
+            } else {
+                searchInput.setAttribute('placeholder', currentPrompt.substring(0, charIndex++));
+                typingSpeed = 85;
+            }
+
+            if (!isDeleting && charIndex === currentPrompt.length + 1) {
+                isDeleting = true;
+                typingSpeed = 2000;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                promptIndex = (promptIndex + 1) % searchPrompts.length;
+                typingSpeed = 350;
+            }
+
+            setTimeout(typeAnimatedPlaceholder, typingSpeed);
+        }
+
+        function getCellClass(type) {
+            if (type === 'gray') return 'shaded-gray';
+            if (type === 'gold') return 'shaded-gold';
+            if (type === 'crossed') return 'crossed-cell';
+            return 'bg-white hover:bg-slate-100/70 text-slate-700';
+        }
+
+        function toggleCellRed(cell) {
+            if (cell.getAttribute('data-date') === '—') return;
+            
+            const isAlreadySelected = cell.classList.contains('selected-red');
+
+            document.querySelectorAll('.date-cell.selected-red').forEach(c => {
+                c.classList.remove('selected-red');
+            });
+
+            if (!isAlreadySelected) {
+                cell.classList.add('selected-red');
+            }
+        }
+
+        function renderCalendarRows(data, containerId, semesterName) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors border-b border-slate-200";
+
+                const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                
+                let html = `<td class="py-1.5 px-1 border-l border-slate-300 font-extrabold bg-slate-100 text-slate-800 week-cell whitespace-nowrap" data-week="${row.week}">${row.week}</td>`;
+                
+                days.forEach(day => {
+                    const dateVal = row[day];
+                    const highlightType = row.highlights[day] || '';
+                    const cellClass = getCellClass(highlightType);
+
+                    html += `<td class="py-1.5 px-1 border-l border-slate-300 text-center font-bold font-mono date-cell cursor-pointer select-none whitespace-nowrap ${cellClass}" 
+                                 onclick="toggleCellRed(this)"
+                                 data-date="${dateVal}" 
+                                 data-day="${day}"
+                                 data-week="${row.week}"
+                                 data-semester="${semesterName}"
+                                 data-type="${highlightType}">
+                        ${dateVal}
+                    </td>`;
+                });
+
+                tr.innerHTML = html;
+                container.appendChild(tr);
+            });
+        }
+
+        function normalizeString(str) {
+            const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return str.replace(/[٠-٩]/g, w => arabicDigits.indexOf(w)).replace(/[-.\\]/g, '/').trim();
+        }
+
+        function checkDateMatch(cellDate, rawQuery) {
+            if (!cellDate || cellDate === '—' || !rawQuery) return false;
+
+            const q = normalizeString(rawQuery);
+            const cDate = normalizeString(cellDate);
+
+            if (cDate.includes(q)) return true;
+
+            const parts = cDate.split('/');
+            if (parts.length === 2) {
+                const monthNum = parseInt(parts[0], 10);
+                const dayNum = parseInt(parts[1], 10);
+
+                const reversedFull = `${parts[1]}/${parts[0]}`;
+                if (reversedFull.includes(q)) return true;
+
+                const qParts = q.split('/');
+                if (qParts.length === 2) {
+                    const q1 = parseInt(qParts[0], 10);
+                    const q2 = parseInt(qParts[1], 10);
+
+                    if (!isNaN(q1) && !isNaN(q2)) {
+                        if ((q1 === dayNum && q2 === monthNum) || (q1 === monthNum && q2 === dayNum)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        function handleSearch() {
+            let queryInput = document.getElementById('searchInput').value.trim();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const resultsBar = document.getElementById('searchResultsBar');
+            const resultText = document.getElementById('searchResultText');
+            const statusDetailsBox = document.getElementById('statusDetailsBox');
+            const cells = document.querySelectorAll('.date-cell');
+
+            if (queryInput.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+                resultsBar.classList.add('hidden');
+                statusDetailsBox.innerHTML = '';
+            }
+
+            let matchCount = 0;
+            let statusHTML = '';
+
+            cells.forEach(cell => {
+                const dateText = cell.getAttribute('data-date') || '';
+                const dayKey = cell.getAttribute('data-day');
+                const weekNo = cell.getAttribute('data-week');
+                const semName = cell.getAttribute('data-semester');
+                const highlightType = cell.getAttribute('data-type');
+                
+                const isMatched = checkDateMatch(dateText, queryInput);
+
+                if (queryInput !== '' && isMatched) {
+                    cell.classList.add('search-match');
+                    matchCount++;
+
+                    let dayTitle = dayNamesMap[dayKey] || '';
+                    let statusCard = '';
+
+                    if (highlightType === 'gold') {
+                        statusCard = `<div class="bg-amber-50 border border-amber-300 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-amber-900 shadow-sm">
+                                        <i class="fa-solid fa-pen-to-square text-amber-600 text-base"></i>
+                                        <div>
+                                            <span class="block text-[11px] text-amber-700">${semName} - الأسبوع ${weekNo}</span>
+                                            <span>التاريخ <strong>(${dateText} - ${dayTitle})</strong>: امتحانات نهائية 📝</span>
+                                        </div>
+                                     </div>`;
+                    } else if (highlightType === 'gray') {
+                        statusCard = `<div class="bg-slate-100 border border-slate-300 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-slate-800 shadow-sm">
+                                        <i class="fa-solid fa-umbrella-beach text-slate-600 text-base"></i>
+                                        <div>
+                                            <span class="block text-[11px] text-slate-500">${semName} - الأسبوع ${weekNo}</span>
+                                            <span>التاريخ <strong>(${dateText} - ${dayTitle})</strong>: عطلة / مناسبة 🌴</span>
+                                        </div>
+                                     </div>`;
+                    } else if (dayKey === 'fri' || dayKey === 'sat') {
+                        statusCard = `<div class="bg-rose-50 border border-rose-200 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-rose-900 shadow-sm">
+                                        <i class="fa-solid fa-mug-hot text-rose-600 text-base"></i>
+                                        <div>
+                                            <span class="block text-[11px] text-rose-700">عطلة نهاية الأسبوع</span>
+                                            <span>التاريخ <strong>(${dateText} - ${dayTitle})</strong>: لا يوجد دوام ☕</span>
+                                        </div>
+                                     </div>`;
+                    } else {
+                        statusCard = `<div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold text-emerald-900 shadow-sm">
+                                        <i class="fa-solid fa-square-check text-emerald-600 text-base"></i>
+                                        <div>
+                                            <span class="block text-[11px] text-emerald-700">${semName} - الأسبوع ${weekNo}</span>
+                                            <span>التاريخ <strong>(${dateText} - ${dayTitle})</strong>: دوام مدرسي عادي 🏫</span>
+                                        </div>
+                                     </div>`;
+                    }
+
+                    statusHTML += statusCard;
+                } else {
+                    cell.classList.remove('search-match');
+                }
+            });
+
+            if (queryInput.length > 0) {
+                resultsBar.classList.remove('hidden');
+                resultText.textContent = `تم العثور على (${matchCount}) نتيجة مطابقة لـ "${queryInput}":`;
+                statusDetailsBox.innerHTML = statusHTML || `<div class="col-span-2 text-xs text-slate-500 italic p-2 text-center">لم يتم العثور على أي تاريخ يطابق مدخلات البحث</div>`;
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            handleSearch();
+        }
+
+        function filterByType(type) {
+            const cells = document.querySelectorAll('.date-cell');
+            
+            document.getElementById('btnFilterAll').className = type === 'all' ? 'px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-800 text-white font-bold transition whitespace-nowrap' : 'px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold transition whitespace-nowrap';
+            
+            cells.forEach(cell => {
+                const cellType = cell.getAttribute('data-type');
+                cell.style.opacity = '1';
+                cell.style.transform = 'none';
+
+                if (type !== 'all') {
+                    if (cellType !== type) {
+                        cell.style.opacity = '0.2';
+                    } else {
+                        cell.style.transform = 'scale(1.06)';
+                    }
+                }
+            });
+        }
+
+        function triggerPrint() {
+            window.print();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCalendarRows(sem1Data, 'sem1Body', 'الفصل الأول');
+            renderCalendarRows(sem2Data, 'sem2Body', 'الفصل الثاني');
+            typeAnimatedPlaceholder();
+        });
+    </script>
+</body>
+</html>
