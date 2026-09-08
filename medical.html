@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تكنولوجيا الجراحة - قسطرة القلب | الأستاذ فادي أبو الكباش</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js for Educational Game Audio Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        heart: {
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                        },
+                        accent: {
+                            purple: '#7e22ce',
+                            teal: '#0d9488'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        tajawal: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        /* Pulse animation for heart & active elements */
+        @keyframes heartPulse {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.15); }
+            70% { transform: scale(1); }
+        }
+
+        .animate-heart {
+            animation: heartPulse 1.8s infinite ease-in-out;
+        }
+
+        /* Continuous Blood Cells Flow Animation */
+        @keyframes bloodFlowAnim {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(500px); }
+        }
+
+        .blood-cells-streaming {
+            animation: bloodFlowAnim 2.5s linear infinite;
+        }
+
+        .blood-cells-streaming-fast {
+            animation: bloodFlowAnim 1.2s linear infinite;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 glass-card border-b border-sky-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-sky-600 to-indigo-600 text-white p-3 rounded-2xl shadow-lg shadow-sky-500/30 flex items-center justify-center">
+                    <i class="fa-solid fa-heart-pulse text-2xl animate-heart"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">التكنولوجيا الطبية الحديثة</h1>
+                    <p class="text-xs sm:text-sm font-semibold text-sky-600">درس: عمليات جراحية تجري بواسطة التكنولوجيا • الصف السابع</p>
+                </div>
+            </div>
+
+            <!-- Voice Narrator Control Banner Header -->
+            <div class="flex items-center gap-2 bg-sky-50 p-2 rounded-xl border border-sky-200">
+                <button id="globalAudioBtn" onclick="toggleGlobalAudio()" class="flex items-center gap-2 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-sm font-bold transition shadow-md">
+                    <i id="globalAudioIcon" class="fa-solid fa-volume-high"></i>
+                    <span id="globalAudioText">القارئ الصوتي التفاعلي</span>
+                </button>
+                <button onclick="stopAudio()" class="px-2 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold transition" title="إيقاف الصوت">
+                    <i class="fa-solid fa-square"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 py-2 no-scrollbar">
+            <button onclick="switchTab('lesson')" id="tab-lesson" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition flex items-center gap-2 bg-sky-600 text-white shadow-md">
+                <i class="fa-solid fa-book-open"></i> الشرح والتجربة التاريخية
+            </button>
+            <button onclick="switchTab('sim')" id="tab-sim" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition flex items-center gap-2 bg-white text-slate-600 hover:bg-sky-50">
+                <i class="fa-solid fa-stethoscope text-red-500"></i> محاكي القسطرة التفاعلي
+            </button>
+            <button onclick="switchTab('compare')" id="tab-compare" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition flex items-center gap-2 bg-white text-slate-600 hover:bg-sky-50">
+                <i class="fa-solid fa-scale-balanced text-indigo-500"></i> مقارنة: قديمًا واليوم
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition flex items-center gap-2 bg-white text-slate-600 hover:bg-sky-50">
+                <i class="fa-solid fa-gamepad text-emerald-500"></i> اختبر معلوماتك (لعبة التحدي)
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- TAB 1: LESSON & HISTORY -->
+        <section id="section-lesson" class="tab-section space-y-6">
+            
+            <!-- Intro Banner -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-sky-900 to-indigo-900 text-white relative overflow-hidden shadow-xl">
+                <div class="absolute -left-10 -bottom-10 opacity-10 text-white text-9xl pointer-events-none">
+                    <i class="fa-solid fa-microscope"></i>
+                </div>
+                <div class="relative z-10 max-w-3xl">
+                    <span class="inline-block px-3 py-1 bg-sky-500/30 border border-sky-400/40 rounded-full text-xs font-bold mb-3 text-sky-200">الوحدة الأولى: التكنولوجيا الطبية</span>
+                    <h2 class="text-2xl sm:text-3xl font-black mb-3">عمليات جراحية تجري بواسطة التكنولوجيا</h2>
+                    <p class="text-sky-100 text-sm sm:text-base leading-relaxed mb-4">
+                        شهد المجال الطبي قفزات هائلة بفضل التكنولوجيا. فبعد أن كانت العمليات تتطلب فتح شقوق كبيرة وتستغرق ساعات مع مخاطر عالية، أصبحت التكنولوجيا الحديثة تمكن الأطباء من التشخيص والعلاج بدقة فائقة وبأقل شق جراحي ممكن!
+                    </p>
+                    <button onclick="speakText('شهد المجال الطبي قفزات هائلة بفضل التكنولوجيا. أصبحت التكنولوجيا الحديثة تمكن الأطباء من التشخيص والعلاج بدقة فائقة وبأقل شق جراحي ممكن، كما في قسطرة القلب.')" class="px-4 py-2 bg-sky-500 hover:bg-sky-400 text-white font-bold rounded-xl text-sm transition flex items-center gap-2 shadow-md">
+                        <i class="fa-solid fa-volume-high"></i> استمع للمقدمة الصوتية
+                    </button>
+                </div>
+            </div>
+
+            <!-- Historical Scientist Cards (Forssmann & Nobel Prize) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Forssmann Story Card -->
+                <div class="glass-card rounded-3xl p-6 border-t-4 border-amber-500 hover:shadow-xl transition">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">التجربة التاريخية الشجاعة (1929م)</h3>
+                                <p class="text-xs text-amber-600 font-bold">الطبيب الألماني: فارنر فورسمان (Werner Forssmann)</p>
+                            </div>
+                        </div>
+                        <button onclick="speakText('في عام 1929، قام الطبيب الألماني فارنر فورسمان بتجربة جريئة على نفسه، حيث خدر أوردة يده موضعياً، وأدخل سلكاً مجوفاً بقطر بضعة مليمترات وطول 65 سنتيمتراً حتى وصل للبطين الأيمن في قلبه، وصور نشاط القلب بالأشعة السينية لأول مرة!')" class="text-amber-600 hover:text-amber-800 text-lg">
+                            <i class="fa-solid fa-circle-play"></i>
+                        </button>
+                    </div>
+                    <ul class="space-y-2 text-sm text-slate-600 leading-relaxed">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
+                            <span>أجرى التجربة على <b>نفسه</b> تحت التخدير الموضعي بجرأة علمية نادرة.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
+                            <span>أدخل أنبوباً مجوفاً بطول <b>65 سم</b> عبر أوردة يده حتى وصل إلى البطين الأيمن للقلب.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-amber-500 mt-1"></i>
+                            <span>استخدم <b>الأشعة السينية (X-Ray)</b> لتصوير العملية وتوثيقها لأول مرة في التاريخ.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Nobel Prize Card -->
+                <div class="glass-card rounded-3xl p-6 border-t-4 border-emerald-500 hover:shadow-xl transition">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-slate-800">جائزة نوبل والتطور الطبي (1956م)</h3>
+                                <p class="text-xs text-emerald-600 font-bold">فورسمان + أندريه كورنان + ديكنسون ريتشاردز</p>
+                            </div>
+                        </div>
+                        <button onclick="speakText('بعد انتشار الفكرة، طور العالمان الأمريكيان أندريه كورنان وديكنسون ريتشاردز هذه العملية، وحصل العلماء الثلاثة على جائزة نوبل في الطب عام 1956م، لتصبح القسطرة أساساً للعمليات الحديثة.')" class="text-emerald-600 hover:text-emerald-800 text-lg">
+                            <i class="fa-solid fa-circle-play"></i>
+                        </button>
+                    </div>
+                    <ul class="space-y-2 text-sm text-slate-600 leading-relaxed">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-emerald-500 mt-1"></i>
+                            <span>قام العلماء الأمريكيون بمحاكاة وتطوير التجارب وتوسيع استخدامها في الطب.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-emerald-500 mt-1"></i>
+                            <span>توج هذا الابتكار بجائزة <b>نوبل في الطب عام 1956م</b>.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-emerald-500 mt-1"></i>
+                            <span>أنقذت تقنية القسطرة حياة ملايين البشر حول العالم بدون شق جراحي كبير.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Catheterization Concepts & Types -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8">
+                <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-heart-pulse text-red-500"></i> ما هي قسطرة القلب؟ وما أنواعها؟
+                </h3>
+                <div class="bg-red-50 border-r-4 border-red-500 p-4 rounded-xl mb-6">
+                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-semibold">
+                        <b class="text-red-700">تعريف القسطرة:</b> إجراء طبي يتم فيه إدخال أنبوب مجوف رفيع يسمى (القسطار) عبر الأوعية الدموية للوصول إلى القلب لشرايينه بهدف التشخيص أو العلاج.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="p-5 rounded-2xl bg-sky-50 border border-sky-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center font-bold text-sm">1</span>
+                            <h4 class="font-bold text-sky-900">القسطرة التشخيصية</h4>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                            تُستخدم للبحث عن سبب التضيق أو الانسداد في الشرايين التاجية، وتحديد مكانه ومدى شدته باستخدام حقن الصبغة والتصوير بالأشعة السينية.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-indigo-50 border border-indigo-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">2</span>
+                            <h4 class="font-bold text-indigo-900">القسطرة العلاجية</h4>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                            تُستخدم لفتح الشريان المتضيق عن طريق نفخ بالون دقيق ووضع شبكة معدنية (دعامة) لإبقاء الشريان مفتوحاً وضمان تدفق الدم بشكل طبيعي.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- TAB 2: INTERACTIVE SIMULATOR -->
+        <section id="section-sim" class="tab-section hidden space-y-6">
+            
+            <div class="glass-card rounded-3xl p-6">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-camera-retro text-red-600 animate-pulse"></i> محاكي غرفة العمليات: جراحة القسطرة وزراعة الدعامة
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-500">عزيزي الطبيب الصغير: تابع مراحل القسطرة، افحص الانسداد، انغراس الدعامة، وسحب القسطار ليعود الدم للجريان بحرية!</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleCameraView()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-md">
+                            <i class="fa-solid fa-eye"></i> <span id="camera-toggle-text">إخفاء/إظهار الكاميرا</span>
+                        </button>
+                        <button onclick="resetSimulator()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-right"></i> إعادة التجربة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simulation Stepper UI (5 Detailed Steps) -->
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6">
+                    <button id="sim-step-btn-1" onclick="setSimStep(1)" class="sim-step-btn p-2.5 rounded-2xl text-center font-bold text-xs border-2 border-sky-600 bg-sky-50 text-sky-800 transition">
+                        1. إدخال القسطار
+                    </button>
+                    <button id="sim-step-btn-2" onclick="setSimStep(2)" class="sim-step-btn p-2.5 rounded-2xl text-center font-bold text-xs border-2 border-slate-200 bg-white text-slate-500 transition">
+                        2. التشخيص والصبغة
+                    </button>
+                    <button id="sim-step-btn-3" onclick="setSimStep(3)" class="sim-step-btn p-2.5 rounded-2xl text-center font-bold text-xs border-2 border-slate-200 bg-white text-slate-500 transition">
+                        3. نفخ البالون
+                    </button>
+                    <button id="sim-step-btn-4" onclick="setSimStep(4)" class="sim-step-btn p-2.5 rounded-2xl text-center font-bold text-xs border-2 border-slate-200 bg-white text-slate-500 transition">
+                        4. تركيب الدعامة
+                    </button>
+                    <button id="sim-step-btn-5" onclick="setSimStep(5)" class="sim-step-btn p-2.5 rounded-2xl text-center font-bold text-xs border-2 border-slate-200 bg-white text-slate-500 transition">
+                        5. سحب القسطار والتدفق
+                    </button>
+                </div>
+
+                <!-- Interactive Main View Area (Split View: Longitudinal + Camera Cross-Section) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    
+                    <!-- Left/Main Screen: Longitudinal Vessel Monitor (2/3 width) -->
+                    <div class="lg:col-span-2 bg-slate-950 rounded-2xl overflow-hidden border-4 border-slate-800 shadow-2xl p-4 flex flex-col justify-between min-h-[380px] relative">
+                        
+                        <!-- Vital Signs Overlay -->
+                        <div class="flex justify-between items-center text-xs text-emerald-400 font-mono z-10 bg-slate-900/90 p-2.5 rounded-xl border border-emerald-500/30">
+                            <div class="flex items-center gap-2">
+                                <span id="ecg-pulse-dot" class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+                                <span>نبض القلب (ECG): <b id="heart-rate-val" class="text-white">78 BPM</b></span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span>ضغط الدم: <b id="blood-pressure-val" class="text-sky-300">120/80</b></span>
+                                <span class="hidden sm:inline">| انسداد الشريان: <b id="occlusion-pct" class="text-amber-400 font-bold">85%</b></span>
+                            </div>
+                        </div>
+
+                        <!-- Longitudinal SVG Graphic Animation Container -->
+                        <div class="my-auto w-full flex justify-center items-center relative py-4 overflow-hidden">
+                            <svg id="sim-svg" class="w-full h-52" viewBox="0 0 600 200">
+                                <defs>
+                                    <linearGradient id="wallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#991b1b" />
+                                        <stop offset="50%" stop-color="#ef4444" />
+                                        <stop offset="100%" stop-color="#7f1d1d" />
+                                    </linearGradient>
+                                    <linearGradient id="plaqueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#facc15" />
+                                        <stop offset="100%" stop-color="#ca8a04" />
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Artery Outer Boundary -->
+                                <path d="M 0 40 Q 300 20 600 40 L 600 160 Q 300 180 0 160 Z" fill="url(#wallGrad)" opacity="0.3" />
+                                <path d="M 0 50 Q 300 30 600 50" stroke="#b91c1c" stroke-width="12" fill="none" />
+                                <path d="M 0 150 Q 300 170 600 150" stroke="#b91c1c" stroke-width="12" fill="none" />
+
+                                <!-- Blood Red Cells Stream (Animated) -->
+                                <g id="blood-cells-group" class="blood-cells-streaming">
+                                    <circle cx="-60" cy="100" r="8" fill="#dc2626" />
+                                    <circle cx="-30" cy="88" r="7" fill="#ef4444" />
+                                    <circle cx="0" cy="112" r="9" fill="#991b1b" />
+                                    <circle cx="40" cy="98" r="6" fill="#dc2626" />
+                                    <circle cx="80" cy="105" r="8" fill="#ef4444" />
+                                    <circle cx="120" cy="92" r="7" fill="#dc2626" />
+                                    <circle cx="160" cy="108" r="8" fill="#991b1b" />
+                                </g>
+
+                                <!-- Fatty Deposits (Plaque) in middle -->
+                                <path id="plaque-top" d="M 250 52 Q 300 100 350 52 Z" fill="url(#plaqueGrad)" />
+                                <path id="plaque-bottom" d="M 250 148 Q 300 100 350 148 Z" fill="url(#plaqueGrad)" />
+
+                                <!-- Catheter Tube Wire with Front Lens Light -->
+                                <g id="catheter-group" class="transition-all duration-700 ease-in-out">
+                                    <path id="catheter-wire" d="M 0 100 L 150 100" stroke="#cbd5e1" stroke-width="7" fill="none" stroke-linecap="round" />
+                                    <circle id="catheter-tip-camera" cx="150" cy="100" r="6" fill="#0284c7" stroke="#38bdf8" stroke-width="2" />
+                                    <!-- Camera Beam Projection -->
+                                    <polygon id="camera-beam" points="150,100 200,75 200,125" fill="#38bdf8" opacity="0.25" />
+                                </g>
+
+                                <!-- Contrast Dye Effect -->
+                                <g id="contrast-dye" opacity="0" class="transition-opacity duration-500">
+                                    <ellipse cx="300" cy="100" rx="60" ry="35" fill="#38bdf8" opacity="0.4" />
+                                </g>
+
+                                <!-- Balloon -->
+                                <ellipse id="sim-balloon" cx="300" cy="100" rx="8" ry="8" fill="#38bdf8" opacity="0" class="transition-all duration-500" />
+
+                                <!-- Metallic Stent (الشبكة الدعامة المعدنية) -->
+                                <g id="sim-stent" opacity="0" class="transition-opacity duration-500">
+                                    <!-- Lattice Net Mesh Effect -->
+                                    <rect x="250" y="65" width="100" height="70" rx="6" fill="none" stroke="#f8fafc" stroke-width="3.5" stroke-dasharray="6 3" />
+                                    <line x1="250" y1="65" x2="350" y2="135" stroke="#38bdf8" stroke-width="1.5" opacity="0.6" />
+                                    <line x1="250" y1="135" x2="350" y2="65" stroke="#38bdf8" stroke-width="1.5" opacity="0.6" />
+                                </g>
+
+                            </svg>
+                        </div>
+
+                        <!-- Main Screen Bottom Status Bar -->
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 flex justify-between items-center">
+                            <span>حالة الشريان: <b id="artery-status-text" class="text-amber-400 font-bold">تراكم الشحوم واللويحات الدهنية</b></span>
+                            <span class="text-slate-400"><i class="fa-solid fa-circle text-red-500 text-[10px] animate-ping mr-1"></i> بث الكاميرا حي</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Screen: Intravascular Camera Live View (شاشة كاميرا رأس القسطار) -->
+                    <div id="camera-view-panel" class="bg-black rounded-2xl overflow-hidden border-4 border-indigo-900/80 shadow-2xl p-4 flex flex-col justify-between relative min-h-[380px]">
+                        
+                        <div class="flex justify-between items-center text-xs text-indigo-300 font-bold border-b border-indigo-900/50 pb-2">
+                            <span class="flex items-center gap-1.5 text-rose-400">
+                                <i class="fa-solid fa-video text-rose-500 animate-pulse"></i> كاميرا التنظير (IVUS)
+                            </span>
+                            <span id="cam-zoom-tag" class="bg-indigo-950 px-2 py-0.5 rounded border border-indigo-700/50 text-[11px]">مقطع عرضي 360°</span>
+                        </div>
+
+                        <!-- Circular Cross-Section Endoscopic Camera Graphic -->
+                        <div class="relative my-auto flex justify-center items-center py-2">
+                            <svg class="w-48 h-48 sm:w-52 sm:h-52" viewBox="0 0 200 200">
+                                <!-- Cross Section Background Wall -->
+                                <circle cx="100" cy="100" r="90" fill="#7f1d1d" stroke="#b91c1c" stroke-width="8" />
+                                <circle cx="100" cy="100" r="82" fill="#991b1b" />
+                                
+                                <!-- Fatty Plaque Occlusion Ring -->
+                                <circle id="cam-plaque-ring" cx="100" cy="100" r="70" fill="#ca8a04" stroke="#facc15" stroke-width="8" class="transition-all duration-700" />
+                                
+                                <!-- Open Lumen Area (طريق تدفق الدم) -->
+                                <circle id="cam-lumen-opening" cx="100" cy="100" r="22" fill="#0f172a" stroke="#dc2626" stroke-width="4" class="transition-all duration-700" />
+                                
+                                <!-- Flowing Blood Cells in Center -->
+                                <circle id="cam-blood-dot-1" cx="95" cy="95" r="5" fill="#ef4444" />
+                                <circle id="cam-blood-dot-2" cx="105" cy="102" r="4" fill="#dc2626" />
+
+                                <!-- Balloon expansion ring in camera view -->
+                                <circle id="cam-balloon-ring" cx="100" cy="100" r="22" fill="none" stroke="#38bdf8" stroke-width="0" stroke-dasharray="4 2" opacity="0" class="transition-all duration-500" />
+
+                                <!-- Metallic Stent Structure Ring in camera view -->
+                                <circle id="cam-stent-ring" cx="100" cy="100" r="62" fill="none" stroke="#f8fafc" stroke-width="4" stroke-dasharray="6 3" opacity="0" class="transition-all duration-500" />
+
+                                <!-- Camera Target Crosshair Overlay -->
+                                <line x1="100" y1="10" x2="100" y2="190" stroke="#38bdf8" stroke-width="0.5" opacity="0.3" />
+                                <line x1="10" y1="100" x2="190" y2="100" stroke="#38bdf8" stroke-width="0.5" opacity="0.3" />
+                                <circle cx="100" cy="100" r="86" fill="none" stroke="#0284c7" stroke-width="1" stroke-dasharray="2 4" opacity="0.5" />
+                            </svg>
+
+                            <!-- Camera Watermark Overlay -->
+                            <div class="absolute bottom-2 right-2 text-[10px] text-slate-500 font-mono bg-black/60 px-1.5 py-0.5 rounded">
+                                CAM_IVUS_HD
+                            </div>
+                        </div>
+
+                        <!-- Camera Analysis Text Explanation Box -->
+                        <div id="cam-analysis-box" class="bg-indigo-950/80 p-2.5 rounded-xl border border-indigo-800 text-[11px] text-indigo-100 leading-snug">
+                            <b>تحليل الكاميرا:</b> يلاحظ تراكم الكوليسترول والترسبات الدهنية الصفراء مما يضيق تجويف الشريان ويمنع مرور الدم إلى القلب.
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Interactive Controls Panel Below Viewports -->
+                <div id="sim-controls-panel" class="bg-slate-900 p-4 rounded-2xl border border-slate-800 flex flex-wrap justify-between items-center gap-4 mt-4">
+                    <div id="sim-step-desc" class="text-xs sm:text-sm text-slate-200 max-w-xl leading-relaxed">
+                        <b>الخطوة 1:</b> اضغط على زر "دفع القسطار والكاميرا" لتمرير الكاميرا في الأوعية ومراقبة الشريان من الداخل.
+                    </div>
+                    <div id="sim-action-container" class="flex flex-wrap items-center gap-2">
+                        <button id="sim-action-btn" onclick="executeStepAction()" class="px-5 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-black rounded-xl text-sm shadow-lg transition flex items-center gap-2">
+                            <i class="fa-solid fa-play"></i> دفع القسطار والكاميرا
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step Educational Details Box -->
+                <div id="sim-info-box" class="mt-4 p-4 rounded-2xl bg-sky-50 border border-sky-200 text-xs sm:text-sm text-slate-700 leading-relaxed flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-sky-600 text-lg mt-0.5"></i>
+                    <div id="sim-info-text">
+                        تتطلب القسطرة إدخال أنبوب رفيع مرن مزود بكاميرا تنظير أو أجهزة تصوير دقيقة عبر الأوعية الدموية حتى الوصول إلى القلب وشرايينه.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- TAB 3: COMPARISON -->
+        <section id="section-compare" class="tab-section hidden space-y-6">
+            
+            <div class="glass-card rounded-3xl p-6 sm:p-8">
+                <div class="text-center max-w-2xl mx-auto mb-8">
+                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-bold">مقارنة علمية شاملة</span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mt-2">كيف غيرت التكنولوجيا عمليات القلب؟</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">قارن بين الجراحة التقليدية القديمة وتقنية قسطرة القلب الحديثة</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Old Open Surgery -->
+                    <div class="rounded-3xl p-6 bg-rose-50/70 border-2 border-rose-200 relative overflow-hidden">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-rose-200 text-rose-800 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-bed-pulse"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-rose-900">جراحة القلب المفتوح (قديمًا)</h3>
+                                <p class="text-xs text-rose-600">عملية جراحية كبرى تقليدية</p>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-3 text-xs sm:text-sm text-slate-700">
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-xmark text-rose-500 font-bold"></i>
+                                <span>تتطلب <b>شق صدر المريض</b> وقطع عظم القص طولياً.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-xmark text-rose-500 font-bold"></i>
+                                <span>تخضير كامل ومخاطر عالية على حياة المريض.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-xmark text-rose-500 font-bold"></i>
+                                <span>صعوبة تحديد مكان التضيق بدقة قبل الفتح الجراحي.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-xmark text-rose-500 font-bold"></i>
+                                <span>فترة شفاء طويلة ومؤلمة تستغرق أسابيع وأشهر.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Modern Catheterization -->
+                    <div class="rounded-3xl p-6 bg-emerald-50/70 border-2 border-emerald-200 relative overflow-hidden">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-200 text-emerald-800 flex items-center justify-center text-xl font-bold">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-emerald-900">قسطرة القلب التكنولوجية (حديثًا)</h3>
+                                <p class="text-xs text-emerald-600">تدخل جراحي دقيق ودون شق كبير</p>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-3 text-xs sm:text-sm text-slate-700">
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-check text-emerald-600 font-bold"></i>
+                                <span>بدون فتح الصدر، فقط ثقب صغير جداً في اليد أو الفخذ.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-check text-emerald-600 font-bold"></i>
+                                <span>تجرى تحت <b>التخدير الموضعي</b> والمريض واعي تماماً.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-check text-emerald-600 font-bold"></i>
+                                <span>تحديد مكان الانسداد بالدقة المليمترية بوساطة الأشعة السينية.</span>
+                            </li>
+                            <li class="flex items-center gap-2 p-2 rounded-xl bg-white/80">
+                                <i class="fa-solid fa-check text-emerald-600 font-bold"></i>
+                                <span>فترة تعافي سريعة جداً، ويغادر المريض المستشفى غالباً بنفس اليوم!</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- TAB 4: QUIZ GAME -->
+        <section id="section-quiz" class="tab-section hidden space-y-6">
+            
+            <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-3xl mx-auto">
+                <!-- Quiz Header Info -->
+                <div class="flex justify-between items-center border-b pb-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-800">تحدي أبطال التكنولوجيا الطبية 🏆</h2>
+                        <p class="text-xs text-slate-500">اختبر معلوماتك في درس العمليات الجراحية بواسطة التكنولوجيا</p>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs text-slate-400 font-bold">النقاط الحالية</div>
+                        <div id="quiz-score" class="text-2xl font-black text-emerald-600">0</div>
+                    </div>
+                </div>
+
+                <!-- Quiz Main Container -->
+                <div id="quiz-body">
+                    <!-- Dynamic Question Area -->
+                    <div class="mb-6">
+                        <span id="quiz-q-num" class="px-2.5 py-1 bg-sky-100 text-sky-800 rounded-lg text-xs font-bold mb-2 inline-block">السؤال 1 من 5</span>
+                        <h3 id="quiz-question" class="text-base sm:text-lg font-bold text-slate-800 leading-snug">
+                            جارٍ تحميل السؤال...
+                        </h3>
+                    </div>
+
+                    <!-- Answer Options -->
+                    <div id="quiz-options" class="space-y-3 mb-6">
+                        <!-- Options generated dynamically -->
+                    </div>
+
+                    <!-- Feedback Alert -->
+                    <div id="quiz-feedback" class="hidden p-4 rounded-xl text-sm font-bold mb-4"></div>
+
+                    <!-- Next Button -->
+                    <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-2xl transition shadow-lg">
+                        السؤال التالي <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
+
+                <!-- Quiz Completion Screen -->
+                <div id="quiz-result" class="hidden text-center py-8 space-y-4">
+                    <div class="w-20 h-20 bg-amber-100 text-amber-500 text-4xl rounded-full flex items-center justify-center mx-auto shadow-inner animate-bounce">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-800">أحسنت يا بطل التكنولوجيا! 🎉</h3>
+                    <p id="quiz-final-msg" class="text-slate-600 text-sm">لقد أتممت الاختبار بنجاح متفوق.</p>
+                    <div class="p-4 bg-sky-50 rounded-2xl border border-sky-200 inline-block text-sky-900 font-bold text-lg">
+                        النتيجة النهائية: <span id="quiz-final-score" class="text-sky-600">0</span> / 50
+                    </div>
+                    <div>
+                        <button onclick="restartQuiz()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition shadow-md">
+                            <i class="fa-solid fa-rotate-right"></i> إعادة التحدي
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer & Credits -->
+    <footer class="bg-slate-900 text-white mt-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-right">
+                <div>
+                    <h4 class="font-black text-lg text-sky-400">تطبيق العمليات الجراحية التكنولوجية</h4>
+                    <p class="text-xs text-slate-400 mt-1">الصف السابع الأساسي • مبحث التكنولوجيا • فلسطين</p>
+                </div>
+                
+                <!-- Explicit Creator Signature -->
+                <div class="bg-slate-800/80 p-4 rounded-2xl border border-sky-500/30 text-center sm:text-left">
+                    <div class="text-xs text-slate-400 font-semibold mb-1">تمت البرمجة والتطوير بواسطة:</div>
+                    <div class="text-base font-black text-amber-300 flex items-center justify-center sm:justify-start gap-2">
+                        <i class="fa-solid fa-chalkboard-user text-sky-400"></i>
+                        <span>إعداد وتصميم الأستاذ فادي أبو الكباش</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 mt-6 pt-4 text-center text-xs text-slate-500">
+                جميع الحقوق محفوظة © 2026 - مادة التكنولوجيا التعليمية التفاعلية
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Audio & Speech Synthesis Variables
+        let synth = window.speechSynthesis;
+        let isSpeaking = false;
+
+        // Navigation Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-600', 'text-white', 'shadow-md');
+                btn.classList.add('bg-white', 'text-slate-600');
+            });
+
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('bg-sky-600', 'text-white', 'shadow-md');
+            activeBtn.classList.remove('bg-white', 'text-slate-600');
+
+            // Play light sound effect
+            playBeepSound(600, 0.05);
+        }
+
+        function speakText(text) {
+            if (!synth) {
+                alert("عذراً، المتصفح لا يدعم القارئ الصوتي.");
+                return;
+            }
+
+            synth.cancel(); // Stop any ongoing speech
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.9; // Natural pace
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                updateAudioUI(true);
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                updateAudioUI(false);
+            };
+
+            utterance.onerror = () => {
+                isSpeaking = false;
+                updateAudioUI(false);
+            };
+
+            synth.speak(utterance);
+        }
+
+        function toggleGlobalAudio() {
+            if (isSpeaking) {
+                stopAudio();
+            } else {
+                speakText("مرحباً بكم في درس العمليات الجراحية بواسطة التكنولوجيا للصف السابع. سنتعرف اليوم على قسطرة القلب وتاريخ تطويرها من قبل الطبيب فارنر فورسمان ومحاكاتها تفاعلياً.");
+            }
+        }
+
+        function stopAudio() {
+            if (synth) {
+                synth.cancel();
+            }
+            isSpeaking = false;
+            updateAudioUI(false);
+        }
+
+        function updateAudioUI(speaking) {
+            const icon = document.getElementById('globalAudioIcon');
+            const text = document.getElementById('globalAudioText');
+            if (speaking) {
+                icon.className = 'fa-solid fa-pause text-amber-300 animate-pulse';
+                text.innerText = 'جاري القراءة الصوتية...';
+            } else {
+                icon.className = 'fa-solid fa-volume-high';
+                text.innerText = 'القارئ الصوتي التفاعلي';
+            }
+        }
+
+        function playBeepSound(freq = 440, duration = 0.1) {
+            try {
+                const synthSound = new Tone.Synth().toDestination();
+                synthSound.triggerAttackRelease(freq, duration);
+            } catch (e) {
+                // Fallback silently if audio context restricted
+            }
+        }
+
+        function playSuccessSound() {
+            try {
+                const poly = new Tone.PolySynth().toDestination();
+                poly.triggerAttackRelease(["C4", "E4", "G4", "C5"], "8n");
+            } catch (e) {}
+        }
+
+        let simCurrentStep = 1;
+        let isCameraVisible = true;
+
+        const simStepsData = {
+            1: {
+                title: "1. إدخال القسطار والكاميرا",
+                desc: "<b>الخطوة 1:</b> قم بتوجيه أنبوب القسطار المزود بكاميرا المجهر المائي (IVUS) نحو مكان التضيق الشرياني.",
+                actionBtnText: "دفع القسطار والكاميرا للداخل",
+                info: "يدخل الطبيب القسطار عبر شق صغير جداً في الفخذ أو اليد، وتنقل الكاميرا صورة حية 360 درجة لمجري الشريان.",
+                catheterX: 180,
+                catheterOpacity: 1,
+                contrastOpacity: 0,
+                balloonRx: 8,
+                stentOpacity: 0,
+                plaqueGap: 0,
+                heartRate: "78 BPM",
+                bloodPressure: "120/80",
+                occlusionPct: "85%",
+                arteryStatus: "تضيق شديد بسبب تراكم الدهون",
+                bloodFlowSpeedClass: "blood-cells-streaming",
+                // Camera View Properties
+                camLumenRadius: 22,
+                camBalloonRadius: 0,
+                camStentOpacity: 0,
+                camPlaqueRingRadius: 70,
+                camAnalysis: "<b>شاشة الكاميرا المباشرة:</b> تظهر اللويحة الدهنية الصفراء وتضيق فتحة الشريان بشكل خطير (85%)."
+            },
+            2: {
+                title: "2. فحص الانسداد والتشخيص",
+                desc: "<b>الخطوة 2:</b> اضغط على 'حقن الصبغة التشخيصية' لتحديد شدة الانسداد بدقة تحت الأشعة السينية والكاميرا.",
+                actionBtnText: "حقن الصبغة وتأكيد التشخيص",
+                info: "تؤكد الصبغة الملونة تحت الأشعة السينية مع الكاميرا النسبة الدقيقة لانسداد الشريان لتجهيز بالون التوسيع.",
+                catheterX: 300,
+                catheterOpacity: 1,
+                contrastOpacity: 1,
+                balloonRx: 8,
+                stentOpacity: 0,
+                plaqueGap: 0,
+                heartRate: "82 BPM",
+                bloodPressure: "130/85",
+                occlusionPct: "85%",
+                arteryStatus: "تم تأكيد الانسداد بالصبغة والكاميرا",
+                bloodFlowSpeedClass: "blood-cells-streaming",
+                camLumenRadius: 22,
+                camBalloonRadius: 0,
+                camStentOpacity: 0,
+                camPlaqueRingRadius: 70,
+                camAnalysis: "<b>تشخيص الكاميرا والصبغة:</b> تدفق الدم ضعيف جداً، الشريان بحاجة عاجلة للتوسيع بالبالون والدعامة."
+            },
+            3: {
+                title: "3. نفخ بالون التوسيع",
+                desc: "<b>الخطوة 3:</b> اضغط على 'نفخ البالون' لضغط الترسبات الدهنية نحو جدران الشريان وتوسيع المجرى.",
+                actionBtnText: "نفخ البالون وضغط الدهون",
+                info: "يتم نفخ بالون دقيق جداً بضغط هيدروليكي محدد ليدفع الدهون نحو جدار الشريان ويوسع فتحة المرور.",
+                catheterX: 300,
+                catheterOpacity: 1,
+                contrastOpacity: 0.2,
+                balloonRx: 30,
+                stentOpacity: 0,
+                plaqueGap: -18,
+                heartRate: "74 BPM",
+                bloodPressure: "122/82",
+                occlusionPct: "30%",
+                arteryStatus: "توسيع الشريان وضغط الدهون بالبالون...",
+                bloodFlowSpeedClass: "blood-cells-streaming",
+                camLumenRadius: 55,
+                camBalloonRadius: 55,
+                camStentOpacity: 0,
+                camPlaqueRingRadius: 78,
+                camAnalysis: "<b>شاشة الكاميرا:</b> البالون ينفخ ويضغط الدهون الخارجية، اتسعت فتحة الشريان لتسمح بزراعة الدعامة!"
+            },
+            4: {
+                title: "4. تركيب وتثبيت الدعامة الشبكية",
+                desc: "<b>الخطوة 4:</b> اضغط على 'زراعة الدعامة' لتثبيت الشبكة المعدنية التي تبقي جدار الشريان مفتوحاً نهائياً.",
+                actionBtnText: "تثبيت الدعامة الشبكية (Stent)",
+                info: "تزرع الشبكة المعدنية المجوفة كدعامة دائمية تنغرس في جدار الشريان لتمنع ارتداد الانسداد مستقبلاً.",
+                catheterX: 300,
+                catheterOpacity: 1,
+                contrastOpacity: 0,
+                balloonRx: 30,
+                stentOpacity: 1,
+                plaqueGap: -25,
+                heartRate: "72 BPM",
+                bloodPressure: "120/80",
+                occlusionPct: "10%",
+                arteryStatus: "تم تثبيت الشبكة المعدنية (الدعامة) بنجاح",
+                bloodFlowSpeedClass: "blood-cells-streaming",
+                camLumenRadius: 65,
+                camBalloonRadius: 60,
+                camStentOpacity: 1,
+                camPlaqueRingRadius: 82,
+                camAnalysis: "<b>انغراس الدعامة الشبكية:</b> الشبكة المعدنية مثبتة الآن بقوة على جدار الشريان. الخطوة القادمة هي سحب القسطار."
+            },
+            5: {
+                title: "5. سحب القسطار وسريان الدم الطبيعي",
+                desc: "<b>الخطوة 5:</b> اضغط على 'سحب القسطار' لإخراج الأنبوب والبالون خارج الجسم واستعادة تدفق الدم الطبيعي 100%.",
+                actionBtnText: "سحب القسطار وإتمام العملية 🏆",
+                info: "بعد تأمين الشريان بالدعامة، يتم سحب القسطار والبالون للخارج، فتتبقى الدعامة لتدفق الدم والأكسجين بحرية تامة.",
+                catheterX: -200, // Fully withdrawn catheter out of frame
+                catheterOpacity: 0,
+                contrastOpacity: 0,
+                balloonRx: 0,
+                stentOpacity: 1,
+                plaqueGap: -25,
+                heartRate: "70 BPM (ممتاز)",
+                bloodPressure: "118/78 (طبيعي)",
+                occlusionPct: "0% (تدفق مجاني كامل)",
+                arteryStatus: "نجاح العملية! سريان الدم الطبيعي الكامل عبر الدعامة",
+                bloodFlowSpeedClass: "blood-cells-streaming-fast",
+                camLumenRadius: 70,
+                camBalloonRadius: 0,
+                camStentOpacity: 1,
+                camPlaqueRingRadius: 82,
+                camAnalysis: "<b>نتيجة القسطرة المكتملة:</b> تم سحب القسطار والبالون للخارج! الدعامة الشبكية ثابتة وتضمن تدفق الدم والسائل الحيوي بسلاسة سرعة فائقة 100%!"
+            }
+        };
+
+        function setSimStep(step) {
+            simCurrentStep = step;
+            const data = simStepsData[step];
+
+            // Update Active Stepper Buttons UI
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`sim-step-btn-${i}`);
+                if (i === step) {
+                    btn.className = "sim-step-btn p-2.5 rounded-2xl text-center font-bold text-xs border-2 border-sky-600 bg-sky-50 text-sky-800 transition shadow-sm";
+                } else {
+                    btn.className = "sim-step-btn p-2.5 rounded-2xl text-center font-bold text-xs border-2 border-slate-200 bg-white text-slate-500 transition";
+                }
+            }
+
+            // Update Descriptions & Monitors
+            document.getElementById('sim-step-desc').innerHTML = data.desc;
+            document.getElementById('sim-info-text').innerText = data.info;
+            document.getElementById('artery-status-text').innerText = data.arteryStatus;
+            document.getElementById('heart-rate-val').innerText = data.heartRate;
+            document.getElementById('blood-pressure-val').innerText = data.bloodPressure;
+            document.getElementById('occlusion-pct').innerText = data.occlusionPct;
+
+            const actionBtn = document.getElementById('sim-action-btn');
+            actionBtn.innerHTML = `<i class="fa-solid fa-play"></i> ${data.actionBtnText}`;
+
+            // Update Blood Streaming Animation Speed
+            const bloodGroup = document.getElementById('blood-cells-group');
+            bloodGroup.className = data.bloodFlowSpeedClass;
+
+            // 1. Update Main Longitudinal SVG Elements
+            const cathGroup = document.getElementById('catheter-group');
+            if (data.catheterOpacity === 0) {
+                cathGroup.style.opacity = '0';
+                document.getElementById('catheter-wire').setAttribute('d', `M -300 100 L -200 100`);
+            } else {
+                cathGroup.style.opacity = '1';
+                document.getElementById('catheter-wire').setAttribute('d', `M 0 100 L ${data.catheterX} 100`);
+            }
+
+            document.getElementById('catheter-tip-camera').setAttribute('cx', data.catheterX);
+            document.getElementById('camera-beam').setAttribute('points', `${data.catheterX},100 ${data.catheterX + 50},75 ${data.catheterX + 50},125`);
+            document.getElementById('contrast-dye').setAttribute('opacity', data.contrastOpacity);
+
+            const balloon = document.getElementById('sim-balloon');
+            balloon.setAttribute('rx', data.balloonRx);
+            balloon.setAttribute('ry', data.balloonRx / 1.5);
+            balloon.setAttribute('opacity', data.balloonRx > 10 ? '0.8' : '0');
+
+            document.getElementById('sim-stent').setAttribute('opacity', data.stentOpacity);
+
+            // Plaque displacement in longitudinal view
+            const pTop = document.getElementById('plaque-top');
+            const pBottom = document.getElementById('plaque-bottom');
+            if (data.plaqueGap < 0) {
+                pTop.setAttribute('d', `M 250 52 Q 300 ${80 + data.plaqueGap} 350 52 Z`);
+                pBottom.setAttribute('d', `M 250 148 Q 300 ${120 - data.plaqueGap} 350 148 Z`);
+            } else {
+                pTop.setAttribute('d', "M 250 52 Q 300 100 350 52 Z");
+                pBottom.setAttribute('d', "M 250 148 Q 300 100 350 148 Z");
+            }
+
+            // 2. Update Endoscopic Camera Cross-Section SVG Elements
+            document.getElementById('cam-lumen-opening').setAttribute('r', data.camLumenRadius);
+            document.getElementById('cam-plaque-ring').setAttribute('r', data.camPlaqueRingRadius);
+            
+            const camBalloon = document.getElementById('cam-balloon-ring');
+            if (data.camBalloonRadius > 0) {
+                camBalloon.setAttribute('r', data.camBalloonRadius);
+                camBalloon.setAttribute('stroke-width', '4');
+                camBalloon.setAttribute('opacity', '0.9');
+            } else {
+                camBalloon.setAttribute('opacity', '0');
+            }
+
+            const camStent = document.getElementById('cam-stent-ring');
+            camStent.setAttribute('opacity', data.camStentOpacity);
+
+            document.getElementById('cam-analysis-box').innerHTML = data.camAnalysis;
+
+            playBeepSound(400 + (step * 80), 0.1);
+        }
+
+        function toggleCameraView() {
+            const camPanel = document.getElementById('camera-view-panel');
+            isCameraVisible = !isCameraVisible;
+            if (isCameraVisible) {
+                camPanel.classList.remove('hidden');
+            } else {
+                camPanel.classList.add('hidden');
+            }
+        }
+
+        function executeStepAction() {
+            if (simCurrentStep < 5) {
+                setSimStep(simCurrentStep + 1);
+                if (simCurrentStep === 5) {
+                    playSuccessSound();
+                    speakText("أحسنت يا بطل التكنولوجيا الطبية! تم تثبيت الدعامة الشبكية وسحب القسطار بنجاح، وها هو الدم يجري الآن بطبيعية كاملة داخل الشريان لإنقاذ المريض!");
+                }
+            } else {
+                playSuccessSound();
+                speakText("تهانينا! اكتملت العملية بنجاح ممتاز، والشريان مفتوح بالكامل بفضل الدعامة الشبكية.");
+                alert("🎉 تهانينا يا طبيب المستقبل! تمت عملية القسطرة وتركيب الدعامة وسحب القسطار بنجاح، واستعاد الدم تدفقه وسريانه الطبيعي 100%.");
+            }
+        }
+
+        function resetSimulator() {
+            setSimStep(1);
+        }
+
+        const quizQuestions = [
+            {
+                q: "ما اسم الطبيب الألماني الذي أجرى أول تجربة قسطرة قلبية على نفسه عام 1929م؟",
+                options: ["أندريه كورنان", "فارنر فورسمان", "ديكنسون ريتشاردز", "لويس باستور"],
+                correct: 1,
+                exp: "أجرى فارنر فورسمان التجربة على نفسه بحس علمي شجاع عام 1929م."
+            },
+            {
+                q: "في أي عام حصل العلماء (فورسمان، كورنان، وريتشاردز) على جائزة نوبل في الطب؟",
+                options: ["1929م", "1940م", "1956م", "2000م"],
+                correct: 2,
+                exp: "حصلوا جميعاً على جائزة نوبل في الطب عام 1956م تكريماً لتطويرهم القسطرة."
+            },
+            {
+                q: "تُستخدم القسطرة التشخيصية بشكل أساسي لـ:",
+                options: [
+                    "شق الصدر وفتح عظم القص",
+                    "البحث عن مكان الانسداد والتضيق وتحديده",
+                    "إزالة القلب بالكامل",
+                    "قياس درجة حرارة الجسم فقط"
+                ],
+                correct: 1,
+                exp: "القسطرة التشخيصية تهدف لتحديد مكان التضيق وحقن الصبغة للتصوير."
+            },
+            {
+                q: "ما وظيفة الدعامة الشبكية (Stent) التي تُزرع في الشريان؟",
+                options: [
+                    "إبقاء الشريان مفتوحاً نهائياً ومنع ارتداد الانسداد",
+                    "قطع الأوعية الدموية وتسكيرها",
+                    "امتصاص الأكسجين من الدم",
+                    "تغيير لون الدم للأزرق"
+                ],
+                correct: 0,
+                exp: "توضع الشبكة المعدنية (Stent) كدعامة دائمة تمنع انسداد الشريان مجدداً."
+            },
+            {
+                q: "ماذا يحدث للقسطار بعد الانتهاء من زراعة وتثبيت الدعامة الشبكية في الشريان؟",
+                options: [
+                    "يترك القسطار داخل قلب المريض للأبد",
+                    "يتم سحب القسطار والبالون للخارج ليتدفق الدم بحرية عبر الدعامة",
+                    "يتحول القسطار إلى شريان جديد",
+                    "يتم تفجير القسطار داخل الجسم"
+                ],
+                correct: 1,
+                exp: "يتم سحب أنبوب القسطار والبالون للخارج مع ترك الدعامة مثبتة على جدار الشريان ليمر الدم بطبيعية."
+            }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function renderQuestion() {
+            answered = false;
+            const qData = quizQuestions[currentQIndex];
+            
+            document.getElementById('quiz-q-num').innerText = `السؤال ${currentQIndex + 1} من ${quizQuestions.length}`;
+            document.getElementById('quiz-question').innerText = qData.q;
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-right p-4 rounded-2xl border-2 border-slate-200 hover:border-sky-500 hover:bg-sky-50 text-sm font-bold text-slate-700 transition flex justify-between items-center";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-slate-300"></i>`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIdx, btnElement) {
+            if (answered) return;
+            answered = true;
+
+            const qData = quizQuestions[currentQIndex];
+            const feedback = document.getElementById('quiz-feedback');
+            const allBtns = document.getElementById('quiz-options').children;
+
+            if (selectedIdx === qData.correct) {
+                score += 10;
+                document.getElementById('quiz-score').innerText = score;
+                btnElement.className = "w-full text-right p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 text-sm font-bold flex justify-between items-center";
+                btnElement.querySelector('i').className = "fa-solid fa-circle-check text-emerald-600 text-lg";
+
+                feedback.className = "p-4 rounded-xl text-sm font-bold mb-4 bg-emerald-100 text-emerald-800 border border-emerald-300";
+                feedback.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> إجابة صحيحة! ${qData.exp}`;
+                playSuccessSound();
+            } else {
+                btnElement.className = "w-full text-right p-4 rounded-2xl border-2 border-rose-500 bg-rose-50 text-rose-900 text-sm font-bold flex justify-between items-center";
+                btnElement.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-600 text-lg";
+
+                // Highlight correct
+                allBtns[qData.correct].className = "w-full text-right p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 text-sm font-bold flex justify-between items-center";
+
+                feedback.className = "p-4 rounded-xl text-sm font-bold mb-4 bg-rose-100 text-rose-800 border border-rose-300";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> إجابة خاطئة. الإجابة الصحيحة هي: (${qData.options[qData.correct]}). ${qData.exp}`;
+                playBeepSound(200, 0.3);
+            }
+
+            feedback.classList.remove('hidden');
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < quizQuestions.length) {
+                renderQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-body').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+            document.getElementById('quiz-final-score').innerText = score;
+
+            let msg = "ممتاز جداً! أنت متفوق في التكنولوجيا الطبية.";
+            if (score < 30) {
+                msg = "حاول مرة أخرى وقرأ الشرح جيداً لتحقق الدرجة الكاملة!";
+            }
+            document.getElementById('quiz-final-msg').innerText = msg;
+            speakText(`أحسنت! أتممت التحدي بنجاح وحصلت على ${score} نقطة من 50.`);
+        }
+
+        function restartQuiz() {
+            currentQIndex = 0;
+            score = 0;
+            document.getElementById('quiz-score').innerText = score;
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-body').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        window.onload = function() {
+            // Init Simulator Step 1
+            setSimStep(1);
+            // Init Quiz Engine
+            renderQuestion();
+        };
+    </script>
+</body>
+</html>
