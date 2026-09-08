@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>درس التكنولوجيا في كل زمان - الصف الخامس</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        },
+                        amberCustom: '#f59e0b',
+                        emeraldCustom: '#10b981',
+                        purpleCustom: '#8b5cf6',
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(14, 165, 233, 0.4)' },
+                            '50%': { boxShadow: '0 0 30px rgba(14, 165, 233, 0.8)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .drop-zone {
+            transition: all 0.3s ease;
+            border: 2px dashed #38bdf8;
+        }
+
+        .drop-zone.drag-over {
+            background-color: rgba(56, 189, 248, 0.25) !important;
+            border-color: #f59e0b !important;
+            transform: scale(1.02);
+        }
+
+        .draggable-item {
+            cursor: grab;
+            touch-action: manipulation;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+
+        /* Selection highlight for touch / click fallback */
+        .item-selected {
+            border-color: #f59e0b !important;
+            background-color: rgba(245, 158, 11, 0.3) !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        /* Glassmorphism card effects */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38bdf8;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="p-2 md:p-6 overflow-x-hidden">
+
+    <!-- Top Bar Header -->
+    <header class="max-w-7xl mx-auto glass-card rounded-2xl p-4 mb-6 shadow-2xl flex flex-wrap items-center justify-between gap-4 border-b-2 border-sky-500">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-xl flex items-center justify-center text-2xl text-white shadow-lg animate-float">
+                <i class="fa-solid fa-gears"></i>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-black bg-gradient-to-r from-sky-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent">
+                    التكنولوجيا في كل زمان
+                </h1>
+                <p class="text-xs md:text-sm text-slate-300">المنهاج المدرسي - الصف الخامس الابتدائي | وحدة التكنولوجيا</p>
+            </div>
+        </div>
+
+        <!-- Teacher Credits Header Badge & Audio Controller -->
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="hidden sm:flex items-center gap-2 bg-gradient-to-r from-slate-800 to-slate-900 px-3 py-1.5 rounded-xl border border-amber-500/40 text-amber-300 text-xs font-bold shadow">
+                <i class="fa-solid fa-chalkboard-user text-sky-400 text-sm"></i>
+                <span>إعداد: الأستاذ فادي أبو الكباش</span>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700">
+                <button id="ttsButton" onclick="toggleAudioGuide()" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-md transition-all active:scale-95">
+                    <i id="ttsIcon" class="fa-solid fa-volume-high text-base"></i>
+                    <span id="ttsText" class="text-xs md:text-sm">الشارح الصوتي</span>
+                </button>
+                <div class="flex items-center gap-1 text-xs text-amber-400 font-bold px-2">
+                    <i class="fa-solid fa-star"></i>
+                    <span id="scoreDisplay">0 / 100</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="max-w-7xl mx-auto mb-6">
+        <div class="flex overflow-x-auto gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800 scrollbar-none shadow-xl">
+            <button onclick="switchTab('tab-story')" id="btn-tab-story" class="tab-btn flex-1 min-w-[130px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-lg">
+                <i class="fa-solid fa-hourglass-start"></i> رحلة الزمان
+            </button>
+            <button onclick="switchTab('tab-concept')" id="btn-tab-concept" class="tab-btn flex-1 min-w-[130px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-puzzle-piece"></i> مفهوم التكنولوجيا
+            </button>
+            <button onclick="switchTab('tab-classroom')" id="btn-tab-classroom" class="tab-btn flex-1 min-w-[140px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-chalkboard"></i> أداة أم منتج صفّي
+            </button>
+            <button onclick="switchTab('tab-categorize')" id="btn-tab-categorize" class="tab-btn flex-1 min-w-[130px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-shapes"></i> تصنيف البيئات
+            </button>
+            <button onclick="switchTab('tab-automation')" id="btn-tab-automation" class="tab-btn flex-1 min-w-[130px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-robot"></i> الأتمتة والقطاعات
+            </button>
+            <button onclick="switchTab('tab-quiz')" id="btn-tab-quiz" class="tab-btn flex-1 min-w-[130px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <i class="fa-solid fa-trophy"></i> اختبار الأبطال
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto min-h-[550px]">
+
+        <!-- TAB 1: Time Machine Timeline Game -->
+        <section id="tab-story" class="tab-content block">
+            <div class="glass-card rounded-2xl p-5 md:p-6 shadow-xl mb-6 border border-sky-500/30">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-sky-300 flex items-center gap-2">
+                            <i class="fa-solid fa-timeline text-amber-400"></i> نشاط 1: آلة الزمن وتطور التكنولوجيا عبر العصور
+                        </h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">
+                            اسحب الاختراع، أو <span class="text-amber-400 font-bold">انقر عليه لتحديده ثم انقر على العصر المناسب</span> لنقله مباشرة!
+                        </p>
+                    </div>
+                    <button onclick="resetTimelineGame()" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 px-3 py-2 rounded-xl font-bold shadow">
+                        <i class="fa-solid fa-rotate-right ml-1"></i> إعادة النشاط
+                    </button>
+                </div>
+
+                <!-- Touch / Drag Hint Banner -->
+                <div class="bg-sky-500/10 border border-sky-500/30 rounded-xl p-3 mb-4 text-xs text-sky-300 flex items-center gap-2">
+                    <i class="fa-solid fa-hand-pointer text-amber-400 text-base animate-bounce"></i>
+                    <span><strong>طريقة اللعب:</strong> يمكنك السحب والإفلات، أو <strong>انقر على الأداة ثم انقر على المربع المطلوب بالأسفل</strong> للوضع المباشر على الهاتف والتابلت واللوح الذكي!</span>
+                </div>
+
+                <!-- Draggable Bank -->
+                <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 mb-6">
+                    <h3 class="text-xs font-bold text-amber-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group"></i> الاختراعات والوسائل المتاحة للتصنيف:
+                    </h3>
+                    <div id="timelineItemsBank" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 min-h-[80px] p-2 bg-slate-800/50 rounded-lg">
+                        <!-- Items populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Drop Zones (3 Eras) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Zone 1: Ancient -->
+                    <div class="bg-amber-950/20 border-2 border-amber-600/40 rounded-xl p-4 drop-zone cursor-pointer flex flex-col min-h-[250px] hover:bg-amber-950/40 transition-all" 
+                         data-era="ancient" 
+                         onclick="handleZoneClick(this, 'timeline')"
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropTimeline(event)">
+                        <div class="text-center pb-3 border-b border-amber-600/30 mb-3 pointer-events-none">
+                            <span class="text-3xl">🦴</span>
+                            <h3 class="font-black text-amber-400 text-base md:text-lg">العصر القديم</h3>
+                            <p class="text-[11px] text-slate-400">تلبية الاحتياجات الأساسية بأدوات طبيعية بسيطة (فأس، فخار، رماح)</p>
+                        </div>
+                        <div class="dropped-container flex-1 flex flex-col gap-2 p-1 pointer-events-none" id="ancientZone"></div>
+                    </div>
+
+                    <!-- Zone 2: Industrial / Steam -->
+                    <div class="bg-blue-950/20 border-2 border-blue-600/40 rounded-xl p-4 drop-zone cursor-pointer flex flex-col min-h-[250px] hover:bg-blue-950/40 transition-all" 
+                         data-era="steam" 
+                         onclick="handleZoneClick(this, 'timeline')"
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropTimeline(event)">
+                        <div class="text-center pb-3 border-b border-blue-600/30 mb-3 pointer-events-none">
+                            <span class="text-3xl">🚂</span>
+                            <h3 class="font-black text-blue-400 text-base md:text-lg">عصر الثورة البخارية</h3>
+                            <p class="text-[11px] text-slate-400">اكتشاف قدرة ضغط البخار وتطوير النقل (المحرك، القطار البخاري)</p>
+                        </div>
+                        <div class="dropped-container flex-1 flex flex-col gap-2 p-1 pointer-events-none" id="steamZone"></div>
+                    </div>
+
+                    <!-- Zone 3: Modern -->
+                    <div class="bg-emerald-950/20 border-2 border-emerald-600/40 rounded-xl p-4 drop-zone cursor-pointer flex flex-col min-h-[250px] hover:bg-emerald-950/40 transition-all" 
+                         data-era="modern" 
+                         onclick="handleZoneClick(this, 'timeline')"
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropTimeline(event)">
+                        <div class="text-center pb-3 border-b border-emerald-600/30 mb-3 pointer-events-none">
+                            <span class="text-3xl">🚀</span>
+                            <h3 class="font-black text-emerald-400 text-base md:text-lg">العصر الحديث والمعاصر</h3>
+                            <p class="text-[11px] text-slate-400">التقنيات الحديثة، الحاسوب، الطائرات، والاتصالات الذكية</p>
+                        </div>
+                        <div class="dropped-container flex-1 flex flex-col gap-2 p-1 pointer-events-none" id="modernZone"></div>
+                    </div>
+                </div>
+
+                <!-- Explanation Box -->
+                <div id="timelineFeedback" class="mt-4 p-4 rounded-xl bg-slate-800/90 border border-slate-700 text-xs md:text-sm hidden text-center">
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Flexible Tech Definition Builder & Evaluator -->
+        <section id="tab-concept" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-5 md:p-6 shadow-xl mb-6 border border-amber-500/30">
+                <h2 class="text-xl md:text-2xl font-bold text-amber-300 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-lightbulb"></i> نشاط 2: صياغة وتقييم مفهوم التكنولوجيا
+                </h2>
+                <p class="text-xs md:text-sm text-slate-300 mb-4">
+                    اكتب تعريفك الخاص للتكنولوجيا بأسلوبك، أو رتب الكلمات بالأسفل، وسيقوم النظام بتعزيز إجابتك وعرض التعريف النموذجي!
+                </p>
+
+                <!-- Definition Box -->
+                <div class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 mb-6">
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-amber-400 mb-2">
+                            <i class="fa-solid fa-pen-to-square"></i> خيار 1: اكتب تعريفك الخاص بأسلوبك هنا:
+                        </label>
+                        <textarea id="studentCustomDefinition" rows="2" class="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-sm text-amber-200 focus:outline-none focus:border-amber-400 placeholder-slate-500" placeholder="مثال: التكنولوجيا هي التطبيق العملي للمعرفة لحل مشكلات الإنسان وتسهيل حياته..."></textarea>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-4 mb-4">
+                        <h3 class="text-xs font-bold text-sky-400 mb-2"><i class="fa-solid fa-puzzle-piece"></i> خيار 2: أو انقر على الكلمات بالترتيب لبناء النص:</h3>
+                        <div id="conceptWordsBank" class="flex flex-wrap gap-2 mb-4 min-h-[40px]">
+                            <!-- Word buttons injected here -->
+                        </div>
+
+                        <div id="conceptTargetZone" class="min-h-[60px] p-3 bg-slate-800 rounded-xl border-2 border-dashed border-amber-500/40 flex flex-wrap gap-2 items-center">
+                            <span class="text-slate-500 text-xs italic pointer-events-none" id="conceptPlaceholder">اضغط على الكلمات بالأسفل لإضافتها هنا...</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-between items-center gap-3 mt-4">
+                        <button onclick="clearConceptBuilder()" class="text-xs bg-rose-600/80 hover:bg-rose-600 px-3 py-2 rounded-lg text-white font-bold transition-all">
+                            <i class="fa-solid fa-trash-can ml-1"></i> مسح الخانات
+                        </button>
+                        <button onclick="evaluateStudentDefinition()" class="text-xs md:text-sm bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 px-6 py-2.5 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95">
+                            <i class="fa-solid fa-circle-check ml-1"></i> التحقق والتقييم الذكي
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result & Textbook Standard Definition Display -->
+                <div id="conceptEvaluationBox" class="hidden p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-emerald-500/50 shadow-2xl space-y-4">
+                    <div id="conceptFeedbackHeader" class="text-emerald-300 font-bold text-sm md:text-base flex items-center gap-2">
+                    </div>
+                    <div id="conceptHighlights" class="text-xs md:text-sm text-slate-200 bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+                    </div>
+                    <div class="bg-amber-500/10 border border-amber-500/40 p-4 rounded-xl">
+                        <h4 class="font-black text-amber-300 text-xs md:text-sm mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark"></i> التعريف النموذجي المعتمد في الكتاب المدرسي:
+                        </h4>
+                        <p class="text-xs md:text-sm text-amber-100 font-bold leading-relaxed">
+                            "التكنولوجيا: هي التطبيق العملي للمعرفة، لحل مشكلات تواجه الإنسان، وتلبية احتياجاته، وتسهيل حياته."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: Classroom Tools vs Technological Products -->
+        <section id="tab-classroom" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-5 md:p-6 shadow-xl mb-6 border border-sky-500/30">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-sky-300 flex items-center gap-2">
+                            <i class="fa-solid fa-chalkboard-user text-amber-400"></i> نشاط 3: التمييز بين "أداة تكنولوجية" و "منتج تكنولوجي" داخل الصف
+                        </h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">
+                            استناداً لنشاط (1:1:1) صفحة 9: صنف العناصر المصورة إلى <strong>أداة تكنولوجية</strong> (أجهزة ومعدات تشغيلية) أو <strong>منتج تكنولوجي</strong> (مخرجات وتصاميم تلبي الحاجة)!
+                        </p>
+                    </div>
+                    <button onclick="initClassroomGame()" class="text-xs bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/40 px-3 py-2 rounded-xl font-bold shadow">
+                        <i class="fa-solid fa-rotate-right ml-1"></i> إعادة النشاط
+                    </button>
+                </div>
+
+                <!-- Explanation Card for Student Distinction -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                    <div class="bg-sky-950/40 border border-sky-500/40 p-3 rounded-xl flex items-center gap-3">
+                        <span class="text-3xl">💻</span>
+                        <div>
+                            <h4 class="font-bold text-sky-300 text-xs md:text-sm">الأداة التكنولوجية (Technological Tool)</h4>
+                            <p class="text-[11px] text-slate-300">أجهزة ومعدات تفاعلية نستخدمها لأداء الأعمال والمهام (مثل: الحاسوب، البروجيكتور، المجهر، الطابعة).</p>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-950/40 border border-emerald-500/40 p-3 rounded-xl flex items-center gap-3">
+                        <span class="text-3xl">🪑</span>
+                        <div>
+                            <h4 class="font-bold text-emerald-300 text-xs md:text-sm">المنتج التكنولوجي (Technological Product)</h4>
+                            <p class="text-[11px] text-slate-300">أشياء تم تصميمها وصناعتها لتلبية حاجة الإنسان وتوفير الراحة (مثل: المقعد الخشبي، الحقيبة، الكتاب، الزي).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Touch / Click instruction note -->
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4 text-xs text-amber-300 flex items-center gap-2">
+                    <i class="fa-solid fa-hand-pointer text-amber-400 text-base"></i>
+                    <span><strong>طريقة اللعب:</strong> انقر على أي عنصر بالأسفل لتحديده، ثم انقر على الصندوق المناسب لوضعه مباشرة، أو قم بالسحب والإفلات!</span>
+                </div>
+
+                <!-- Classroom Items Bank -->
+                <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700 mb-6">
+                    <h3 class="text-xs font-bold text-amber-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-box-open"></i> البطاقات الصفية المتاحة للتصنيف:
+                    </h3>
+                    <div id="classroomBank" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 min-h-[100px] p-2 bg-slate-800/50 rounded-lg">
+                        <!-- Cards injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Target Classification Zones -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Zone 1: Technological Tools -->
+                    <div class="bg-sky-950/30 border-2 border-sky-500/50 rounded-2xl p-5 drop-zone cursor-pointer flex flex-col min-h-[260px] hover:bg-sky-950/50 transition-all" 
+                         data-class-type="tool" 
+                         onclick="handleZoneClick(this, 'classroom')" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropClassroom(event)">
+                        <div class="text-center pb-3 border-b border-sky-500/40 mb-3 pointer-events-none">
+                            <span class="text-3xl">⚙️</span>
+                            <h3 class="font-black text-sky-300 text-base md:text-lg mt-1">أدوات تكنولوجية (Technological Tools)</h3>
+                            <p class="text-[11px] text-slate-400">أجهزة إلكترونية وتقنية نستخدمها لنقل المعرفة وإنجاز العمليات</p>
+                        </div>
+                        <div class="dropped-classroom flex-1 grid grid-cols-2 sm:grid-cols-3 gap-2 p-1 pointer-events-none" id="toolZone"></div>
+                    </div>
+
+                    <!-- Zone 2: Technological Products -->
+                    <div class="bg-emerald-950/30 border-2 border-emerald-500/50 rounded-2xl p-5 drop-zone cursor-pointer flex flex-col min-h-[260px] hover:bg-emerald-950/50 transition-all" 
+                         data-class-type="product" 
+                         onclick="handleZoneClick(this, 'classroom')" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropClassroom(event)">
+                        <div class="text-center pb-3 border-b border-emerald-500/40 mb-3 pointer-events-none">
+                            <span class="text-3xl">📦</span>
+                            <h3 class="font-black text-emerald-300 text-base md:text-lg mt-1">منتجات تكنولوجية (Technological Products)</h3>
+                            <p class="text-[11px] text-slate-400">مخرجات مصممة ومصنوعة لتلبية احتياجات الطالب المعيشية والصفية</p>
+                        </div>
+                        <div class="dropped-classroom flex-1 grid grid-cols-2 sm:grid-cols-3 gap-2 p-1 pointer-events-none" id="productZone"></div>
+                    </div>
+                </div>
+
+                <!-- Feedback Box -->
+                <div id="classroomFeedback" class="mt-4 p-4 rounded-xl bg-slate-800/90 border border-slate-700 text-xs md:text-sm text-center hidden">
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: Categorize Environment Products (Home, School, Street) -->
+        <section id="tab-categorize" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-5 md:p-6 shadow-xl mb-6 border border-emerald-500/30">
+                <h2 class="text-xl md:text-2xl font-bold text-emerald-300 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-building-user"></i> نشاط 4: التكنولوجيا من حولنا وتصنيف بيئات الاستخدام
+                </h2>
+                <p class="text-xs md:text-sm text-slate-300 mb-4">
+                    صنف الأدوات والمنتجات التكنولوجية حسب بيئة استخدامها الرئيسية!
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <!-- Source items -->
+                    <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-700">
+                        <h3 class="text-xs font-bold text-amber-400 mb-3 text-center">أدوات ومنتجات تكنولوجية</h3>
+                        <div id="productItemsBank" class="flex flex-col gap-2 min-h-[250px]">
+                            <!-- Draggables loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Category 1: Classroom / School -->
+                    <div class="bg-slate-900/60 p-4 rounded-xl border-2 border-sky-500/40 drop-zone cursor-pointer flex flex-col" 
+                         data-category="school" 
+                         onclick="handleZoneClick(this, 'category')" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropCategory(event)">
+                        <div class="text-center pb-2 border-b border-sky-500/30 mb-3 pointer-events-none">
+                            <span class="text-2xl">🏫</span>
+                            <h3 class="font-bold text-sky-400 text-sm">المدرسة والغرفة الصفية</h3>
+                        </div>
+                        <div class="dropped-category flex-1 flex flex-col gap-2 pointer-events-none" id="schoolZone"></div>
+                    </div>
+
+                    <!-- Category 2: Home -->
+                    <div class="bg-slate-900/60 p-4 rounded-xl border-2 border-purple-500/40 drop-zone cursor-pointer flex flex-col" 
+                         data-category="home" 
+                         onclick="handleZoneClick(this, 'category')" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropCategory(event)">
+                        <div class="text-center pb-2 border-b border-purple-500/30 mb-3 pointer-events-none">
+                            <span class="text-2xl">🏠</span>
+                            <h3 class="font-bold text-purple-400 text-sm">البيت والمنزل</h3>
+                        </div>
+                        <div class="dropped-category flex-1 flex flex-col gap-2 pointer-events-none" id="homeZone"></div>
+                    </div>
+
+                    <!-- Category 3: Street & Transport -->
+                    <div class="bg-slate-900/60 p-4 rounded-xl border-2 border-amber-500/40 drop-zone cursor-pointer flex flex-col" 
+                         data-category="street" 
+                         onclick="handleZoneClick(this, 'category')" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDropCategory(event)">
+                        <div class="text-center pb-2 border-b border-amber-500/30 mb-3 pointer-events-none">
+                            <span class="text-2xl">🚦</span>
+                            <h3 class="font-bold text-amber-400 text-sm">الشارع والموصلات</h3>
+                        </div>
+                        <div class="dropped-category flex-1 flex flex-col gap-2 pointer-events-none" id="streetZone"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: Automation & Tech Fields -->
+        <section id="tab-automation" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-5 md:p-6 shadow-xl mb-6 border border-purple-500/30">
+                <h2 class="text-xl md:text-2xl font-bold text-purple-300 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> نشاط 5: عالم التكنولوجيا والأتمتة (Automation)
+                </h2>
+                <p class="text-xs md:text-sm text-slate-300 mb-6">
+                    هل كلمة تكنولوجيا مرتبطة بالحاسوب فقط؟ لا! التكنولوجيا تدخل في كل مجالات الحياة. استكشف التطبيقات التفاعلية:
+                </p>
+
+                <!-- Grid Cards for Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <!-- Field Card 1 -->
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 hover:border-emerald-500 transition-all">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl">🌱</div>
+                            <h3 class="font-bold text-white text-sm">مجال الزراعة</h3>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">أنظمة الري الأوتوماتيكية، الدفيئات الزراعية الذكية، وآلات الحصاد الحديثة.</p>
+                        <button onclick="playAudioEx('في مجال الزراعة تستخدم التكنولوجيا زيادة الإنتاج وتوفير المياه من خلال الري الأوتوماتيكي والآلات الذكية')" class="text-xs bg-slate-700 hover:bg-slate-600 text-sky-300 py-2 px-3 rounded-xl w-full flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-low"></i> استمع للشرح
+                        </button>
+                    </div>
+
+                    <!-- Field Card 2 -->
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 hover:border-rose-500 transition-all">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-2xl">🩺</div>
+                            <h3 class="font-bold text-white text-sm">مجال الطب والدواء</h3>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">أجهزة التصوير الطبقي المحوري، قياس العلامات الحيوية، وتصنيع الأدوية.</p>
+                        <button onclick="playAudioEx('في الطب تساعد التكنولوجيا في تشخيص الأمراض بدقة وصناعة الأدوية وإنقاذ الأرواح')" class="text-xs bg-slate-700 hover:bg-slate-600 text-sky-300 py-2 px-3 rounded-xl w-full flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-low"></i> استمع للشرح
+                        </button>
+                    </div>
+
+                    <!-- Field Card 3 -->
+                    <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 hover:border-amber-500 transition-all">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl">🏗️</div>
+                            <h3 class="font-bold text-white text-sm">مجال البناء والإنشاءات</h3>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-4 leading-relaxed">الرافعات العملاقة، خلاطات الإسمنت الذكية، وبرامج الهندسة والمعمار.</p>
+                        <button onclick="playAudioEx('في البناء توفر التكنولوجيا الآلات الثقيلة والبرامج لتشييد المباني بسرعة وأمان')" class="text-xs bg-slate-700 hover:bg-slate-600 text-sky-300 py-2 px-3 rounded-xl w-full flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-low"></i> استمع للشرح
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Automation Banner -->
+                <div class="bg-gradient-to-r from-indigo-900/80 to-purple-900/80 p-5 rounded-2xl border border-indigo-500/50 shadow-xl">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-3xl">🤖</span>
+                        <h3 class="font-bold text-amber-300 text-base md:text-lg">مفهوم الأتمتة (Automation)</h3>
+                    </div>
+                    <p class="text-xs md:text-sm text-slate-200 leading-relaxed">
+                        <strong>تعريف الأتمتة:</strong> هي استخدام الحاسوب والآلات الذكية المبرمجة لإنجاز المهام والعمليات بشكل آلي ودقيق دون تدخل يدوي مباشر من الإنسان (مثل: خطوط تجميع السيارات في المصانع، والتحكم الآلي بدرجات حرارة الدفيئات الزراعية).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: Interactive Quiz -->
+        <section id="tab-quiz" class="tab-content hidden">
+            <div class="glass-card rounded-2xl p-5 md:p-6 shadow-xl mb-6 border border-amber-500/30">
+                <div class="flex items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-award text-amber-400"></i> اختبار الأبطال: تقييم معرفة الدرس
+                        </h2>
+                        <p class="text-xs md:text-sm text-slate-300 mt-1">أجب عن الأسئلة واجمع الأوسمة لتصبح بطل التكنولوجيا!</p>
+                    </div>
+                    <button onclick="restartQuiz()" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-300 px-3 py-2 rounded-xl font-bold border border-amber-500/30">
+                        إعادة الاختبار
+                    </button>
+                </div>
+
+                <div id="quizContainer" class="bg-slate-900/90 p-5 rounded-2xl border border-slate-700 min-h-[300px] flex flex-col justify-between">
+                    <!-- Dynamic Question Box -->
+                    <div id="quizCard">
+                        <!-- Questions injected dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer with Teacher Credits -->
+    <footer class="max-w-7xl mx-auto mt-8 mb-4 p-4 glass-card rounded-2xl border-t-2 border-sky-500/50 text-center text-slate-300">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs md:text-sm">
+            <div class="flex items-center gap-2 text-sky-400 font-bold">
+                <i class="fa-solid fa-graduation-cap text-lg text-amber-400"></i>
+                <span>مادة التكنولوجيا - الصف الخامس الابتدائي | درس التكنولوجيا في كل زمان</span>
+            </div>
+            <div class="bg-slate-800/90 px-4 py-2 rounded-xl border border-amber-500/40 text-amber-300 font-black shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-pen-nib text-sky-400"></i>
+                <span>إعداد وتصميم: الأستاذ فادي أبو الكباش</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let audioCtx = null;
+        let selectedElementId = null; // Store selected item for touch/click placement
+        let currentScore = 0;
+        let isSpeaking = false;
+        let currentUtterance = null;
+
+        /* DATA: Timeline Game */
+        const timelineData = [
+            { id: 't1', name: 'الفأس الحجري', era: 'ancient', icon: '🪨', desc: 'أداة للصيد والزراعة البدائية' },
+            { id: 't2', name: 'الأواني الفخارية', era: 'ancient', icon: '🏺', desc: 'لحفظ الطعام والماء' },
+            { id: 't3', name: 'المحرك البخاري', era: 'steam', icon: '⚙️', desc: 'تحويل ضغط البخار إلى حركة' },
+            { id: 't4', name: 'القطار البخاري', era: 'steam', icon: '🚂', desc: 'تسهيل نقل البضائع والأشخاص' },
+            { id: 't5', name: 'الحاسوب الذكي', era: 'modern', icon: '💻', desc: 'معالجة البيانات والبرمجة' },
+            { id: 't6', name: 'الطائرة الحديثة', era: 'modern', icon: '✈️', desc: 'السفر والسفر الجوي السريع' }
+        ];
+
+        /* DATA: Classroom Distinction (Tool vs Product) */
+        const classroomItems = [
+            { id: 'c1', name: 'اللوح التفاعلي الذكي', type: 'tool', icon: '🖥️', desc: 'أداة تفاعلية لعرض الشروح' },
+            { id: 'c2', name: 'جهاز المسلاط (Projector)', type: 'tool', icon: '📹', desc: 'أداة عرض بصرية للمواد' },
+            { id: 'c3', name: 'الحاسوب المحمول', type: 'tool', icon: '💻', desc: 'أداة معالجة وتدريس إلكترونية' },
+            { id: 'c4', name: 'المجهر الضوئي', type: 'tool', icon: '🔬', desc: 'أداة فحص وتكبير العينات' },
+            { id: 'c5', name: 'المقعد والطاولة الخشبية', type: 'product', icon: '🪑', desc: 'منتج مريح للجلوس والدراسة' },
+            { id: 'c6', name: 'الكتاب المدرسي المطبوع', type: 'product', icon: '📚', desc: 'منتج ورقي لحفظ المعلومات' },
+            { id: 'c7', name: 'الحقيبة المدرسية', type: 'product', icon: '🎒', desc: 'منتج لحمل المستلزمات' },
+            { id: 'c8', name: 'الزي المدرسي', type: 'product', icon: '👕', desc: 'منتج قماشي للترتيب والراحة' }
+        ];
+
+        /* DATA: Environment Products */
+        const productItems = [
+            { id: 'p1', name: 'شاشة العرض الصفية', cat: 'school', icon: '🖥️' },
+            { id: 'p2', name: 'المجهر التعليمي', cat: 'school', icon: '🔬' },
+            { id: 'p3', name: 'الثلاجة الكهربائية', cat: 'home', icon: '🧊' },
+            { id: 'p4', name: 'الغسالة الأوتوماتيكية', cat: 'home', icon: '🧺' },
+            { id: 'p5', name: 'إشارة المرور الذكية', cat: 'street', icon: '🚦' },
+            { id: 'p6', name: 'السيارة الكهربائية', cat: 'street', icon: '🚗' }
+        ];
+
+        /* DATA: Concept words */
+        const conceptWordsList = ['التكنولوجيا', 'هي', 'التطبيق', 'العملي', 'لالمعرفة', 'لحظة', 'حل', 'المشكلات', 'وتلبية', 'احتياجات', 'الإنسان', 'وتسهيل', 'حياته'];
+        let conceptUserWords = [];
+
+        /* Sound Web Audio Synthesis */
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSFX(type) {
+            initAudioContext();
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.15); // E5
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(160, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch(e) {
+                console.log(e);
+            }
+        }
+
+        /* Navigation Tab Switching */
+        function switchTab(tabId) {
+            initAudioContext();
+            playSFX('click');
+
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(btn => {
+                if (btn.id === `btn-${tabId}`) {
+                    btn.className = 'tab-btn flex-1 min-w-[130px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-sky-600 text-white shadow-lg scale-105';
+                } else {
+                    btn.className = 'tab-btn flex-1 min-w-[130px] py-3 px-4 rounded-xl text-xs md:text-sm font-bold transition-all flex items-center justify-center gap-2 bg-slate-800 text-slate-300 hover:bg-slate-700';
+                }
+            });
+
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                updateTTSUI();
+            }
+        }
+
+        function addPoints(pts) {
+            currentScore += pts;
+            const scoreEl = document.getElementById('scoreDisplay');
+            if (scoreEl) scoreEl.innerText = `${currentScore} / 100`;
+        }
+
+        /* TTS Audio Explanations */
+        const lessonExplanations = {
+            'tab-story': "أهلاً بكم في رحلة آلة الزمن! استخدم الإنسان القديم الفأس الحجري والأنية الفخارية لخدمة حياته. ثم اكتشف قوة ضغط البخار فصنع القطارات. وفي العصر الحديث طور الطائرات والحواسيب الذكية.",
+            'tab-concept': "التكنولوجيا هي التطبيق العملي للمعرفة لحل مشكلات تواجه الإنسان وتلبية احتياجاته في مجالات الحياة المختلفة.",
+            'tab-classroom': "في الغرفة الصفية، نميز بين الأداة التكنولوجية كالأجهزة الإلكترونية والبروجيكتور والحاسوب، والمنتج التكنولوجي كالمقاعد والكتاب والحقيبة والزي المدرسي.",
+            'tab-categorize': "صنف المنتجات التكنولوجية حسب بيئتها، إما في المدرسة، أو المنزل، أو الشارع والمواصلات.",
+            'tab-automation': "الأتمتة هي استخدام الآلات والأجهزة المبرمجة لتأدية المهام آلياً وبدقة عالية دون تدخل يدوي مباشر.",
+            'tab-quiz': "مرحباً بكم في اختبار الأبطال! أجب عن الأسئلة التالية واجمع النقاط مع الأستاذ فادي أبو الكباش."
+        };
+
+        function toggleAudioGuide() {
+            if (!('speechSynthesis' in window)) {
+                alert('متصفحك لا يدعم خاصية القراءة الصوتية');
+                return;
+            }
+
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                updateTTSUI();
+            } else {
+                let activeTab = 'tab-story';
+                document.querySelectorAll('.tab-content').forEach(el => {
+                    if (!el.classList.contains('hidden')) activeTab = el.id;
+                });
+
+                const textToRead = lessonExplanations[activeTab] || "مرحباً بكم في درس التكنولوجيا للصف الخامس";
+                playAudioEx(textToRead);
+            }
+        }
+
+        function playAudioEx(text) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            currentUtterance.lang = 'ar-SA';
+            currentUtterance.rate = 0.9;
+
+            currentUtterance.onstart = () => { isSpeaking = true; updateTTSUI(); };
+            currentUtterance.onend = () => { isSpeaking = false; updateTTSUI(); };
+            currentUtterance.onerror = () => { isSpeaking = false; updateTTSUI(); };
+
+            window.speechSynthesis.speak(currentUtterance);
+        }
+
+        function updateTTSUI() {
+            const btnText = document.getElementById('ttsText');
+            const btnIcon = document.getElementById('ttsIcon');
+            if (isSpeaking) {
+                if (btnText) btnText.innerText = "إيقاف الصوت";
+                if (btnIcon) btnIcon.className = "fa-solid fa-volume-xmark text-base animate-pulse text-amber-300";
+            } else {
+                if (btnText) btnText.innerText = "الشارح الصوتي";
+                if (btnIcon) btnIcon.className = "fa-solid fa-volume-high text-base";
+            }
+        }
+
+        /* Item Selection Handler (Dual support: Touch/Click + Drag) */
+        function handleItemSelect(el) {
+            initAudioContext();
+            playSFX('click');
+
+            if (selectedElementId === el.id) {
+                el.classList.remove('item-selected');
+                selectedElementId = null;
+                return;
+            }
+
+            if (selectedElementId) {
+                const prev = document.getElementById(selectedElementId);
+                if (prev) prev.classList.remove('item-selected');
+            }
+
+            selectedElementId = el.id;
+            el.classList.add('item-selected');
+        }
+
+        /* Drag & Drop handlers */
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        /* Tab 1: Timeline Game Drop & Place */
+        function handleDropTimeline(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            zone.classList.remove('drag-over');
+
+            const itemId = e.dataTransfer.getData('text/plain') || selectedElementId;
+            if (!itemId) return;
+
+            processTimelinePlacement(itemId, zone);
+        }
+
+        function processTimelinePlacement(itemId, zone) {
+            const itemEl = document.getElementById(itemId);
+            if (!itemEl) return;
+
+            const targetEra = zone.getAttribute('data-era');
+            const itemData = timelineData.find(i => i.id === itemId);
+
+            if (itemData && itemData.era === targetEra) {
+                zone.querySelector('.dropped-container').appendChild(itemEl);
+                itemEl.className = 'bg-emerald-900/80 border border-emerald-500 text-emerald-200 text-xs font-bold p-2 rounded-xl flex items-center justify-between gap-2 w-full animate-bounce-slow shadow';
+                itemEl.draggable = false;
+                itemEl.onclick = null;
+                itemEl.classList.remove('item-selected');
+                selectedElementId = null;
+
+                playSFX('correct');
+                addPoints(5);
+                checkTimelineCompletion();
+            } else {
+                playSFX('wrong');
+                itemEl.classList.remove('item-selected');
+                selectedElementId = null;
+
+                const feedback = document.getElementById('timelineFeedback');
+                feedback.classList.remove('hidden');
+                feedback.className = 'mt-4 p-3 rounded-xl bg-rose-950/80 border border-rose-500 text-xs text-rose-200 font-bold text-center';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark ml-1"></i> الاختراع <strong>"${itemData ? itemData.name : ''}"</strong> لا ينتمي إلى هذا العصر! حاول مرة أخرى.`;
+            }
+        }
+
+        function checkTimelineCompletion() {
+            const bank = document.getElementById('timelineItemsBank');
+            if (bank && bank.children.length === 0) {
+                const feedback = document.getElementById('timelineFeedback');
+                feedback.classList.remove('hidden');
+                feedback.className = 'mt-4 p-4 rounded-xl bg-emerald-900/80 border border-emerald-500 text-xs md:text-sm text-emerald-200 font-bold text-center';
+                feedback.innerHTML = `<i class="fa-solid fa-trophy text-amber-400 text-2xl ml-2"></i> أحسنت يا بطل! لقد رتبت كافة الوسائل والاختراعات التاريخية بنجاح! 🎉`;
+                confetti({ particleCount: 70, spread: 80, origin: { y: 0.7 } });
+            }
+        }
+
+        function resetTimelineGame() {
+            initTimelineGame();
+            document.getElementById('timelineFeedback').classList.add('hidden');
+        }
+
+        function initTimelineGame() {
+            const bank = document.getElementById('timelineItemsBank');
+            if (!bank) return;
+            bank.innerHTML = '';
+            document.getElementById('ancientZone').innerHTML = '';
+            document.getElementById('steamZone').innerHTML = '';
+            document.getElementById('modernZone').innerHTML = '';
+
+            selectedElementId = null;
+            const shuffled = [...timelineData].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.id = item.id;
+                itemEl.draggable = true;
+                itemEl.className = 'draggable-item bg-slate-800 border-2 border-slate-600 hover:border-sky-400 text-white p-2 rounded-xl shadow flex flex-col items-center justify-between text-center select-none cursor-pointer';
+                itemEl.innerHTML = `
+                    <span class="text-2xl">${item.icon}</span>
+                    <span class="text-xs font-bold text-sky-200 mt-1">${item.name}</span>
+                    <span class="text-[10px] text-slate-400 leading-tight">${item.desc}</span>
+                `;
+                itemEl.onclick = () => handleItemSelect(itemEl);
+                itemEl.ondragstart = (e) => {
+                    initAudioContext();
+                    e.dataTransfer.setData('text/plain', item.id);
+                };
+                bank.appendChild(itemEl);
+            });
+        }
+
+        /* Tab 2: Concept Definition Builder & Evaluator */
+        function initConceptBuilder() {
+            const bank = document.getElementById('conceptWordsBank');
+            if (!bank) return;
+            bank.innerHTML = '';
+            conceptUserWords = [];
+            const placeholder = document.getElementById('conceptPlaceholder');
+            if (placeholder) placeholder.style.display = 'inline';
+
+            const shuffledWords = [...conceptWordsList].sort(() => Math.random() - 0.5);
+
+            shuffledWords.forEach(word => {
+                const btn = document.createElement('button');
+                btn.className = 'word-btn bg-slate-800 hover:bg-amber-600 text-amber-200 hover:text-white px-3 py-1 rounded-lg text-xs font-bold border border-amber-500/30 transition-all';
+                btn.innerText = word;
+                btn.onclick = () => selectConceptWord(word, btn);
+                bank.appendChild(btn);
+            });
+        }
+
+        function selectConceptWord(word, btnEl) {
+            playSFX('click');
+            conceptUserWords.push(word);
+            btnEl.classList.add('opacity-40', 'pointer-events-none');
+
+            const targetZone = document.getElementById('conceptTargetZone');
+            const placeholder = document.getElementById('conceptPlaceholder');
+            if (placeholder) placeholder.style.display = 'none';
+
+            const wordBadge = document.createElement('span');
+            wordBadge.className = 'bg-amber-500/20 text-amber-300 border border-amber-500/50 px-2.5 py-1 rounded-lg text-xs font-bold animate-pulse';
+            wordBadge.innerText = word;
+            targetZone.appendChild(wordBadge);
+        }
+
+        function clearConceptBuilder() {
+            playSFX('click');
+            const targetZone = document.getElementById('conceptTargetZone');
+            targetZone.innerHTML = '<span class="text-slate-500 text-xs italic pointer-events-none" id="conceptPlaceholder">اضغط على الكلمات بالأسفل لإضافتها هنا...</span>';
+            document.getElementById('studentCustomDefinition').value = '';
+            document.getElementById('conceptEvaluationBox').classList.add('hidden');
+            initConceptBuilder();
+        }
+
+        function evaluateStudentDefinition() {
+            initAudioContext();
+            const typedDef = document.getElementById('studentCustomDefinition').value.trim();
+            const builtDef = conceptUserWords.join(' ');
+            const fullInput = (typedDef + " " + builtDef).trim();
+
+            if (!fullInput) {
+                alert('لطفاً اكتب تعريفك في الصندوق أو انقر على الكلمات لتكوين النص قبل التحقق!');
+                return;
+            }
+
+            const evalBox = document.getElementById('conceptEvaluationBox');
+            const header = document.getElementById('conceptFeedbackHeader');
+            const highlights = document.getElementById('conceptHighlights');
+
+            evalBox.classList.remove('hidden');
+
+            const keyTerms = ['تطبيق', 'عملي', 'معرفة', 'مشكلا', 'حاجة', 'إنسان', 'تسهيل', 'حياة'];
+            let scoreCount = 0;
+
+            keyTerms.forEach(term => {
+                if (fullInput.includes(term)) scoreCount++;
+            });
+
+            playSFX('correct');
+            addPoints(15);
+            confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+
+            header.innerHTML = `<i class="fa-solid fa-star text-amber-400 text-xl"></i> محاولة ممتازة وإجابة قيمة جداً يا بطل! 🌟`;
+            highlights.innerHTML = `
+                <p class="font-bold text-emerald-300 mb-1">تحليل إجابتك:</p>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    لقد استطعت التعبير عن المفهوم بذكاء! يحتوي نصك على المفاهيم الأساسية للتكنولوجيا مثل (التطبيق العملي للمعرفة وتلبية الحاجات).
+                </p>
+            `;
+        }
+
+        /* Tab 3: Classroom Tools vs Products Distinction */
+        function initClassroomGame() {
+            const bank = document.getElementById('classroomBank');
+            if (!bank) return;
+            bank.innerHTML = '';
+            document.getElementById('toolZone').innerHTML = '';
+            document.getElementById('productZone').innerHTML = '';
+            document.getElementById('classroomFeedback').classList.add('hidden');
+
+            selectedElementId = null;
+            const shuffled = [...classroomItems].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.id = item.id;
+                itemEl.draggable = true;
+                itemEl.className = 'draggable-item bg-slate-800 border-2 border-slate-600 hover:border-sky-400 text-white p-2.5 rounded-xl shadow-lg flex flex-col items-center justify-between text-center select-none cursor-pointer transition-all';
+                itemEl.innerHTML = `
+                    <span class="text-2xl">${item.icon}</span>
+                    <span class="text-xs font-black text-sky-200 mt-1">${item.name}</span>
+                    <span class="text-[10px] text-slate-400">${item.desc}</span>
+                `;
+
+                itemEl.onclick = () => handleItemSelect(itemEl);
+                itemEl.ondragstart = (e) => {
+                    initAudioContext();
+                    e.dataTransfer.setData('text/plain', item.id);
+                };
+                bank.appendChild(itemEl);
+            });
+        }
+
+        function handleDropClassroom(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            zone.classList.remove('drag-over');
+
+            const itemId = e.dataTransfer.getData('text/plain') || selectedElementId;
+            if (!itemId) return;
+
+            processClassroomPlacement(itemId, zone);
+        }
+
+        function processClassroomPlacement(itemId, zone) {
+            const itemEl = document.getElementById(itemId);
+            if (!itemEl) return;
+
+            const targetType = zone.getAttribute('data-class-type');
+            const itemData = classroomItems.find(c => c.id === itemId);
+
+            if (itemData && itemData.type === targetType) {
+                zone.querySelector('.dropped-classroom').appendChild(itemEl);
+                itemEl.className = 'bg-emerald-950/80 border border-emerald-500 text-emerald-200 text-xs font-bold p-2 rounded-xl flex flex-col items-center justify-center text-center w-full shadow';
+                itemEl.draggable = false;
+                itemEl.onclick = null;
+                itemEl.classList.remove('item-selected');
+                selectedElementId = null;
+
+                playSFX('correct');
+                addPoints(5);
+                checkClassroomCompletion();
+            } else {
+                playSFX('wrong');
+                itemEl.classList.remove('item-selected');
+                selectedElementId = null;
+
+                const feedback = document.getElementById('classroomFeedback');
+                feedback.classList.remove('hidden');
+                feedback.className = 'mt-4 p-3 rounded-xl bg-rose-950/80 border border-rose-500 text-xs text-rose-200 font-bold text-center';
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark ml-1"></i> العنصر <strong>"${itemData ? itemData.name : ''}"</strong> يندرج ضمن التصنيف الثاني! حاول مجدداً.`;
+            }
+        }
+
+        function checkClassroomCompletion() {
+            const bank = document.getElementById('classroomBank');
+            if (bank && bank.children.length === 0) {
+                const feedback = document.getElementById('classroomFeedback');
+                feedback.classList.remove('hidden');
+                feedback.className = 'mt-4 p-4 rounded-xl bg-emerald-900/80 border border-emerald-500 text-xs md:text-sm text-emerald-200 font-bold text-center';
+                feedback.innerHTML = `<i class="fa-solid fa-trophy text-amber-400 text-2xl ml-2"></i> ممتاز جداً يا أبطال الصف الخامس! تم التمييز بنجاح بين الأدوات والمنتجات التكنولوجية! 🎉`;
+                confetti({ particleCount: 70, spread: 80, origin: { y: 0.7 } });
+            }
+        }
+
+        /* Tab 4: Environment Categorization */
+        function initProductCategorization() {
+            const bank = document.getElementById('productItemsBank');
+            if (!bank) return;
+            bank.innerHTML = '';
+            document.getElementById('schoolZone').innerHTML = '';
+            document.getElementById('homeZone').innerHTML = '';
+            document.getElementById('streetZone').innerHTML = '';
+
+            selectedElementId = null;
+
+            productItems.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.id = item.id;
+                itemEl.draggable = true;
+                itemEl.className = 'draggable-item bg-slate-800 border border-slate-700 text-white text-xs font-bold p-2.5 rounded-xl shadow flex items-center justify-between gap-2 select-none cursor-pointer';
+                itemEl.innerHTML = `<span>${item.icon} ${item.name}</span> <i class="fa-solid fa-hand-pointer text-slate-500"></i>`;
+                itemEl.onclick = () => handleItemSelect(itemEl);
+                itemEl.ondragstart = (e) => {
+                    initAudioContext();
+                    e.dataTransfer.setData('text/plain', item.id);
+                };
+                bank.appendChild(itemEl);
+            });
+        }
+
+        function handleDropCategory(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            zone.classList.remove('drag-over');
+
+            const itemId = e.dataTransfer.getData('text/plain') || selectedElementId;
+            if (!itemId) return;
+
+            processCategoryPlacement(itemId, zone);
+        }
+
+        function processCategoryPlacement(itemId, zone) {
+            const itemEl = document.getElementById(itemId);
+            if (!itemEl) return;
+
+            const targetCat = zone.getAttribute('data-category');
+            const itemData = productItems.find(p => p.id === itemId);
+
+            if (itemData && itemData.cat === targetCat) {
+                zone.querySelector('.dropped-category').appendChild(itemEl);
+                itemEl.className = 'bg-emerald-950 border border-emerald-500 text-emerald-300 text-xs font-bold p-2 rounded-xl flex items-center justify-between gap-2 w-full shadow';
+                itemEl.draggable = false;
+                itemEl.onclick = null;
+                itemEl.classList.remove('item-selected');
+                selectedElementId = null;
+
+                playSFX('correct');
+                addPoints(5);
+            } else {
+                playSFX('wrong');
+                itemEl.classList.remove('item-selected');
+                selectedElementId = null;
+            }
+        }
+
+        /* Generic Zone Click for Touch fallback */
+        function handleZoneClick(zoneEl, mode) {
+            if (!selectedElementId) return;
+
+            if (mode === 'timeline') {
+                processTimelinePlacement(selectedElementId, zoneEl);
+            } else if (mode === 'classroom') {
+                processClassroomPlacement(selectedElementId, zoneEl);
+            } else if (mode === 'category') {
+                processCategoryPlacement(selectedElementId, zoneEl);
+            }
+        }
+
+        /* TAB 6: Quiz System */
+        const quizQuestions = [
+            {
+                q: "ما هو التعريف الجامع للتكنولوجيا حسب منهاج الصف الخامس؟",
+                options: [
+                    "استخدام الحواسيب والألعاب فقط",
+                    "التطبيق العملي للمعرفة لحل المشكلات وتلبية الاحتياجات",
+                    "صناعة السيارات والقطارات القديمة"
+                ],
+                correct: 1
+            },
+            {
+                q: "أي مما يلي يُعتبر مثالاً على أداة تكنولوجية صفية؟",
+                options: [
+                    "المقعد الخشبي",
+                    "جهاز المسلاط (Projector) واللوح الذكي",
+                    "النافذة الزجاجية"
+                ],
+                correct: 1
+            },
+            {
+                q: "ماذا نعني بمفهوم (الأتمتة - Automation)؟",
+                options: [
+                    "الكتابة بخط اليد بالطبشور",
+                    "إنجاز المهام والعمليات بشكل آلي بواسطة الآلات والحاسوب",
+                    "استخدام الفأس الحجري في الزراعة القديمة"
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIdx = 0;
+
+        function loadQuestion() {
+            const card = document.getElementById('quizCard');
+            if (!card) return;
+
+            if (currentQuestionIdx >= quizQuestions.length) {
+                card.innerHTML = `
+                    <div class="text-center py-6">
+                        <div class="text-5xl mb-3">🏆</div>
+                        <h3 class="text-xl font-black text-amber-300 mb-2">تهانينا يا بطل التكنولوجيا!</h3>
+                        <p class="text-xs md:text-sm text-slate-300 mb-4">لقد أتممت جميع أسئلة الدرس بنجاح واكتسبت أوسمة التفوق!</p>
+                        <div class="text-sky-400 font-bold text-sm bg-slate-800 py-2 px-4 rounded-xl inline-block border border-sky-500/30">
+                            إعداد الأستاذ فادي أبو الكباش
+                        </div>
+                    </div>
+                `;
+                confetti({ particleCount: 100, spread: 90, origin: { y: 0.6 } });
+                return;
+            }
+
+            const qData = quizQuestions[currentQuestionIdx];
+            let optionsHTML = '';
+
+            qData.options.forEach((opt, idx) => {
+                optionsHTML += `
+                    <button onclick="answerQuiz(${idx})" class="w-full text-right p-3 rounded-xl bg-slate-800 hover:bg-sky-600 text-xs md:text-sm font-bold text-slate-200 hover:text-white border border-slate-700 transition-all flex items-center justify-between">
+                        <span>${opt}</span>
+                        <i class="fa-solid fa-chevron-left text-slate-500"></i>
+                    </button>
+                `;
+            });
+
+            card.innerHTML = `
+                <div class="mb-4">
+                    <span class="text-xs text-amber-400 font-bold">السؤال ${currentQuestionIdx + 1} من ${quizQuestions.length}</span>
+                    <h3 class="text-sm md:text-base font-bold text-white mt-1">${qData.q}</h3>
+                </div>
+                <div class="space-y-2.5">
+                    ${optionsHTML}
+                </div>
+            `;
+        }
+
+        function answerQuiz(optionIdx) {
+            const qData = quizQuestions[currentQuestionIdx];
+            if (optionIdx === qData.correct) {
+                playSFX('correct');
+                addPoints(10);
+                currentQuestionIdx++;
+                loadQuestion();
+            } else {
+                playSFX('wrong');
+                alert('إجابة تحتاج مراجعة! حاول التركيز واختيار الإجابة الصحيحة.');
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIdx = 0;
+            loadQuestion();
+        }
+
+        /* Window Initialization */
+        window.onload = function() {
+            initTimelineGame();
+            initConceptBuilder();
+            initClassroomGame();
+            initProductCategorization();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
