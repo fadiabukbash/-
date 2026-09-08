@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عالم من عجلات - لعبة التكنولوجيا التفاعلية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 4px;
+        }
+
+        .gear-spin {
+            animation: spin 12s linear infinite;
+        }
+        .gear-spin-reverse {
+            animation: spin-reverse 8s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes spin-reverse {
+            100% { transform: rotate(-360deg); }
+        }
+
+        .glow-card {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-card:hover {
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.3);
+            border-color: rgba(129, 140, 248, 0.4);
+        }
+
+        .pulse-btn {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* Custom Drag & Drop styling */
+        .draggable-item {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        .drop-zone {
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .drop-zone.drag-over {
+            background-color: rgba(99, 102, 241, 0.2);
+            border-color: #818cf8;
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-4 py-3 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="relative flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-gear text-2xl gear-spin"></i>
+                    <i class="fa-solid fa-cog text-xs absolute -bottom-1 -left-1 text-amber-400 gear-spin-reverse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-indigo-300 to-cyan-400">
+                        عالم من عجلات ⚙️
+                    </h1>
+                    <p class="text-xs text-slate-400">تكنولوجيا الصف السادس الابتدائي - الوحدة الأولى</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex items-center space-x-4 space-x-reverse bg-slate-800/80 rounded-xl px-4 py-2 border border-slate-700">
+                <div class="flex items-center space-x-2 space-x-reverse text-amber-400">
+                    <i class="fa-solid fa-star text-lg"></i>
+                    <span id="scoreDisplay" class="font-bold text-lg">0</span>
+                    <span class="text-xs text-slate-400">نقطة</span>
+                </div>
+                <div class="h-6 w-px bg-slate-700"></div>
+                <div class="flex items-center space-x-2 space-x-reverse text-cyan-400">
+                    <i class="fa-solid fa-trophy text-lg"></i>
+                    <span id="badgeDisplay" class="font-bold text-xs bg-slate-900 px-2 py-1 rounded-md">مبتدئ</span>
+                </div>
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2 text-slate-300 hover:text-white transition" title="تشغيل/إيقاف المؤثرات الصوتيّة">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-7xl mx-auto mt-3 flex overflow-x-auto gap-2 pb-1 no-scrollbar">
+            <button onclick="switchTab('tab-story')" id="btn-tab-story" class="tab-btn active bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 whitespace-nowrap transition">
+                <i class="fa-solid fa-book-open"></i> 1. رحلة الاكتشاف والقصة
+            </button>
+            <button onclick="switchTab('tab-sim')" id="btn-tab-sim" class="tab-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 whitespace-nowrap transition">
+                <i class="fa-solid fa-flask"></i> 2. مختبر التروس والحركة
+            </button>
+            <button onclick="switchTab('tab-game')" id="btn-tab-game" class="tab-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 whitespace-nowrap transition">
+                <i class="fa-solid fa-puzzle-piece"></i> 3. لعبة التجميع والمحاكاة
+            </button>
+            <button onclick="switchTab('tab-quiz')" id="btn-tab-quiz" class="tab-btn bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 whitespace-nowrap transition">
+                <i class="fa-solid fa-gamepad"></i> 4. تحدي أبطال التكنولوجيا
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto p-4 md:p-6 flex-grow w-full">
+
+        <!-- TAB 1: STORY & LESSON DISCOVERY -->
+        <section id="tab-story" class="tab-content block space-y-6">
+            <!-- Banner Concept -->
+            <div class="bg-gradient-to-r from-indigo-900/80 to-purple-900/80 rounded-2xl p-6 glow-card flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="space-y-3 max-w-2xl">
+                    <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs px-3 py-1 rounded-full font-bold inline-block">
+                        💡 مقولة شهيرة في العالم الرقمي والهندسي
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-black text-white">"لا تخترع العجلة!" 🚲</h2>
+                    <p class="text-slate-300 text-sm md:text-base leading-relaxed">
+                        هل سمعت المعلم يقول هذه المقولة؟ تعني ألا تبدأ العمل من الصفر عندما يكون الآخرون قد أوجدوا حلاً ناجحاً! بل **استفد من علوم من سبقوك وطور عليها**.
+                    </p>
+                    <div class="pt-2 flex flex-wrap items-center gap-2">
+                        <button onclick="playAudioText('donot-reinvent')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow transition">
+                            <i class="fa-solid fa-volume-high text-amber-300"></i> استمع للشرح الصوتي (بالتّشكيل)
+                        </button>
+                        <button onclick="stopAudioSpeech()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 border border-slate-700">
+                            <i class="fa-solid fa-stop text-red-400"></i> إيقاف الصوت
+                        </button>
+                    </div>
+                    <div id="audioStatusText" class="hidden text-xs text-amber-300 font-bold mt-2 animate-pulse"></div>
+                </div>
+                <div class="relative w-40 h-40 flex-shrink-0 flex items-center justify-center bg-slate-800/80 rounded-2xl border border-indigo-500/30">
+                    <i class="fa-solid fa-bicycle text-7xl text-indigo-400"></i>
+                    <i class="fa-solid fa-arrows-spin text-3xl text-amber-400 absolute bottom-2 right-2 gear-spin"></i>
+                </div>
+            </div>
+
+            <!-- Timeline of Wheel Invention -->
+            <div class="bg-slate-900/60 rounded-2xl p-6 border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-amber-400 flex items-center gap-2">
+                        <i class="fa-solid fa-timeline"></i> المحطة التاريخية: كيف بدأت قصتنا؟
+                    </h3>
+                    <span class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full">3500 قبل الميلاد</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <!-- Step 1 -->
+                    <div class="bg-slate-800/80 p-5 rounded-xl border border-slate-700 space-y-3 relative overflow-hidden group hover:border-amber-400/50 transition">
+                        <div class="flex items-center justify-between">
+                            <div class="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-lg">1</div>
+                            <button onclick="playAudioText('history-1')" class="text-xs bg-slate-700 hover:bg-indigo-600 text-slate-200 hover:text-white px-2 py-1 rounded transition flex items-center gap-1">
+                                <i class="fa-solid fa-volume-low"></i> استمع
+                            </button>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">البداية في بلاد ما بين النهرين 🏛️</h4>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            يعتقد علماء الآثار أن الخطوة الأولى لنقل الإنسان كانت باختراع **الدولاب (العجل)** في بلاد ما بين النهرين عام **3500 ق.م**.
+                        </p>
+                        <div class="bg-slate-900/60 p-2 rounded text-xs text-amber-300 border border-amber-500/20">
+                            معلومة مهمة: بدأت العجلات صخرية ثم خشبية!
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-slate-800/80 p-5 rounded-xl border border-slate-700 space-y-3 relative overflow-hidden group hover:border-indigo-400/50 transition">
+                        <div class="flex items-center justify-between">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-lg">2</div>
+                            <button onclick="playAudioText('history-2')" class="text-xs bg-slate-700 hover:bg-indigo-600 text-slate-200 hover:text-white px-2 py-1 rounded transition flex items-center gap-1">
+                                <i class="fa-solid fa-volume-low"></i> استمع
+                            </button>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">محاكاة الطبيعة والكائنات 🐜</h4>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            درس الإنسان الكائنات الحية وحركتها (كالأنظمة الحركية للحشرات والحيوانات) لينقلها إلى أجهزة وميكانيكيات تساعده في نقل الأحمال.
+                        </p>
+                        <div class="bg-slate-900/60 p-2 rounded text-xs text-indigo-300 border border-indigo-500/20">
+                            الأنظمة البسيطة: البكرة، الرافعة، العجلة والمحور.
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-slate-800/80 p-5 rounded-xl border border-slate-700 space-y-3 relative overflow-hidden group hover:border-cyan-400/50 transition">
+                        <div class="flex items-center justify-between">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-lg">3</div>
+                            <button onclick="playAudioText('history-3')" class="text-xs bg-slate-700 hover:bg-indigo-600 text-slate-200 hover:text-white px-2 py-1 rounded transition flex items-center gap-1">
+                                <i class="fa-solid fa-volume-low"></i> استمع
+                            </button>
+                        </div>
+                        <h4 class="font-bold text-white text-lg">التطور للأنظمة المركبة 🚗</h4>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            استُبدلت الأنظمة البسيطة بـ **محركات الاحتراق الداخلي والكهرباء** والمسننات المتطورة لتقوم بالأعمال الشاقة دون جهد بشري مضاعف!
+                        </p>
+                        <div class="bg-slate-900/60 p-2 rounded text-xs text-cyan-300 border border-cyan-500/20">
+                            النتيجة: دراجات، سيارات، وطائرات حديثة اليوم!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Terms Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div onclick="playAudioText('term-wheel')" class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 flex items-center gap-3 cursor-pointer hover:border-purple-400 transition">
+                    <div class="w-12 h-12 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                        <i class="fa-solid fa-dharmachakra"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white flex items-center gap-1">
+                            العجلة والمحور <i class="fa-solid fa-volume-low text-[10px] text-slate-400"></i>
+                        </h5>
+                        <p class="text-xs text-slate-400">تسهل نقل الأجسام وتقليل الاحتكاك بالأرض</p>
+                    </div>
+                </div>
+
+                <div onclick="playAudioText('term-gears')" class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 flex items-center gap-3 cursor-pointer hover:border-emerald-400 transition">
+                    <div class="w-12 h-12 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                        <i class="fa-solid fa-cogs"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white flex items-center gap-1">
+                            المسننات والتروس <i class="fa-solid fa-volume-low text-[10px] text-slate-400"></i>
+                        </h5>
+                        <p class="text-xs text-slate-400">تنقل الحركة والسرعة والقوة بين المحاور</p>
+                    </div>
+                </div>
+
+                <div onclick="playAudioText('term-chain')" class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 flex items-center gap-3 cursor-pointer hover:border-blue-400 transition">
+                    <div class="w-12 h-12 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                        <i class="fa-solid fa-link"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white flex items-center gap-1">
+                            السلسلة الناقلة <i class="fa-solid fa-volume-low text-[10px] text-slate-400"></i>
+                        </h5>
+                        <p class="text-xs text-slate-400">تنقل الحركة من دواسة القدم للعجلة الخلفية</p>
+                    </div>
+                </div>
+
+                <div onclick="playAudioText('term-biomimicry')" class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 flex items-center gap-3 cursor-pointer hover:border-rose-400 transition">
+                    <div class="w-12 h-12 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-white flex items-center gap-1">
+                            محاكاة الطبيعة <i class="fa-solid fa-volume-low text-[10px] text-slate-400"></i>
+                        </h5>
+                        <p class="text-xs text-slate-400">دراسة سلوك الكائنات لتصميم أدوات نافعة</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: INTERACTIVE GEAR & WHEEL SIMULATOR -->
+        <section id="tab-sim" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 glow-card">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders"></i> مختبر التروس ونقل الحركة
+                        </h2>
+                        <p class="text-slate-300 text-sm">حرّك الدواسة، وغير أحجام المسننات لتكتشف كيف تزيد السرعة ويتغير اتجاه الدوران!</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="toggleGearRotation()" id="gearPlayBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow">
+                            <i class="fa-solid fa-play"></i> تشغيل المحرك
+                        </button>
+                        <button onclick="resetGearSim()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 border border-slate-700">
+                            <i class="fa-solid fa-rotate-right"></i> إعادة ضبط
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simulation Canvas and Controls -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Visualizer Canvas Container -->
+                    <div class="lg:col-span-2 bg-slate-950 rounded-2xl p-4 border border-slate-800 flex flex-col items-center justify-center relative min-h-[320px]">
+                        <canvas id="gearCanvas" width="600" height="320" class="w-full max-w-full h-auto rounded-xl"></canvas>
+                        <div class="absolute top-4 left-4 bg-slate-900/80 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-700 text-xs text-slate-300 space-y-1">
+                            <div>نسبة التروس: <span id="gearRatioVal" class="text-amber-400 font-bold">1 : 2</span></div>
+                            <div>اتجاه الترس الثاني: <span id="gearDirVal" class="text-cyan-400 font-bold">معاكس</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Controls Panel -->
+                    <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 space-y-5">
+                        <h3 class="font-bold text-white text-lg border-b border-slate-700 pb-2">
+                            ⚙️ إعدادات المسننات (Gears)
+                        </h3>
+
+                        <!-- Gear 1 Size -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-300">حجم المسنن القائد (الأساسي):</span>
+                                <span id="gear1SizeText" class="text-amber-400 font-bold">20 أسنان</span>
+                            </div>
+                            <input type="range" id="gear1Slider" min="12" max="32" value="20" step="2" oninput="updateSimParams()" class="w-full accent-amber-400 cursor-pointer">
+                        </div>
+
+                        <!-- Gear 2 Size -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-300">حجم المسنن المنقاد (الثانوي):</span>
+                                <span id="gear2SizeText" class="text-cyan-400 font-bold">10 أسنان</span>
+                            </div>
+                            <input type="range" id="gear2Slider" min="10" max="30" value="10" step="2" oninput="updateSimParams()" class="w-full accent-cyan-400 cursor-pointer">
+                        </div>
+
+                        <!-- Drive Mode Switch -->
+                        <div class="space-y-2">
+                            <label class="text-sm text-slate-300 block">نوع الاتصال:</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setGearConnectMode('direct')" id="modeDirectBtn" class="bg-indigo-600 text-white p-2 rounded-lg text-xs font-bold border border-indigo-400 transition">
+                                    تداور مباشر (تروس)
+                                </button>
+                                <button onclick="setGearConnectMode('chain')" id="modeChainBtn" class="bg-slate-700 text-slate-300 p-2 rounded-lg text-xs font-bold border border-slate-600 transition">
+                                    سلسلة ناقلة (دراجة)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Scientific Explanation Box -->
+                        <div id="simExplainBox" class="bg-indigo-950/60 p-3 rounded-xl border border-indigo-800/50 text-xs text-indigo-200 space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-amber-300">💡 ماذا نستنتج؟</span>
+                                <button onclick="playAudioText('sim-fact')" class="text-[11px] bg-indigo-900 hover:bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded border border-indigo-700">
+                                    <i class="fa-solid fa-volume-low"></i> استمع
+                                </button>
+                            </div>
+                            <p id="simFactText">عندما يدور مسنن كبير مرتبط بمسنن أصغر، يدور المسنن الأصغر بسرعة أكبر!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: MINI-GAMES & BIOMIMICRY ASSEMBLY -->
+        <section id="tab-game" class="tab-content hidden space-y-6">
+            <!-- Game 1: Biomimicry Matching -->
+            <div class="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 glow-card space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-black text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-paw"></i> التحدي الأول: محاكاة الطبيعة (Biomimicry)
+                        </h2>
+                        <p class="text-slate-300 text-xs md:text-sm">صل الاختراع التكنولوجي بالكائن الحي الذي ألهم الإنسان لتصميمه!</p>
+                    </div>
+                    <span id="matchScore" class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full font-bold">0 / 4 مكتمل</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <!-- Inventions Column -->
+                    <div class="space-y-3">
+                        <h3 class="text-sm font-bold text-slate-400">الاختراعات البشرية:</h3>
+                        <div id="inventionCards" class="space-y-2">
+                            <!-- Cards inserted dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Natural Inspiration Target Drop Zones -->
+                    <div class="space-y-3">
+                        <h3 class="text-sm font-bold text-slate-400">الإلهام من الطبيعة:</h3>
+                        <div id="natureTargets" class="space-y-2">
+                            <!-- Drop zones inserted dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game 2: Bike Chain Drive Assembly Mini Game -->
+            <div class="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 glow-card space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-black text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-bicycle"></i> التحدي الثاني: ركب الدراجة الحقيقية وشغّلها!
+                        </h2>
+                        <p class="text-slate-300 text-xs md:text-sm">اسحب أجزاء الدراجة وركبها على الهيكل الحقيقي لتشاهد الدراجة تعمل وتتحرك أمامك!</p>
+                    </div>
+                    <button onclick="resetAssemblyGame()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1">
+                        <i class="fa-solid fa-arrow-rotate-right"></i> إعادة التركيب
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Parts Storage Box -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <h4 class="text-xs font-bold text-slate-300 flex items-center gap-1">
+                                <i class="fa-solid fa-toolbox text-amber-400"></i> صندوق أجزاء الدراجة:
+                            </h4>
+                            <span id="partsCountBadge" class="text-[10px] bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full font-bold">0 / 5 أجزاء</span>
+                        </div>
+                        <p class="text-[11px] text-amber-300/90 leading-snug">
+                            💡 **طريقة اللعب:** قم بسحب القطعة إلى مكانها على هيكل الدراجة، أو اضغط على القطعة ثم اضغط على مكانها المخصص.
+                        </p>
+                        
+                        <div id="partsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
+                            <!-- Part 1: Front Wheel -->
+                            <div draggable="true" ondragstart="handleDragStart(event)" onclick="selectPartToPlace('wheel-front')" id="part-wheel-front" data-part="wheel-front" class="draggable-item bg-slate-900 p-2.5 rounded-xl border border-slate-700 flex items-center gap-3 hover:border-cyan-400 transition cursor-pointer">
+                                <div class="w-10 h-10 rounded-lg bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl flex-shrink-0">
+                                    <i class="fa-solid fa-circle-notch"></i>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold text-white block">1. العجلة الأمامية</span>
+                                    <span class="text-[10px] text-slate-400">تُركّب على الشوكة الأمامية</span>
+                                </div>
+                            </div>
+
+                            <!-- Part 2: Rear Wheel -->
+                            <div draggable="true" ondragstart="handleDragStart(event)" onclick="selectPartToPlace('wheel-back')" id="part-wheel-back" data-part="wheel-back" class="draggable-item bg-slate-900 p-2.5 rounded-xl border border-slate-700 flex items-center gap-3 hover:border-cyan-400 transition cursor-pointer">
+                                <div class="w-10 h-10 rounded-lg bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl flex-shrink-0">
+                                    <i class="fa-solid fa-circle-notch"></i>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold text-white block">2. العجلة الخلفية</span>
+                                    <span class="text-[10px] text-slate-400">تُركّب على المحور الخلفي</span>
+                                </div>
+                            </div>
+
+                            <!-- Part 3: Crankset & Pedal -->
+                            <div draggable="true" ondragstart="handleDragStart(event)" onclick="selectPartToPlace('crank-pedal')" id="part-crank-pedal" data-part="crank-pedal" class="draggable-item bg-slate-900 p-2.5 rounded-xl border border-slate-700 flex items-center gap-3 hover:border-amber-400 transition cursor-pointer">
+                                <div class="w-10 h-10 rounded-lg bg-amber-950/60 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl flex-shrink-0">
+                                    <i class="fa-solid fa-gear"></i>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold text-white block">3. الدواسة والمسنن الرئيسي</span>
+                                    <span class="text-[10px] text-slate-400">مركز قوة التبديل القائد</span>
+                                </div>
+                            </div>
+
+                            <!-- Part 4: Rear Sprocket -->
+                            <div draggable="true" ondragstart="handleDragStart(event)" onclick="selectPartToPlace('sprocket-rear')" id="part-sprocket-rear" data-part="sprocket-rear" class="draggable-item bg-slate-900 p-2.5 rounded-xl border border-slate-700 flex items-center gap-3 hover:border-rose-400 transition cursor-pointer">
+                                <div class="w-10 h-10 rounded-lg bg-rose-950/60 border border-rose-500/30 flex items-center justify-center text-rose-400 text-xl flex-shrink-0">
+                                    <i class="fa-solid fa-cog"></i>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold text-white block">4. المسنن الخلفي الأصغر</span>
+                                    <span class="text-[10px] text-slate-400">المسنن المنقاد الناقل للعجلة</span>
+                                </div>
+                            </div>
+
+                            <!-- Part 5: Drive Chain -->
+                            <div draggable="true" ondragstart="handleDragStart(event)" onclick="selectPartToPlace('chain-loop')" id="part-chain-loop" data-part="chain-loop" class="draggable-item bg-slate-900 p-2.5 rounded-xl border border-slate-700 flex items-center gap-3 hover:border-indigo-400 transition cursor-pointer">
+                                <div class="w-10 h-10 rounded-lg bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-xl flex-shrink-0">
+                                    <i class="fa-solid fa-link"></i>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-bold text-white block">5. السلسلة الناقلة</span>
+                                    <span class="text-[10px] text-slate-400">تربط بين المسنن الإمامي والخلفي</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Interactive Bike Workshop Canvas & Graphic -->
+                    <div class="lg:col-span-2 bg-slate-950 p-4 md:p-6 rounded-xl border border-slate-800 flex flex-col items-center justify-between relative min-h-[360px] overflow-hidden">
+                        
+                        <div id="assemblyMessage" class="w-full text-xs font-bold text-amber-300 mb-2 bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/20 text-center transition">
+                            🎯 اختر أجزاء الدراجة وركبها في موقعها الصحيح على الهيكل المعدني
+                        </div>
+
+                        <!-- Real Bike Blueprint Interactive SVG Viewport -->
+                        <div class="relative w-full h-[280px] bg-slate-900/60 rounded-2xl border border-slate-800/80 flex items-center justify-center overflow-hidden p-2">
+                            
+                            <!-- Road / Floor Graphic -->
+                            <div class="absolute bottom-4 left-0 right-0 h-2 bg-slate-800 overflow-hidden">
+                                <div id="roadStripes" class="w-full h-full bg-[repeating-linear-gradient(90deg,#38bdf8,#38bdf8_20px,transparent_20px,transparent_40px)] opacity-30"></div>
+                            </div>
+
+                            <!-- Interactive Bike SVG Frame -->
+                            <svg id="bikeSvg" viewBox="0 0 600 320" class="w-full h-full max-w-lg drop-shadow-2xl select-none">
+                                <defs>
+                                    <linearGradient id="frameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#3b82f6"/>
+                                        <stop offset="100%" stop-color="#1d4ed8"/>
+                                    </linearGradient>
+                                    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#94a3b8"/>
+                                        <stop offset="100%" stop-color="#475569"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Static Bike Frame Tubes -->
+                                <g id="bikeFrameGroup" stroke="url(#frameGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                                    <!-- Main Frame Triangle -->
+                                    <path d="M 180 210 L 270 110 L 410 110 L 270 210 Z" />
+                                    <!-- Rear Stay Triangle -->
+                                    <path d="M 180 210 L 130 210 L 240 100" />
+                                    <!-- Front Fork -->
+                                    <path d="M 410 110 L 460 210" />
+                                    <!-- Handlebar Stem & Bar -->
+                                    <path d="M 410 110 L 400 80 L 430 75" stroke="#cbd5e1" stroke-width="6" />
+                                    <!-- Seat Post & Saddle -->
+                                    <path d="M 270 110 L 260 85" stroke="#cbd5e1" stroke-width="6" />
+                                    <path d="M 240 82 Q 265 80 285 85" stroke="#1e293b" stroke-width="12" stroke-linecap="round" />
+                                </g>
+
+                                <!-- SLOT 1: Front Wheel Zone (Center at X:460, Y:210) -->
+                                <g id="slot-wheel-front" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'wheel-front')" onclick="handleSlotClick('wheel-front')" class="drop-zone cursor-pointer">
+                                    <circle cx="460" cy="210" r="55" fill="rgba(6,182,212,0.05)" stroke="#06b6d4" stroke-width="2" stroke-dasharray="6,6" class="hover:fill-cyan-500/20 transition"/>
+                                    <circle cx="460" cy="210" r="8" fill="#06b6d4" />
+                                    <text x="460" y="214" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="bold" class="pointer-events-none">العجلة الأمامية</text>
+                                </g>
+
+                                <!-- SLOT 2: Rear Wheel Zone (Center at X:130, Y:210) -->
+                                <g id="slot-wheel-back" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'wheel-back')" onclick="handleSlotClick('wheel-back')" class="drop-zone cursor-pointer">
+                                    <circle cx="130" cy="210" r="55" fill="rgba(6,182,212,0.05)" stroke="#06b6d4" stroke-width="2" stroke-dasharray="6,6" class="hover:fill-cyan-500/20 transition"/>
+                                    <circle cx="130" cy="210" r="8" fill="#06b6d4" />
+                                    <text x="130" y="214" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="bold" class="pointer-events-none">العجلة الخلفية</text>
+                                </g>
+
+                                <!-- SLOT 3: Pedal & Front Crankset Zone (Center at X:270, Y:210) -->
+                                <g id="slot-crank-pedal" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'crank-pedal')" onclick="handleSlotClick('crank-pedal')" class="drop-zone cursor-pointer">
+                                    <circle cx="270" cy="210" r="32" fill="rgba(245,158,11,0.05)" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,4" class="hover:fill-amber-500/20 transition"/>
+                                    <circle cx="270" cy="210" r="6" fill="#f59e0b" />
+                                    <text x="270" y="214" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="bold" class="pointer-events-none">الدواسة والمسنن</text>
+                                </g>
+
+                                <!-- SLOT 4: Rear Sprocket Zone (Center at X:130, Y:210) -->
+                                <g id="slot-sprocket-rear" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'sprocket-rear')" onclick="handleSlotClick('sprocket-rear')" class="drop-zone cursor-pointer">
+                                    <circle cx="130" cy="210" r="20" fill="rgba(244,63,94,0.08)" stroke="#f43f5e" stroke-width="2" stroke-dasharray="3,3" class="hover:fill-rose-500/20 transition"/>
+                                    <text x="130" y="180" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="bold" class="pointer-events-none">المسنن الخلفي</text>
+                                </g>
+
+                                <!-- SLOT 5: Chain Drive Path Zone -->
+                                <g id="slot-chain-loop" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'chain-loop')" onclick="handleSlotClick('chain-loop')" class="drop-zone cursor-pointer">
+                                    <path d="M 270 185 L 130 195 L 130 225 L 270 235 Z" fill="rgba(99,102,241,0.05)" stroke="#6366f1" stroke-width="2" stroke-dasharray="5,5" class="hover:fill-indigo-500/20 transition"/>
+                                    <text x="200" y="200" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="bold" class="pointer-events-none">السلسلة الناقلة 🔗</text>
+                                </g>
+
+                                <!-- Dynamic Working Assembled Elements Container -->
+                                <g id="assembledBikeGraphics"></g>
+
+                            </svg>
+
+                        </div>
+
+                        <!-- Bike Drive Controls (Shown when Assembly is Complete) -->
+                        <div id="bikeDriveStatus" class="mt-3 w-full hidden flex flex-col md:flex-row items-center justify-between gap-3 bg-emerald-950/80 p-3 rounded-xl border border-emerald-500/40">
+                            <div class="flex items-center gap-2 text-emerald-300 font-bold text-xs md:text-sm">
+                                <i class="fa-solid fa-circle-check text-lg text-emerald-400 animate-bounce"></i>
+                                <span>عظيم جداً! الدراجة الآن مكتملة وتعمل بنجاح أمامك 🎉 (+50 نقطة)</span>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                                <span class="text-xs text-amber-300 font-bold whitespace-nowrap">سرعة التبديل:</span>
+                                <input type="range" id="bikePedalSpeed" min="1" max="5" value="2" oninput="updateBikeDriveSpeed()" class="accent-emerald-400 cursor-pointer w-24">
+                                <button onclick="toggleBikeDrive()" id="driveToggleBtn" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-1.5 rounded-lg text-xs font-black flex items-center gap-1 shadow">
+                                    <i class="fa-solid fa-pause"></i> إيقاف
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: GAMIFIED QUIZ CONTEST -->
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 glow-card max-w-3xl mx-auto space-y-6">
+                <!-- Quiz Header -->
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-amber-400 flex items-center gap-2">
+                            <i class="fa-solid fa-award"></i> تحدي أبطال التكنولوجيا
+                        </h2>
+                        <p class="text-xs text-slate-400">الصف السادس الابتدائي - اختبر معلوماتك واحصل على وسام التميز!</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="quizProgress" class="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                            السؤال 1 من 5
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Active Question Box -->
+                <div id="quizContainer" class="space-y-6">
+                    <div id="questionCard" class="bg-slate-800/80 p-5 rounded-2xl border border-slate-700 space-y-4">
+                        <div class="flex justify-between items-start gap-2">
+                            <h3 id="questionText" class="text-lg font-bold text-white leading-snug">
+                                جارٍ تحميل السؤال...
+                            </h3>
+                            <button onclick="readCurrentQuestionSpeech()" class="bg-slate-700 hover:bg-indigo-600 text-slate-200 hover:text-white p-2 rounded-lg text-xs transition flex items-center gap-1 flex-shrink-0" title="استمع للسؤال بصوت واضح">
+                                <i class="fa-solid fa-volume-high text-amber-300"></i> قراءة
+                            </button>
+                        </div>
+
+                        <div id="answersContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <!-- Buttons loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Feedback Box -->
+                    <div id="quizFeedback" class="hidden p-4 rounded-xl border text-sm font-bold transition"></div>
+
+                    <!-- Action Bar -->
+                    <div class="flex justify-between items-center pt-2">
+                        <button id="prevBtn" onclick="prevQuestion()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-xs font-bold disabled:opacity-40" disabled>
+                            السؤال السابق
+                        </button>
+                        <button id="nextBtn" onclick="nextQuestion()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg text-xs font-bold pulse-btn">
+                            التالي <i class="fa-solid fa-arrow-left mr-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Final Quiz Results View (Hidden Initially) -->
+                <div id="quizResultView" class="hidden text-center space-y-6 py-6">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-5xl shadow-xl shadow-amber-500/10">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-2xl font-black text-white">تهانينا! أكملت الاختبار بنجاح! 🎉</h3>
+                        <p id="finalScoreText" class="text-lg text-slate-300">درجتك: 100 / 100</p>
+                        <p id="finalBadgeText" class="text-sm font-bold text-amber-400">اللقب: بطل التكنولوجيا والميكانيك 🏆</p>
+                    </div>
+
+                    <!-- Teacher Summary Card for Print or Display -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-right text-xs text-slate-300 space-y-2 max-w-md mx-auto">
+                        <div class="font-bold text-indigo-300 border-b border-slate-800 pb-1 text-center text-sm">
+                            📄 تقرير إنجاز الطالب (للمعلم/المعلمة)
+                        </div>
+                        <div class="flex justify-between"><span>اسم الدرس:</span> <span class="font-bold text-white">عالم من عجلات</span></div>
+                        <div class="flex justify-between"><span>الصف والبحث:</span> <span class="font-bold text-white">السادس - تكنولوجيا</span></div>
+                        <div class="flex justify-between"><span>النقاط الكلية:</span> <span id="reportScore" class="font-bold text-amber-400">100</span></div>
+                        <div class="flex justify-between"><span>تاريخ الإنجاز:</span> <span id="reportDate" class="font-bold text-slate-400"></span></div>
+                        <div class="flex justify-between pt-1 border-t border-slate-800/80 text-amber-300 font-bold">
+                            <span>إعداد وتصميم:</span> <span>الأستاذ فادي أبو الكباش</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-3">
+                        <button onclick="restartQuiz()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> إعادة الاختبار
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 p-4 text-center text-xs text-slate-400 space-y-1">
+        <div>مصمم لخدمة منهاج التكنولوجيا - الصف السادس الابتدائي | وحدة الأنظمة التكنولوجية الميكانيكية ⚙️</div>
+        <div class="text-amber-400 font-bold text-sm">إعداد وتصميم الأستاذ فادي أبو الكباش</div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(180, now + 0.15);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'fanfare') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.15);
+                osc.frequency.setValueAtTime(783.99, now + 0.3);
+                osc.frequency.setValueAtTime(1046.50, now + 0.45);
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.7);
+                osc.start(now);
+                osc.stop(now + 0.7);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const soundIcon = document.getElementById('soundIcon');
+            if (soundEnabled) {
+                soundIcon.className = "fa-solid fa-volume-high";
+                playSound('click');
+            } else {
+                soundIcon.className = "fa-solid fa-volume-xmark text-red-400";
+            }
+        }
+
+        // Voice Engine Cache for Arabic TTS
+        let cachedArabicVoices = [];
+
+        function loadArabicVoices() {
+            if (!('speechSynthesis' in window)) return;
+            cachedArabicVoices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('ar') || v.lang.includes('ar'));
+        }
+
+        if ('speechSynthesis' in window) {
+            loadArabicVoices();
+            window.speechSynthesis.onvoiceschanged = loadArabicVoices;
+        }
+
+        function stopAudioSpeech() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            const statusEl = document.getElementById('audioStatusText');
+            if (statusEl) statusEl.classList.add('hidden');
+        }
+
+        // Fully vocalized texts (مُشَكَّلَةٌ مَضْبُوطَةٌ بِالحَرَكَاتِ لِنَطْقٍ سَلِيمٍ 100%)
+        const vocalizedSpeechTexts = {
+            'donot-reinvent': "مَقُولَةُ: «لَا تَخْتَرِعِ العَجَلَةَ!» تَعْنِي أَلَّا تَبْدَأَ العَمَلَ مِنَ الصِّفْرِ، عِنْدَمَا يَكُونُ الآخَرُونَ قَدْ أَوْجَدُوا حَلًّا نَاجِحًا، بَلِ اسْتَفِدْ مِنْ خِبْرَاتِ وَعُلُومِ مَنْ سَبَقُوكَ وَطَوِّرْ عَلَيْهَا.",
+            'history-1': "فِي عَامِ ثَلَاثَةِ آلَافٍ وَخَمْسِمِئَةٍ قَبْلَ المِيلَادِ، بَدَأَتِ الخُطْوَةُ الأُولَى لِنَقْلِ الإِنْسَانِ بِاخْتِرَاعِ الدَّوْلَابِ أَوْ العَجَلَةِ فِي بِلَادِ مَا بَيْنَ النَّهْرَيْنِ.",
+            'history-2': "دَرَسَ الإِنْسَانُ الكَائِنَاتِ الحَيَّةَ وَحَرَكَتَهَا، لِيَنْقُلَهَا إِلَى أَجْهِزَةٍ وَمِيكَانِيكِيَّاتٍ تُسَاعِدُهُ فِي نَقْلِ الأَحْمَالِ.",
+            'history-3': "اسْتُبْدِلَتِ الأَنْظِمَةُ البَسِيطَةُ بِمُحَرِّكَاتِ الاِحْتِرَاقِ الدَّاخِلِيِّ وَالْكَهْرَبَاءِ، وَالْمُسَنَّنَاتِ المِيكَانِيكِيَّةِ الحَدِيثَةِ.",
+            'term-wheel': "العَجَلَةُ وَالْمِحْوَرُ: تُسَهِّلُ نَقْلَ الأَجْسَامِ وَتَقْلِيلَ الِاحْتِكَاكِ بِالأَرْضِ.",
+            'term-gears': "المُسَنَّنَاتُ وَالتُّرُوسُ: تَنْقُلُ الحَرَكَةَ وَالسُّرْعَةَ وَالقُوَّةَ بَيْنَ المَحَاوِرِ.",
+            'term-chain': "السِّلْسِلَةُ النَّاقِلَةُ: تَنْقُلُ الحَرَكَةَ مِنْ دَوَّاسَةِ القَدَمِ إِلَى العَجَلَةِ الخَلْفِيَّةِ.",
+            'term-biomimicry': "مُحَاكَاةُ الطَّبِيعَةِ: دِرَاسَةُ سُلُوكِ الكَائِنَاتِ الحَيَّةِ لِتَصْمِيمِ أَدَوَاتٍ وَتِكْنُولُوجْيَا نَافِعَةٍ.",
+            'sim-fact': "عِنْدَمَا يَدُورُ مُسَنَّنٌ كَبِيرٌ مِرْتَبِطٌ بِمُسَنَّنٍ أَصْغَرَ، يَدُورُ المُسَنَّنُ الأَصْغَرُ بِسُرْعَةٍ أَكْبَرَ!"
+        };
+
+        function playAudioText(phraseKey, rawTextCustom = null) {
+            initAudio();
+            playSound('click');
+            stopAudioSpeech();
+
+            const statusEl = document.getElementById('audioStatusText');
+
+            if ('speechSynthesis' in window) {
+                let textToSpeak = rawTextCustom || vocalizedSpeechTexts[phraseKey] || "";
+
+                if (!textToSpeak) return;
+
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'ar-SA';
+                utterance.rate = 0.85; // slightly slower for precise Arabic pronunciation
+                utterance.pitch = 1.0;
+
+                // Select best Arabic Voice
+                if (cachedArabicVoices.length === 0) loadArabicVoices();
+                if (cachedArabicVoices.length > 0) {
+                    // Prefer Saudi / Natural voices if available
+                    const saudiVoice = cachedArabicVoices.find(v => v.lang === 'ar-SA' || v.name.includes('Arabic') || v.name.includes('Maged') || v.name.includes('Laila') || v.name.includes('Tarik') || v.name.includes('Google'));
+                    utterance.voice = saudiVoice || cachedArabicVoices[0];
+                }
+
+                if (statusEl) {
+                    statusEl.innerText = "🔊 جَارِي قِرَاءَةُ النَّصِّ بِصَوْتٍ وَاضِحٍ وَمُشَكَّلٍ...";
+                    statusEl.classList.remove('hidden');
+                }
+
+                utterance.onend = function() {
+                    if (statusEl) statusEl.classList.add('hidden');
+                };
+
+                utterance.onerror = function() {
+                    if (statusEl) {
+                        statusEl.innerText = "💡 (يُمْكِنُكَ قِرَاءَةُ النَّصِّ الظَّاهِرِ فِي البطَاقَاتِ)";
+                        setTimeout(() => statusEl.classList.add('hidden'), 3000);
+                    }
+                };
+
+                window.speechSynthesis.speak(utterance);
+            } else {
+                if (statusEl) {
+                    statusEl.innerText = "⚠️ متصفحك لا يدعم خاصية نطق النصوص تلقائياً.";
+                    statusEl.classList.remove('hidden');
+                }
+            }
+        }
+
+        let totalScore = 0;
+
+        function addScore(pts) {
+            totalScore += pts;
+            document.getElementById('scoreDisplay').innerText = totalScore;
+
+            const badgeDisplay = document.getElementById('badgeDisplay');
+            if (totalScore >= 150) {
+                badgeDisplay.innerText = "خبير ميكانيك 🏆";
+                badgeDisplay.className = "font-bold text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded-md border border-amber-500/30";
+            } else if (totalScore >= 80) {
+                badgeDisplay.innerText = "مهندس صاعد ⚙️";
+                badgeDisplay.className = "font-bold text-xs bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded-md border border-indigo-500/30";
+            }
+        }
+
+        function switchTab(tabId) {
+            initAudio();
+            playSound('click');
+            stopAudioSpeech();
+            
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
+                activeBtn.classList.add('bg-indigo-600', 'text-white');
+            }
+
+            if (tabId === 'tab-sim') {
+                setTimeout(initGearCanvas, 50);
+            }
+        }
+
+        let canvas, ctx;
+        let isGearRunning = true;
+        let angleG1 = 0;
+        let angleG2 = 0;
+        let gear1Radius = 60;
+        let gear2Radius = 30;
+        let gear1Teeth = 20;
+        let gear2Teeth = 10;
+        let gearConnectMode = 'direct';
+
+        function initGearCanvas() {
+            canvas = document.getElementById('gearCanvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+            updateSimParams();
+            requestAnimationFrame(animateGears);
+        }
+
+        function updateSimParams() {
+            gear1Teeth = parseInt(document.getElementById('gear1Slider').value);
+            gear2Teeth = parseInt(document.getElementById('gear2Slider').value);
+
+            document.getElementById('gear1SizeText').innerText = gear1Teeth + " أسنان";
+            document.getElementById('gear2SizeText').innerText = gear2Teeth + " أسنان";
+
+            gear1Radius = gear1Teeth * 3;
+            gear2Radius = gear2Teeth * 3;
+
+            const ratio = (gear1Teeth / gear2Teeth).toFixed(1);
+            document.getElementById('gearRatioVal').innerText = `1 : ${ratio}`;
+
+            const factBox = document.getElementById('simFactText');
+            if (gear1Teeth > gear2Teeth) {
+                factBox.innerText = `دورة واحدة من المسنن الكبير القائد تتسبب في ${ratio} دورات سريعة للمسنن الأصغر!`;
+            } else if (gear1Teeth < gear2Teeth) {
+                factBox.innerText = `عندما يدور المسنن الصغير، يحتاج لعدة دورات لتتدور دورة واحدة من المسنن الكبير (زيادة العزم وقوة السحب).`;
+            } else {
+                factBox.innerText = `عند تساوي التروس، يدوران بنفس السرعة تماماً!`;
+            }
+        }
+
+        function setGearConnectMode(mode) {
+            playSound('click');
+            gearConnectMode = mode;
+            const btnDirect = document.getElementById('modeDirectBtn');
+            const btnChain = document.getElementById('modeChainBtn');
+            const dirVal = document.getElementById('gearDirVal');
+
+            if (mode === 'direct') {
+                btnDirect.className = "bg-indigo-600 text-white p-2 rounded-lg text-xs font-bold border border-indigo-400 transition";
+                btnChain.className = "bg-slate-700 text-slate-300 p-2 rounded-lg text-xs font-bold border border-slate-600 transition";
+                dirVal.innerText = "معاكس (عكس الاتجاه)";
+                dirVal.className = "text-cyan-400 font-bold";
+            } else {
+                btnChain.className = "bg-indigo-600 text-white p-2 rounded-lg text-xs font-bold border border-indigo-400 transition";
+                btnDirect.className = "bg-slate-700 text-slate-300 p-2 rounded-lg text-xs font-bold border border-slate-600 transition";
+                dirVal.innerText = "نفس الاتجاه (بواسطة السلسلة)";
+                dirVal.className = "text-amber-400 font-bold";
+            }
+        }
+
+        function toggleGearRotation() {
+            playSound('click');
+            isGearRunning = !isGearRunning;
+            const btn = document.getElementById('gearPlayBtn');
+            if (isGearRunning) {
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i> إيقاف مؤقت';
+                btn.className = "bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow";
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> تشغيل المحرك';
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow";
+            }
+        }
+
+        function resetGearSim() {
+            playSound('click');
+            document.getElementById('gear1Slider').value = 20;
+            document.getElementById('gear2Slider').value = 10;
+            updateSimParams();
+        }
+
+        function animateGears() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX1 = 180;
+            const centerY = canvas.height / 2;
+
+            let centerX2;
+            if (gearConnectMode === 'direct') {
+                centerX2 = centerX1 + gear1Radius + gear2Radius;
+            } else {
+                centerX2 = centerX1 + 220;
+            }
+
+            if (isGearRunning) {
+                angleG1 += 0.02;
+                const speed2 = 0.02 * (gear1Teeth / gear2Teeth);
+                if (gearConnectMode === 'direct') {
+                    angleG2 -= speed2;
+                } else {
+                    angleG2 += speed2;
+                }
+            }
+
+            if (gearConnectMode === 'chain') {
+                ctx.beginPath();
+                ctx.strokeStyle = "#818cf8";
+                ctx.lineWidth = 6;
+                ctx.moveTo(centerX1, centerY - gear1Radius);
+                ctx.lineTo(centerX2, centerY - gear2Radius);
+                ctx.moveTo(centerX1, centerY + gear1Radius);
+                ctx.lineTo(centerX2, centerY + gear2Radius);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.strokeStyle = "#fbbf24";
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 8]);
+                ctx.lineDashOffset = -angleG1 * 20;
+                ctx.moveTo(centerX1, centerY - gear1Radius);
+                ctx.lineTo(centerX2, centerY - gear2Radius);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            drawGear(centerX1, centerY, gear1Radius, gear1Teeth, angleG1, "#f59e0b", "#fbbf24");
+            drawGear(centerX2, centerY, gear2Radius, gear2Teeth, angleG2, "#06b6d4", "#22d3ee");
+
+            requestAnimationFrame(animateGears);
+        }
+
+        function drawGear(x, y, radius, teeth, angle, color1, color2) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+
+            ctx.beginPath();
+            ctx.fillStyle = color1;
+            ctx.arc(0, 0, radius - 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = color2;
+            for (let i = 0; i < teeth; i++) {
+                const a = (Math.PI * 2 / teeth) * i;
+                ctx.save();
+                ctx.rotate(a);
+                ctx.fillRect(-4, -radius - 4, 8, 10);
+                ctx.restore();
+            }
+
+            ctx.beginPath();
+            ctx.fillStyle = "#0f172a";
+            ctx.arc(0, 0, radius * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "#0f172a";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-radius + 5, 0); ctx.lineTo(radius - 5, 0);
+            ctx.moveTo(0, -radius + 5); ctx.lineTo(0, radius - 5);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        const biomimicryData = [
+            { id: 'inv1', name: 'العجلة والدولاب ⚙️', match: 'nat1' },
+            { id: 'inv2', name: 'الرافعات البسيطة 🏗️', match: 'nat2' },
+            { id: 'inv3', name: 'الغواصة البحرية 🤿', match: 'nat3' },
+            { id: 'inv4', name: 'المروحية (الهليكوبتر) 🚁', match: 'nat4' }
+        ];
+
+        const natureData = [
+            { id: 'nat1', name: 'دحرجة بعض الخنافس والصخور 🪲', hint: 'طريقة الحركة والدوران' },
+            { id: 'nat2', name: 'ذراع الإنسان وعظام الحيوانات 🦾', hint: 'مبدأ الروافع العظمية' },
+            { id: 'nat3', name: 'مثانة العوم عند الأسماك 🐟', hint: 'الطفو والغوص' },
+            { id: 'nat4', name: 'حشرة يعسوب اليعاسيب 🐉', hint: 'الأجنحة والدوران' }
+        ];
+
+        let selectedInvention = null;
+        let matchedCount = 0;
+
+        function initBiomimicryGame() {
+            const invContainer = document.getElementById('inventionCards');
+            const natContainer = document.getElementById('natureTargets');
+            if (!invContainer || !natContainer) return;
+
+            invContainer.innerHTML = '';
+            natContainer.innerHTML = '';
+
+            biomimicryData.forEach(item => {
+                const btn = document.createElement('button');
+                btn.id = 'inv-btn-' + item.id;
+                btn.className = "w-full text-right bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-xl border border-slate-700 text-xs font-bold transition flex justify-between items-center";
+                btn.innerHTML = `<span>${item.name}</span> <i class="fa-solid fa-hand-pointer text-slate-500"></i>`;
+                btn.onclick = () => selectInvention(item.id);
+                invContainer.appendChild(btn);
+            });
+
+            natureData.forEach(item => {
+                const box = document.createElement('div');
+                box.id = 'nat-box-' + item.id;
+                box.className = "w-full bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300 flex justify-between items-center transition cursor-pointer hover:border-indigo-500";
+                box.innerHTML = `
+                    <div>
+                        <div class="font-bold text-white">${item.name}</div>
+                        <div class="text-[10px] text-slate-500">${item.hint}</div>
+                    </div>
+                    <span id="status-${item.id}" class="text-[10px] bg-slate-900 text-slate-500 px-2 py-1 rounded border border-slate-800">انقر للمطابقة</span>
+                `;
+                box.onclick = () => checkBiomimicryMatch(item.id);
+                natContainer.appendChild(box);
+            });
+        }
+
+        function selectInvention(id) {
+            playSound('click');
+            selectedInvention = id;
+
+            biomimicryData.forEach(item => {
+                const btn = document.getElementById('inv-btn-' + item.id);
+                if (btn) {
+                    if (item.id === id) {
+                        btn.classList.add('border-indigo-500', 'bg-indigo-950/50');
+                    } else {
+                        btn.classList.remove('border-indigo-500', 'bg-indigo-950/50');
+                    }
+                }
+            });
+        }
+
+        function checkBiomimicryMatch(natureId) {
+            if (!selectedInvention) {
+                alert("يرجى اختيار اختراع بشري أولاً!");
+                return;
+            }
+
+            const invObj = biomimicryData.find(i => i.id === selectedInvention);
+            if (invObj.match === natureId) {
+                playSound('correct');
+                matchedCount++;
+                document.getElementById('matchScore').innerText = `${matchedCount} / 4 مكتمل`;
+
+                const invBtn = document.getElementById('inv-btn-' + selectedInvention);
+                invBtn.className = "w-full text-right bg-emerald-950/40 text-emerald-300 p-3 rounded-xl border border-emerald-500/50 text-xs font-bold flex justify-between items-center";
+                invBtn.disabled = true;
+                invBtn.innerHTML += ` <i class="fa-solid fa-check text-emerald-400"></i>`;
+
+                const natBox = document.getElementById('nat-box-' + natureId);
+                natBox.className = "w-full bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/50 text-xs text-emerald-200 flex justify-between items-center";
+                document.getElementById('status-' + natureId).innerText = "مطابقة صحيحة! ✓";
+                document.getElementById('status-' + natureId).className = "text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded border border-emerald-500/30 font-bold";
+
+                addScore(15);
+                selectedInvention = null;
+            } else {
+                playSound('wrong');
+                const natBox = document.getElementById('nat-box-' + natureId);
+                natBox.classList.add('border-red-500');
+                setTimeout(() => natBox.classList.remove('border-red-500'), 1000);
+            }
+        }
+
+        let assembledParts = {
+            'wheel-front': false,
+            'wheel-back': false,
+            'crank-pedal': false,
+            'sprocket-rear': false,
+            'chain-loop': false
+        };
+        let selectedPartId = null;
+        let isBikeDriveRunning = false;
+        let bikeDriveAnimFrame = null;
+        let pedalRotationAngle = 0;
+        let pedalSpeedMultiplier = 2;
+
+        function handleDragStart(ev) {
+            const partEl = ev.target.closest('[data-part]');
+            if (partEl) {
+                const part = partEl.dataset.part;
+                ev.dataTransfer.setData("text/plain", part);
+                selectedPartId = part;
+            }
+            playSound('click');
+        }
+
+        function handleDragOver(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('opacity-80');
+        }
+
+        function handleDragLeave(ev) {
+            ev.currentTarget.classList.remove('opacity-80');
+        }
+
+        function handleDrop(ev, targetSlot) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('opacity-80');
+            let draggedPart = ev.dataTransfer ? ev.dataTransfer.getData("text/plain") : selectedPartId;
+            if (!draggedPart) draggedPart = selectedPartId;
+
+            tryPlacePart(draggedPart, targetSlot);
+        }
+
+        function selectPartToPlace(partId) {
+            playSound('click');
+            selectedPartId = partId;
+
+            document.querySelectorAll('#partsContainer .draggable-item').forEach(el => {
+                if (el.dataset.part === partId) {
+                    el.classList.add('ring-2', 'ring-amber-400', 'bg-slate-800');
+                } else {
+                    el.classList.remove('ring-2', 'ring-amber-400', 'bg-slate-800');
+                }
+            });
+
+            const msg = document.getElementById('assemblyMessage');
+            msg.innerText = "رائع! الآن انقر على مكان القطعة المخصص على هيكل الدراجة لتركيبها 🎯";
+            msg.className = "w-full text-xs font-bold text-amber-300 mb-2 bg-amber-500/20 px-4 py-2 rounded-xl border border-amber-400 animate-pulse text-center";
+        }
+
+        function handleSlotClick(targetSlot) {
+            if (selectedPartId) {
+                tryPlacePart(selectedPartId, targetSlot);
+            }
+        }
+
+        function tryPlacePart(partId, targetSlot) {
+            if (partId === targetSlot) {
+                playSound('correct');
+                assembledParts[partId] = true;
+
+                // Hide Target Slot Outline
+                const slotEl = document.getElementById('slot-' + targetSlot);
+                if (slotEl) slotEl.style.display = 'none';
+
+                // Render Graphic onto SVG Assembled Group
+                renderAssembledPartGraphic(partId);
+
+                // Disable Toolbox Item
+                const originalItem = document.getElementById('part-' + partId);
+                if (originalItem) {
+                    originalItem.classList.add('opacity-30', 'pointer-events-none');
+                    originalItem.classList.remove('ring-2', 'ring-amber-400');
+                }
+
+                selectedPartId = null;
+                const placedCount = Object.values(assembledParts).filter(Boolean).length;
+                document.getElementById('partsCountBadge').innerText = `${placedCount} / 5 أجزاء`;
+
+                const msg = document.getElementById('assemblyMessage');
+                msg.innerText = `أحسنت! تم تركيب ${getPartArabicName(partId)} بنجاح ✓`;
+                msg.className = "w-full text-xs font-bold text-emerald-300 mb-2 bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 text-center";
+
+                checkAssemblyComplete();
+            } else {
+                playSound('wrong');
+                const msg = document.getElementById('assemblyMessage');
+                msg.innerText = `مكان غير صحيح لـ ${getPartArabicName(partId)}! تحقق من الموقع الخاص بها على الهيكل.`;
+                msg.className = "w-full text-xs font-bold text-rose-300 mb-2 bg-rose-500/20 px-4 py-2 rounded-xl border border-rose-500/30 text-center";
+            }
+        }
+
+        function getPartArabicName(id) {
+            switch(id) {
+                case 'wheel-front': return "العجلة الأمامية";
+                case 'wheel-back': return "العجلة الخلفية";
+                case 'crank-pedal': return "الدواسة والمسنن الرئيسي";
+                case 'sprocket-rear': return "المسنن الخلفي الأصغر";
+                case 'chain-loop': return "السلسلة الناقلة";
+                default: return "القطعة";
+            }
+        }
+
+        function renderAssembledPartGraphic(partId) {
+            const container = document.getElementById('assembledBikeGraphics');
+            if (!container) return;
+
+            if (partId === 'wheel-front') {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("id", "svg-assembled-wheel-front");
+                g.innerHTML = `
+                    <circle cx="460" cy="210" r="55" fill="none" stroke="#1e293b" stroke-width="12" />
+                    <circle cx="460" cy="210" r="50" fill="none" stroke="url(#rimGrad)" stroke-width="4" />
+                    <g id="spokes-front" stroke="#94a3b8" stroke-width="1.5">
+                        <line x1="460" y1="155" x2="460" y2="265"/>
+                        <line x1="405" y1="210" x2="515" y2="210"/>
+                        <line x1="421" y1="171" x2="499" y2="249"/>
+                        <line x1="421" y1="249" x2="499" y2="171"/>
+                    </g>
+                    <circle cx="460" cy="210" r="10" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                `;
+                container.appendChild(g);
+            } else if (partId === 'wheel-back') {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("id", "svg-assembled-wheel-back");
+                g.innerHTML = `
+                    <circle cx="130" cy="210" r="55" fill="none" stroke="#1e293b" stroke-width="12" />
+                    <circle cx="130" cy="210" r="50" fill="none" stroke="url(#rimGrad)" stroke-width="4" />
+                    <g id="spokes-back" stroke="#94a3b8" stroke-width="1.5">
+                        <line x1="130" y1="155" x2="130" y2="265"/>
+                        <line x1="75" y1="210" x2="185" y2="210"/>
+                        <line x1="91" y1="171" x2="169" y2="249"/>
+                        <line x1="91" y1="249" x2="169" y2="171"/>
+                    </g>
+                    <circle cx="130" cy="210" r="10" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+                `;
+                container.appendChild(g);
+            } else if (partId === 'sprocket-rear') {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("id", "svg-assembled-sprocket-rear");
+                g.innerHTML = `
+                    <g id="sprocket-rear-gear">
+                        <circle cx="130" cy="210" r="22" fill="#e11d48" stroke="#fda4af" stroke-width="2"/>
+                        <circle cx="130" cy="210" r="16" fill="#0f172a"/>
+                        <path d="M 130 186 L 130 234 M 106 210 L 154 210" stroke="#fda4af" stroke-width="3"/>
+                    </g>
+                `;
+                container.appendChild(g);
+            } else if (partId === 'crank-pedal') {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("id", "svg-assembled-crank-pedal");
+                g.innerHTML = `
+                    <circle cx="270" cy="210" r="35" fill="#d97706" stroke="#fcd34d" stroke-width="3"/>
+                    <circle cx="270" cy="210" r="26" fill="#0f172a"/>
+                    <!-- Pedal Crank Arm Group -->
+                    <g id="pedal-crank-arm">
+                        <line x1="270" y1="210" x2="270" y2="160" stroke="#f1f5f9" stroke-width="8" stroke-linecap="round"/>
+                        <rect x="255" y="150" width="30" height="12" rx="4" fill="#334155" stroke="#fbbf24" stroke-width="2"/>
+                        <line x1="270" y1="210" x2="270" y2="260" stroke="#f1f5f9" stroke-width="8" stroke-linecap="round"/>
+                        <rect x="255" y="258" width="30" height="12" rx="4" fill="#334155" stroke="#fbbf24" stroke-width="2"/>
+                    </g>
+                    <circle cx="270" cy="210" r="10" fill="#fbbf24"/>
+                `;
+                container.appendChild(g);
+            } else if (partId === 'chain-loop') {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("id", "svg-assembled-chain-loop");
+                g.innerHTML = `
+                    <path id="chain-line-top" d="M 270 175 L 130 188" stroke="#818cf8" stroke-width="6" stroke-linecap="round"/>
+                    <path id="chain-line-bottom" d="M 270 245 L 130 232" stroke="#818cf8" stroke-width="6" stroke-linecap="round"/>
+                    <path id="chain-line-dash" d="M 270 175 L 130 188 M 130 232 L 270 245" stroke="#e0e7ff" stroke-width="3" stroke-dasharray="6,6"/>
+                `;
+                container.appendChild(g);
+            }
+        }
+
+        function checkAssemblyComplete() {
+            const allComplete = Object.values(assembledParts).every(Boolean);
+            if (allComplete) {
+                playSound('fanfare');
+                document.getElementById('bikeDriveStatus').classList.remove('hidden');
+                document.getElementById('assemblyMessage').classList.add('hidden');
+                addScore(50);
+                startBikeDriveAnimation();
+            }
+        }
+
+        function startBikeDriveAnimation() {
+            isBikeDriveRunning = true;
+            animateBikeDrive();
+        }
+
+        function updateBikeDriveSpeed() {
+            pedalSpeedMultiplier = parseFloat(document.getElementById('bikePedalSpeed').value);
+        }
+
+        function toggleBikeDrive() {
+            playSound('click');
+            isBikeDriveRunning = !isBikeDriveRunning;
+            const btn = document.getElementById('driveToggleBtn');
+            if (isBikeDriveRunning) {
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i> إيقاف';
+                btn.className = "bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-1.5 rounded-lg text-xs font-black flex items-center gap-1 shadow";
+                animateBikeDrive();
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> تشغيل';
+                btn.className = "bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-1.5 rounded-lg text-xs font-black flex items-center gap-1 shadow";
+                if (bikeDriveAnimFrame) cancelAnimationFrame(bikeDriveAnimFrame);
+            }
+        }
+
+        function animateBikeDrive() {
+            if (!isBikeDriveRunning) return;
+
+            pedalRotationAngle += 0.03 * pedalSpeedMultiplier;
+
+            // Rotate Front Wheel Spokes
+            const spokesFront = document.getElementById('spokes-front');
+            if (spokesFront) {
+                spokesFront.setAttribute("transform", `rotate(${pedalRotationAngle * 180 / Math.PI * 1.8}, 460, 210)`);
+            }
+
+            // Rotate Rear Wheel Spokes & Sprocket (Rotates faster due to ratio!)
+            const spokesBack = document.getElementById('spokes-back');
+            const sprocketRear = document.getElementById('sprocket-rear-gear');
+            if (spokesBack) {
+                spokesBack.setAttribute("transform", `rotate(${pedalRotationAngle * 180 / Math.PI * 2.5}, 130, 210)`);
+            }
+            if (sprocketRear) {
+                sprocketRear.setAttribute("transform", `rotate(${pedalRotationAngle * 180 / Math.PI * 2.5}, 130, 210)`);
+            }
+
+            // Rotate Pedal Crank Arm
+            const pedalArm = document.getElementById('pedal-crank-arm');
+            if (pedalArm) {
+                pedalArm.setAttribute("transform", `rotate(${pedalRotationAngle * 180 / Math.PI}, 270, 210)`);
+            }
+
+            // Move Chain Dash Effect
+            const chainDash = document.getElementById('chain-line-dash');
+            if (chainDash) {
+                chainDash.setAttribute("stroke-dashoffset", -pedalRotationAngle * 30);
+            }
+
+            bikeDriveAnimFrame = requestAnimationFrame(animateBikeDrive);
+        }
+
+        function resetAssemblyGame() {
+            playSound('click');
+            if (bikeDriveAnimFrame) cancelAnimationFrame(bikeDriveAnimFrame);
+            isBikeDriveRunning = false;
+
+            assembledParts = {
+                'wheel-front': false,
+                'wheel-back': false,
+                'crank-pedal': false,
+                'sprocket-rear': false,
+                'chain-loop': false
+            };
+            selectedPartId = null;
+
+            document.getElementById('bikeDriveStatus').classList.add('hidden');
+            document.getElementById('partsCountBadge').innerText = "0 / 5 أجزاء";
+
+            const msg = document.getElementById('assemblyMessage');
+            msg.classList.remove('hidden');
+            msg.innerText = "🎯 اختر أجزاء الدراجة وركبها في موقعها الصحيح على الهيكل المعدني";
+            msg.className = "w-full text-xs font-bold text-amber-300 mb-2 bg-amber-500/10 px-4 py-2 rounded-xl border border-amber-500/20 text-center";
+
+            document.querySelectorAll('#partsContainer .draggable-item').forEach(el => {
+                el.classList.remove('opacity-30', 'pointer-events-none', 'ring-2', 'ring-amber-400', 'bg-slate-800');
+            });
+
+            // Show all target slot indicators
+            ['wheel-front', 'wheel-back', 'crank-pedal', 'sprocket-rear', 'chain-loop'].forEach(id => {
+                const slot = document.getElementById('slot-' + id);
+                if (slot) slot.style.display = 'block';
+            });
+
+            // Clear graphic group
+            const graphicsGroup = document.getElementById('assembledBikeGraphics');
+            if (graphicsGroup) graphicsGroup.innerHTML = '';
+        }
+
+        const quizQuestions = [
+            {
+                question: "1. متى وأين يعتقد علماء الآثار أنه تم اختراع الدولاب (العجل) لأول مرة؟ 🏛️",
+                vocalizedText: "السُّؤَالُ الأَوَّلُ: مَتَى وَأَيْنَ يَعْتَقِدُ عُلَمَاءُ الآثَارِ أَنَّهُ تَمَّ اخْتِرَاعُ الدَّوْلَابِ لِأَوَّلِ مَرَّةٍ؟",
+                answers: [
+                    { text: "عام 3500 ق.م في بلاد ما بين النهرين", correct: true },
+                    { text: "عام 1000 م في أوروبا", correct: false },
+                    { text: "عام 2000 ق.م في الصين", correct: false },
+                    { text: "عام 1900 م في أمريكا", correct: false }
+                ],
+                explanation: "إجابة صحيحة! يعتقد العلماء أن أول استخدام للدولاب كان في بلاد ما بين النهرين عام 3500 قبل الميلاد."
+            },
+            {
+                question: "2. ماذا تعني مقولة «لا تخترع العجلة!» في عالم الهندسة والتكنولوجيا؟ 🚲",
+                vocalizedText: "السُّؤَالُ الثَّانِي: مَاذَا تَعْنِي مَقُولَةُ «لَا تَخْتَرِعِ العَجَلَةَ!» فِي عَالَمِ الهَنْدَسَةِ وَالتِّكْنُولُوجْيَا؟",
+                answers: [
+                    { text: "عدم استخدام الدراجات الهوائية", correct: false },
+                    { text: "الاستفادة من أبحاث وخبرات من سبقوك وعدم البدء من الصفر", correct: true },
+                    { text: "صناعة عجلة من الحجارة فقط", correct: false },
+                    { text: "إلغاء استخدام الآلات الميكانيكية", correct: false }
+                ],
+                explanation: "ممتاز! تعني البناء على ما وصل إليه الآخرون بدلاً من هدر الوقت في إعادة اختراع ما هو موجود."
+            },
+            {
+                question: "3. كيف تنقل السلسلة الناقلة الحركة في الدراجة الهوائية؟ ⚙️",
+                vocalizedText: "السُّؤَالُ الثَّالِثُ: كَيْفَ تَنْقُلُ السِّلْسِلَةُ النَّاقِلَةُ الحَرَكَةَ فِي الدَّرَّاجَةِ الهَوَائِيَّةِ؟",
+                answers: [
+                    { text: "من دواسة القدم إلى العجلة الخلفية", correct: true },
+                    { text: "من مقود الدراجة إلى العجلة الأمامية", correct: false },
+                    { text: "من المقعد إلى الفرامل", correct: false },
+                    { text: "من الهيكل الخارجي إلى الأرض مباشرة", correct: false }
+                ],
+                explanation: "صحيح! عند الضغط على الدواسة يدور المسنن الأمامي وتنقل السلسلة الحركة للمسنن والعجلة الخلفية."
+            },
+            {
+                question: "4. أي مما يلي يعتبر مثالاً على نظام ميكانيكي بسيط درسناه سابقاً؟ 🏗️",
+                vocalizedText: "السُّؤَالُ الرَّابِعُ: أَيٌّ مِمَّا يَلِي يُعْتَبَرُ مِثَالًا عَلَى نِظَامٍ مِيكَانِيكِيٍّ بَسِيطٍ دَرَسْنَاهُ سَابِقًا؟",
+                answers: [
+                    { text: "محرك الاحتراق الداخلي", correct: false },
+                    { text: "البكرة والرافعة والعجلة والمحور", correct: true },
+                    { text: "الحاسوب المحمول", correct: false },
+                    { text: "اللوح الشمس الكهرومائي", correct: false }
+                ],
+                explanation: "رائع! البكرة والرافعة والعجلة والمحور هي أنظمة ميكانيكية بسيطة اعتمد عليها الإنسان منذ فجر التاريخ."
+            },
+            {
+                question: "5. لمُحاكاة الطبيعة فائدة كبيرة في التكنولوجيا، مثل: 🐜",
+                vocalizedText: "السُّؤَالُ الخَامِسُ: لِمُحَاكَاةِ الطَّبِيعَةِ فَائِدَةٌ كَبِيرَةٌ فِي التِّكْنُولُوجْيَا، مِثْلُ مَاذَا؟",
+                answers: [
+                    { text: "دراسة حركة الطيور والحشرات لتصميم الطائرات والأجهزة", correct: true },
+                    { text: "تجاهل الكائنات الحية والاعتماد فقط على الآلات الصامتة", correct: false },
+                    { text: "إلغاء استخدام المحركات الكهربائية", correct: false },
+                    { text: "منع تطور وسائل النقل", correct: false }
+                ],
+                explanation: "أحسنت! نقل الإنسان تصاميمه عن دقة الأنظمة الحركية للحشرات والحيوانات في الطبيعة."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let quizAnswersState = Array(quizQuestions.length).fill(null);
+
+        function loadQuestion() {
+            const q = quizQuestions[currentQuestionIndex];
+            document.getElementById('quizProgress').innerText = `السؤال ${currentQuestionIndex + 1} من ${quizQuestions.length}`;
+            document.getElementById('questionText').innerText = q.question;
+
+            const ansContainer = document.getElementById('answersContainer');
+            ansContainer.innerHTML = '';
+
+            const feedback = document.getElementById('quizFeedback');
+            feedback.classList.add('hidden');
+
+            q.answers.forEach((ans, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-right bg-slate-900 hover:bg-slate-700 text-slate-200 p-3 rounded-xl border border-slate-700 text-xs font-bold transition flex items-center justify-between";
+                btn.innerHTML = `<span>${ans.text}</span> <i class="fa-regular fa-circle text-slate-500"></i>`;
+                btn.onclick = () => selectQuizAnswer(idx);
+
+                if (quizAnswersState[currentQuestionIndex] !== null) {
+                    btn.disabled = true;
+                    if (ans.correct) {
+                        btn.className = "w-full text-right bg-emerald-950/60 text-emerald-300 p-3 rounded-xl border border-emerald-500 text-xs font-bold flex items-center justify-between";
+                        btn.innerHTML = `<span>${ans.text}</span> <i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                    } else if (quizAnswersState[currentQuestionIndex] === idx) {
+                        btn.className = "w-full text-right bg-rose-950/60 text-rose-300 p-3 rounded-xl border border-rose-500 text-xs font-bold flex items-center justify-between";
+                        btn.innerHTML = `<span>${ans.text}</span> <i class="fa-solid fa-circle-xmark text-rose-400"></i>`;
+                    }
+                }
+
+                ansContainer.appendChild(btn);
+            });
+
+            if (quizAnswersState[currentQuestionIndex] !== null) {
+                const isCorrect = q.answers[quizAnswersState[currentQuestionIndex]].correct;
+                feedback.classList.remove('hidden');
+                if (isCorrect) {
+                    feedback.className = "p-4 rounded-xl border bg-emerald-950/40 border-emerald-500/50 text-emerald-300 text-xs leading-relaxed";
+                    feedback.innerText = q.explanation;
+                } else {
+                    feedback.className = "p-4 rounded-xl border bg-rose-950/40 border-rose-500/50 text-rose-300 text-xs leading-relaxed";
+                    feedback.innerText = "إجابة غير صحيحة. " + q.explanation;
+                }
+            }
+
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                nextBtn.innerHTML = 'إنهاء الاختبار <i class="fa-solid fa-check mr-1"></i>';
+            } else {
+                nextBtn.innerHTML = 'التالي <i class="fa-solid fa-arrow-left mr-1"></i>';
+            }
+        }
+
+        function readCurrentQuestionSpeech() {
+            const q = quizQuestions[currentQuestionIndex];
+            if (q && q.vocalizedText) {
+                playAudioText(null, q.vocalizedText);
+            }
+        }
+
+        function selectQuizAnswer(ansIdx) {
+            if (quizAnswersState[currentQuestionIndex] !== null) return;
+
+            quizAnswersState[currentQuestionIndex] = ansIdx;
+            const isCorrect = quizQuestions[currentQuestionIndex].answers[ansIdx].correct;
+
+            if (isCorrect) {
+                playSound('correct');
+                addScore(20);
+            } else {
+                playSound('wrong');
+            }
+
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            stopAudioSpeech();
+
+            if (quizAnswersState[currentQuestionIndex] === null) {
+                alert("يرجى اختيار إجابة أولاً للانتفال للسؤال التالي!");
+                return;
+            }
+
+            if (currentQuestionIndex < quizQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showFinalQuizResults();
+            }
+        }
+
+        function prevQuestion() {
+            playSound('click');
+            stopAudioSpeech();
+
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function showFinalQuizResults() {
+            playSound('fanfare');
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResultView').classList.remove('hidden');
+
+            const correctCount = quizAnswersState.filter((ans, idx) => quizQuestions[idx].answers[ans].correct).length;
+            const scorePct = Math.round((correctCount / quizQuestions.length) * 100);
+
+            document.getElementById('finalScoreText').innerText = `الدرجة الحاصل عليها: ${scorePct}% (${correctCount} من ${quizQuestions.length} أسئلة صحيحة)`;
+            document.getElementById('reportScore').innerText = `${scorePct}% (${totalScore} نقطة إجمالية)`;
+            document.getElementById('reportDate').innerText = new Date().toLocaleDateString('ar-EG');
+        }
+
+        function restartQuiz() {
+            playSound('click');
+            stopAudioSpeech();
+
+            currentQuestionIndex = 0;
+            quizAnswersState = Array(quizQuestions.length).fill(null);
+            document.getElementById('quizResultView').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        window.onload = function() {
+            initBiomimicryGame();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
