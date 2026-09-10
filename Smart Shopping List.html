@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سلة المشتريات الذكية | الأستاذ فادي أبو الكباش</title>
+
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px -5px rgba(16, 185, 129, 0.3)',
+                        'glow-danger': '0 0 20px -5px rgba(239, 68, 68, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glassmorphic effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        /* Toast slide animation */
+        @keyframes toastIn {
+            from { transform: translateY(-100%) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .animate-toast {
+            animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .glass-card { background: white !important; border: 1px solid #ddd !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-full transition-colors duration-300 pb-12">
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md pointer-events-none space-y-2"></div>
+
+    <!-- Main Container -->
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
+
+        <!-- Top Header Navigation -->
+        <header class="flex items-center justify-between gap-4 mb-8">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 text-xl font-black ring-4 ring-emerald-500/10">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        سلة المشتريات الذكية
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300/30">₪ شيكل</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">حساب دقيق للمصاريف وتتبع كامل للميزانية</p>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2 no-print">
+                <button onclick="window.print()" title="طباعة / تصدير" class="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-700/80 shadow-sm transition hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-print"></i>
+                </button>
+
+                <button onclick="toggleDarkMode()" title="تغيير المظهر" class="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 border border-slate-200 dark:border-slate-700/80 shadow-sm transition hover:scale-105 active:scale-95">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Budget & Financial Dashboard Grid -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
+            <!-- Card 1: Total Cost -->
+            <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                <div class="absolute -left-2 -top-2 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition"></div>
+                <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold mb-1">
+                    <span>المجموع الإجمالي</span>
+                    <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm"><i class="fa-solid fa-calculator"></i></span>
+                </div>
+                <div class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white my-1">
+                    <span id="stat-total-cost">0.00</span> <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold">₪</span>
+                </div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-1 font-semibold">
+                    <i class="fa-solid fa-layer-group text-[9px]"></i>
+                    <span id="stat-total-count">0</span> أصناف بالقائمة
+                </div>
+            </div>
+
+            <!-- Card 2: Purchased Total -->
+            <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                <div class="absolute -left-2 -top-2 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition"></div>
+                <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold mb-1">
+                    <span>تم شراؤه</span>
+                    <span class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm"><i class="fa-solid fa-check-circle"></i></span>
+                </div>
+                <div class="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 my-1">
+                    <span id="stat-bought-cost">0.00</span> <span class="text-xs font-bold">₪</span>
+                </div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-1 font-semibold">
+                    <i class="fa-solid fa-circle-check text-blue-500 text-[9px]"></i>
+                    <span id="stat-bought-count">0</span> أصناف مجهّزة
+                </div>
+            </div>
+
+            <!-- Card 3: Remaining Budget Balance -->
+            <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                <div class="absolute -left-2 -top-2 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition"></div>
+                <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold mb-1">
+                    <span id="stat-remaining-label">رصيد الميزانية المتبقي</span>
+                    <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm"><i class="fa-solid fa-wallet"></i></span>
+                </div>
+                <div class="my-1">
+                    <span id="stat-remaining-cost" class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">0.00</span> <span class="text-xs font-bold">₪</span>
+                </div>
+                <div id="stat-remaining-subtext" class="text-[11px] text-slate-400 flex items-center gap-1 font-semibold">
+                    <i class="fa-solid fa-clock text-amber-500 text-[9px]"></i>
+                    <span id="stat-remaining-count">0</span> أصناف قيد الانتظار
+                </div>
+            </div>
+
+            <!-- Card 4: Budget Control -->
+            <div class="glass-card p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden group">
+                <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-bold mb-1">
+                    <span>الميزانية المحددة</span>
+                    <button onclick="openBudgetModal()" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-bold transition flex items-center gap-1">
+                        <span>تعديل</span>
+                        <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                    </button>
+                </div>
+                <div class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white my-1 flex items-baseline justify-between">
+                    <div><span id="stat-budget">0</span> <span class="text-xs text-slate-400 font-bold">₪</span></div>
+                    <span id="budget-status-pill" class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500">غير محددة</span>
+                </div>
+                <!-- Glowing Progress Bar -->
+                <div class="w-full bg-slate-200/70 dark:bg-slate-700/70 rounded-full h-2 mt-2 overflow-hidden p-0.5">
+                    <div id="budget-progress" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-1.5 rounded-full transition-all duration-500 shadow-glow" style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Item Form Card -->
+        <section class="glass-card p-5 sm:p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none mb-8 no-print transition">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-sm shadow-md shadow-emerald-500/30">
+                        <i class="fa-solid fa-plus"></i>
+                    </span>
+                    <span>إضافة صنف جديد للسلة</span>
+                </h2>
+                <span class="text-xs text-slate-400 font-medium">كل الحسابات بعملة الشيكل (₪)</span>
+            </div>
+
+            <form id="item-form" onsubmit="handleAddItem(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4">
+                <!-- Name -->
+                <div class="sm:col-span-4">
+                    <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">اسم الصنف / المنتج *</label>
+                    <div class="relative">
+                        <input type="text" id="item-name" required placeholder="مثال: حليب، خضار، بطارية..." 
+                            class="w-full pl-3 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/80 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white transition placeholder:text-slate-400">
+                        <i class="fa-solid fa-tag absolute right-3 top-3 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="sm:col-span-3">
+                    <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">السعر الفردي (₪) *</label>
+                    <div class="relative">
+                        <input type="number" id="item-price" step="0.5" min="0" required placeholder="0.00" 
+                            class="w-full pl-3 pr-9 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/80 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white transition placeholder:text-slate-400">
+                        <i class="fa-solid fa-shekel-sign absolute right-3 top-3 text-slate-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <!-- Quantity -->
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">الكمية *</label>
+                    <input type="number" id="item-qty" min="1" value="1" required 
+                        class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/80 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white transition">
+                </div>
+
+                <!-- Category -->
+                <div class="sm:col-span-3">
+                    <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">التصنيف</label>
+                    <select id="item-category" 
+                        class="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/80 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white transition cursor-pointer">
+                        <option value="groceries">🍎 أطعمة ومواد غذائية</option>
+                        <option value="home">🏠 مستلزمات منزلية</option>
+                        <option value="electronics">⚡ إلكترونيات وأجهزة</option>
+                        <option value="clothes">👕 ملابس وأزياء</option>
+                        <option value="health">💊 صحة وعناية</option>
+                        <option value="other">📦 أخرى</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="sm:col-span-12 flex justify-end mt-2">
+                    <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>إضافة الصنف إلى القائمة</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-5 no-print">
+            <!-- Search & Category Filter -->
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <!-- Search Input -->
+                <div class="relative flex-1 sm:w-60">
+                    <input type="text" id="search-input" oninput="renderItems()" placeholder="بحث في الأصناف..." 
+                        class="w-full pl-3 pr-8 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white transition">
+                    <i class="fa-solid fa-magnifying-glass absolute right-2.5 top-2.5 text-slate-400 text-xs"></i>
+                </div>
+
+                <!-- Status Tabs -->
+                <div class="flex bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300">
+                    <button onclick="setFilter('all')" id="tab-all" class="px-3 py-1.5 rounded-lg transition bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm">الكل</button>
+                    <button onclick="setFilter('pending')" id="tab-pending" class="px-3 py-1.5 rounded-lg transition hover:text-slate-900 dark:hover:text-white">المتبقي</button>
+                    <button onclick="setFilter('bought')" id="tab-bought" class="px-3 py-1.5 rounded-lg transition hover:text-slate-900 dark:hover:text-white">المكتمل</button>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button onclick="clearCompleted()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition border border-transparent hover:border-red-200 dark:hover:border-red-900/40 flex items-center gap-1.5">
+                    <i class="fa-solid fa-broom"></i>
+                    <span>حذف المكتمل</span>
+                </button>
+                <button onclick="clearAllItems()" class="px-3 py-2 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition border border-red-200 dark:border-red-900/40 flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>مسح السلة</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Items List View -->
+        <main class="space-y-3 mb-10">
+            <div id="items-container" class="space-y-3">
+                <!-- Items dynamically injected here -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden glass-card rounded-3xl p-10 text-center border border-dashed border-slate-300 dark:border-slate-800">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-700 dark:text-slate-200 mb-1">السلة فارغة حالياً</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">قم بإضافة منتجاتك وأصنافك من النموذج أعلاه لبدء المتابعة وتتبع الميزانية بالشيكل.</p>
+            </div>
+        </main>
+
+        <!-- Footer Branding Signature -->
+        <footer class="pt-8 border-t border-slate-200/80 dark:border-slate-800 text-center space-y-3">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border border-emerald-500/20 text-slate-800 dark:text-slate-100 text-xs sm:text-sm font-extrabold shadow-sm">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                <span>تصميم الاستاذ فادي ابو الكباش</span>
+                <i class="fa-solid fa-star text-emerald-500 text-[10px]"></i>
+            </div>
+            <p class="text-xs text-slate-400 font-medium">سلة المشتريات الذكية &copy; <span id="current-year"></span> - جميع الحسابات محفوظة محلياً بعملة الشيكل (₪)</p>
+        </footer>
+    </div>
+
+    <!-- Custom Budget Modal -->
+    <div id="budget-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 transform transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-wallet"></i>
+                    </span>
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">تحديد الميزانية الإجمالية</h3>
+                        <p class="text-xs text-slate-400">حدد سقف المصاريف للعملة (شيكل ₪)</p>
+                    </div>
+                </div>
+                <button onclick="closeBudgetModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Presets -->
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 mb-2">خيارات سريعة:</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="setBudgetPreset(200)" class="py-1.5 px-2 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white text-xs font-bold rounded-xl transition">200 ₪</button>
+                    <button onclick="setBudgetPreset(500)" class="py-1.5 px-2 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white text-xs font-bold rounded-xl transition">500 ₪</button>
+                    <button onclick="setBudgetPreset(1000)" class="py-1.5 px-2 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white text-xs font-bold rounded-xl transition">1000 ₪</button>
+                    <button onclick="setBudgetPreset(2000)" class="py-1.5 px-2 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500 hover:text-white text-xs font-bold rounded-xl transition">2000 ₪</button>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">المبلغ المحدد (بالشيكل)</label>
+                <div class="relative">
+                    <input type="number" id="budget-input-field" min="0" step="10" placeholder="مثال: 500" 
+                        class="w-full pl-3 pr-9 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-lg font-black text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <i class="fa-solid fa-shekel-sign absolute right-3.5 top-4 text-slate-400 text-sm"></i>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="saveBudgetFromModal()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow-lg shadow-emerald-600/30 transition text-sm">حفظ الميزانية</button>
+                <button onclick="closeBudgetModal()" class="px-5 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition text-sm">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="confirm-modal-title" class="text-base font-extrabold text-slate-900 dark:text-white mb-1">تأكيد الإجراء</h3>
+            <p id="confirm-modal-msg" class="text-xs text-slate-400 font-medium mb-6">هل أنت تأكد من إتمام هذا الإجراء؟</p>
+            <div class="flex gap-2">
+                <button id="confirm-modal-btn" class="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold rounded-xl shadow-lg shadow-red-600/30 transition text-xs">تأكيد الحذف</button>
+                <button onclick="closeConfirmModal()" class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl transition text-xs">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Category Definitions ---
+        const CATEGORIES = {
+            groceries: { name: 'أطعمة ومواد غذائية', icon: 'fa-apple-whole', color: 'emerald', bg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' },
+            home: { name: 'مستلزمات منزلية', icon: 'fa-house-chimney', color: 'sky', bg: 'bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 border-sky-200 dark:border-sky-800' },
+            electronics: { name: 'إلكترونيات وأجهزة', icon: 'fa-bolt', color: 'amber', bg: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' },
+            clothes: { name: 'ملابس وأزياء', icon: 'fa-shirt', color: 'purple', bg: 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800' },
+            health: { name: 'صحة وعناية', icon: 'fa-heart-pulse', color: 'rose', bg: 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800' },
+            other: { name: 'أخرى', icon: 'fa-box', color: 'slate', bg: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700' }
+        };
+
+        // --- Application State ---
+        let items = JSON.parse(localStorage.getItem('shopping_items_v2') || '[]');
+        let budget = parseFloat(localStorage.getItem('shopping_budget_v2') || '0');
+        let currentFilter = 'all';
+        let pendingConfirmAction = null;
+
+        // Initialize year
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Dark Mode Setup
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            updateThemeIcon(true);
+        } else {
+            document.documentElement.classList.remove('dark');
+            updateThemeIcon(false);
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                icon.className = isDark ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon';
+            }
+        }
+
+        // --- Custom Floating Toast Notification System ---
+        function showToast(message, type = 'warning') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const icons = {
+                warning: 'fa-triangle-exclamation text-amber-500',
+                success: 'fa-circle-check text-emerald-500',
+                danger: 'fa-circle-xmark text-red-500'
+            };
+
+            const borderColors = {
+                warning: 'border-amber-300 dark:border-amber-800',
+                success: 'border-emerald-300 dark:border-emerald-800',
+                danger: 'border-red-300 dark:border-red-800'
+            };
+
+            toast.className = `animate-toast glass-card bg-white dark:bg-slate-900 p-3.5 rounded-2xl border ${borderColors[type]} shadow-xl flex items-center justify-between gap-3 text-xs font-extrabold text-slate-800 dark:text-slate-100 pointer-events-auto`;
+            
+            toast.innerHTML = `
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid ${icons[type]} text-base"></i>
+                    <span>${escapeHtml(message)}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // --- Data Persistence ---
+        function saveData() {
+            localStorage.setItem('shopping_items_v2', JSON.stringify(items));
+            localStorage.setItem('shopping_budget_v2', budget.toString());
+        }
+
+        // --- Budget Alert Checker ---
+        function checkBudgetAlert() {
+            if (budget <= 0) return;
+            const currentTotal = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            
+            if (currentTotal > budget) {
+                showToast(`🚨 تنبيه: إجمالي المصاريف (${currentTotal.toFixed(2)} ₪) تجاوز الميزانية المحددة (${budget} ₪)!`, 'danger');
+            } else if (currentTotal === budget) {
+                showToast(`🎯 تنبيه: لقد وصلت بالتمام إلى حد الميزانية المحددة (${budget} ₪)!`, 'warning');
+            }
+        }
+
+        // --- Add Item Handler (Prevent Duplicates & Calculate) ---
+        function handleAddItem(e) {
+            e.preventDefault();
+
+            const nameInput = document.getElementById('item-name');
+            const priceInput = document.getElementById('item-price');
+            const qtyInput = document.getElementById('item-qty');
+            const categoryInput = document.getElementById('item-category');
+
+            const nameVal = nameInput.value.trim();
+            const priceVal = parseFloat(priceInput.value);
+            const qtyVal = parseInt(qtyInput.value) || 1;
+
+            if (!nameVal || isNaN(priceVal)) return;
+
+            // Check Duplicate (case insensitive)
+            const duplicateIndex = items.findIndex(item => item.name.trim().toLowerCase() === nameVal.toLowerCase());
+            
+            if (duplicateIndex !== -1) {
+                showToast(`الصنف "${nameVal}" موجود بالفعل في سلة المشتريات! تم منع تكراره.`, 'warning');
+                return;
+            }
+
+            const newItem = {
+                id: 'item_' + Date.now(),
+                name: nameVal,
+                price: priceVal,
+                qty: qtyVal,
+                category: categoryInput.value || 'other',
+                bought: false
+            };
+
+            items.unshift(newItem);
+            saveData();
+            renderItems();
+
+            showToast(`تمت إضافة "${nameVal}" بنجاح`, 'success');
+            checkBudgetAlert();
+
+            // Reset form
+            nameInput.value = '';
+            priceInput.value = '';
+            qtyInput.value = '1';
+            nameInput.focus();
+        }
+
+        // --- Toggle Item Bought Status ---
+        function toggleBought(id) {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                item.bought = !item.bought;
+                saveData();
+                renderItems();
+
+                // Show toast with remaining budget balance after buying an item
+                if (item.bought && budget > 0) {
+                    const boughtCost = items.filter(i => i.bought).reduce((sum, i) => sum + (i.price * i.qty), 0);
+                    const remBalance = budget - boughtCost;
+                    if (remBalance >= 0) {
+                        showToast(`تم شراء "${item.name}". الرصيد المتبقي من الميزانية: ${remBalance.toFixed(2)} ₪`, 'success');
+                    } else {
+                        showToast(`تم شراء "${item.name}". ⚠️ تجاوزت الميزانية بـ ${Math.abs(remBalance).toFixed(2)} ₪!`, 'danger');
+                    }
+                }
+            }
+        }
+
+        // --- Quantity Controls ---
+        function updateQty(id, delta) {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                const newQty = item.qty + delta;
+                if (newQty <= 0) {
+                    deleteItem(id);
+                } else {
+                    item.qty = newQty;
+                    saveData();
+                    renderItems();
+                    if (delta > 0) checkBudgetAlert();
+                }
+            }
+        }
+
+        // --- Delete Item ---
+        function deleteItem(id) {
+            items = items.filter(i => i.id !== id);
+            saveData();
+            renderItems();
+        }
+
+        // --- Clear Functions ---
+        function clearAllItems() {
+            if (items.length === 0) return;
+            showConfirmModal(
+                'مسح السلة بالكامل',
+                'هل أنت تأكد من إزالة جميع الأصناف من القائمة؟',
+                function() {
+                    items = [];
+                    saveData();
+                    renderItems();
+                    showToast('تم إفراغ السلة بالكامل', 'danger');
+                }
+            );
+        }
+
+        function clearCompleted() {
+            const completedCount = items.filter(i => i.bought).length;
+            if (completedCount === 0) {
+                showToast('لا توجد أصناف مكتملة لحذفها', 'warning');
+                return;
+            }
+
+            showConfirmModal(
+                'حذف الأصناف المكتملة',
+                `هل تريد حذف ${completedCount} من الأصناف المكتملة؟`,
+                function() {
+                    items = items.filter(i => !i.bought);
+                    saveData();
+                    renderItems();
+                    showToast('تم حذف الأصناف المكتملة', 'success');
+                }
+            );
+        }
+
+        // --- Filter Control ---
+        function setFilter(filter) {
+            currentFilter = filter;
+            ['all', 'pending', 'bought'].forEach(f => {
+                const btn = document.getElementById(`tab-${f}`);
+                if (f === filter) {
+                    btn.className = "px-3 py-1.5 rounded-lg transition bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm font-black";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg transition hover:text-slate-900 dark:hover:text-white font-bold";
+                }
+            });
+            renderItems();
+        }
+
+        // --- Modal Budget Control ---
+        function openBudgetModal() {
+            document.getElementById('budget-input-field').value = budget > 0 ? budget : '';
+            document.getElementById('budget-modal').classList.remove('hidden');
+        }
+
+        function closeBudgetModal() {
+            document.getElementById('budget-modal').classList.add('hidden');
+        }
+
+        function setBudgetPreset(val) {
+            document.getElementById('budget-input-field').value = val;
+        }
+
+        function saveBudgetFromModal() {
+            const val = parseFloat(document.getElementById('budget-input-field').value);
+            budget = isNaN(val) || val < 0 ? 0 : val;
+            saveData();
+            renderSummary();
+            closeBudgetModal();
+            
+            const totalCost = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            if (budget > 0 && totalCost > budget) {
+                showToast(`🚨 تنبيه: الميزانية المحددة (${budget} ₪) أقل من المجموع الحالي (${totalCost.toFixed(2)} ₪)!`, 'danger');
+            } else if (budget > 0 && totalCost === budget) {
+                showToast(`🎯 تنبيه: الميزانية تطابق المجموع الحالي بالتمام (${budget} ₪)!`, 'warning');
+            } else {
+                showToast('تم تحديث الميزانية بنجاح', 'success');
+            }
+        }
+
+        // --- Custom Confirm Modal ---
+        function showConfirmModal(title, msg, onConfirm) {
+            document.getElementById('confirm-modal-title').textContent = title;
+            document.getElementById('confirm-modal-msg').textContent = msg;
+            pendingConfirmAction = onConfirm;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            pendingConfirmAction = null;
+        }
+
+        document.getElementById('confirm-modal-btn').onclick = function() {
+            if (pendingConfirmAction) pendingConfirmAction();
+            closeConfirmModal();
+        };
+
+        // --- Main Render Function ---
+        function renderItems() {
+            const container = document.getElementById('items-container');
+            const emptyState = document.getElementById('empty-state');
+            const searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+
+            // Filter logic
+            let filtered = items.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery);
+                if (!matchesSearch) return false;
+
+                if (currentFilter === 'pending') return !item.bought;
+                if (currentFilter === 'bought') return item.bought;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                container.innerHTML = filtered.map(item => {
+                    const cat = CATEGORIES[item.category] || CATEGORIES.other;
+                    const itemTotal = (item.price * item.qty).toFixed(2);
+
+                    return `
+                        <div class="glass-card p-4 rounded-2xl border ${item.bought ? 'border-slate-200/50 dark:border-slate-800/50 bg-slate-100/50 dark:bg-slate-900/40 opacity-75' : 'border-slate-200 dark:border-slate-800'} transition hover:border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            
+                            <!-- Right: Checkbox & Name & Category -->
+                            <div class="flex items-center gap-3">
+                                <!-- Status Toggle Button -->
+                                <button onclick="toggleBought('${item.id}')" class="w-7 h-7 rounded-xl border-2 flex items-center justify-center transition cursor-pointer ${item.bought ? 'bg-emerald-500 border-emerald-500 text-white shadow-md shadow-emerald-500/30' : 'border-slate-300 dark:border-slate-600 hover:border-emerald-500'}">
+                                    <i class="fa-solid fa-check text-xs ${item.bought ? 'block' : 'hidden'}"></i>
+                                </button>
+
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-sm font-extrabold ${item.bought ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'}">
+                                            ${escapeHtml(item.name)}
+                                        </h3>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${cat.bg} flex items-center gap-1">
+                                            <i class="fa-solid ${cat.icon} text-[9px]"></i>
+                                            <span>${cat.name}</span>
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-slate-400 mt-0.5 font-medium">
+                                        السعر الفردي: <span class="font-bold text-slate-600 dark:text-slate-300">${item.price.toFixed(2)} ₪</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Left: Quantity Controls, Total Price & Actions -->
+                            <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100 dark:border-slate-800/80">
+                                <!-- Qty Counter -->
+                                <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 text-xs font-bold no-print">
+                                    <button onclick="updateQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 hover:bg-red-500 hover:text-white transition flex items-center justify-center shadow-xs">
+                                        <i class="fa-solid fa-minus text-[10px]"></i>
+                                    </button>
+                                    <span class="w-8 text-center font-black">${item.qty}</span>
+                                    <button onclick="updateQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-white dark:bg-slate-700 hover:bg-emerald-500 hover:text-white transition flex items-center justify-center shadow-xs">
+                                        <i class="fa-solid fa-plus text-[10px]"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Calculated Item Total -->
+                                <div class="text-left min-w-[80px]">
+                                    <div class="text-[10px] text-slate-400 font-bold">الإجمالي</div>
+                                    <div class="text-sm font-black ${item.bought ? 'text-slate-400' : 'text-emerald-600 dark:text-emerald-400'}">
+                                        ${itemTotal} <span class="text-[10px] font-bold">₪</span>
+                                    </div>
+                                </div>
+
+                                <!-- Delete -->
+                                <button onclick="deleteItem('${item.id}')" title="حذف الصنف" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl transition no-print">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderSummary();
+        }
+
+        // --- Financial & Budget Summary Logic ---
+        function renderSummary() {
+            const totalCost = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const boughtItems = items.filter(i => i.bought);
+            const boughtCost = boughtItems.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const remainingCost = totalCost - boughtCost;
+            const remainingCount = items.length - boughtItems.length;
+
+            document.getElementById('stat-total-cost').textContent = totalCost.toFixed(2);
+            document.getElementById('stat-total-count').textContent = items.length;
+
+            document.getElementById('stat-bought-cost').textContent = boughtCost.toFixed(2);
+            document.getElementById('stat-bought-count').textContent = boughtItems.length;
+
+            // Budget Balance Calculation (Remaining Balance = Budget - Bought Total)
+            const remCardTitle = document.getElementById('stat-remaining-label');
+            const remCostElem = document.getElementById('stat-remaining-cost');
+            const remSubtextElem = document.getElementById('stat-remaining-subtext');
+
+            if (budget > 0) {
+                const remainingBudgetBalance = budget - boughtCost;
+                if (remCardTitle) remCardTitle.textContent = "رصيد الميزانية المتبقي";
+                if (remCostElem) {
+                    remCostElem.textContent = remainingBudgetBalance.toFixed(2);
+                    if (remainingBudgetBalance < 0) {
+                        remCostElem.className = "text-xl sm:text-2xl font-black text-red-600 dark:text-red-400";
+                    } else {
+                        remCostElem.className = "text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400";
+                    }
+                }
+
+                if (remSubtextElem) {
+                    remSubtextElem.innerHTML = `<i class="fa-solid fa-basket-shopping text-emerald-500 text-[9px]"></i> ينقص تلقائياً عند التأشير بـ (تم الشراء ✓)`;
+                }
+            } else {
+                if (remCardTitle) remCardTitle.textContent = "المتبقي للشراء (بدون ميزانية)";
+                if (remCostElem) {
+                    remCostElem.textContent = remainingCost.toFixed(2);
+                    remCostElem.className = "text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400";
+                }
+                if (remSubtextElem) {
+                    remSubtextElem.innerHTML = `<i class="fa-solid fa-clock text-amber-500 text-[9px]"></i> <span>${remainingCount}</span> أصناف قيد الانتظار`;
+                }
+            }
+
+            document.getElementById('stat-budget').textContent = budget > 0 ? budget.toFixed(0) : '0';
+
+            // Budget Progress Bar
+            const progressBar = document.getElementById('budget-progress');
+            const budgetPill = document.getElementById('budget-status-pill');
+
+            if (budget > 0) {
+                const percent = Math.min((totalCost / budget) * 100, 100);
+                progressBar.style.width = `${percent}%`;
+
+                if (totalCost > budget) {
+                    progressBar.className = "bg-gradient-to-r from-red-500 to-rose-600 h-1.5 rounded-full transition-all duration-500 shadow-glow-danger";
+                    budgetPill.textContent = "تجاوزت الميزانية!";
+                    budgetPill.className = "text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-300";
+                } else if (percent > 85) {
+                    progressBar.className = "bg-gradient-to-r from-amber-500 to-orange-500 h-1.5 rounded-full transition-all duration-500";
+                    budgetPill.textContent = "قريب من الحد";
+                    budgetPill.className = "text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300";
+                } else {
+                    progressBar.className = "bg-gradient-to-r from-emerald-500 to-teal-400 h-1.5 rounded-full transition-all duration-500 shadow-glow";
+                    budgetPill.textContent = `${percent.toFixed(0)}% مستهلك`;
+                    budgetPill.className = "text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300";
+                }
+            } else {
+                progressBar.style.width = '0%';
+                budgetPill.textContent = "غير محددة";
+                budgetPill.className = "text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500";
+            }
+        }
+
+        // Helper to prevent XSS
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // --- On Page Load ---
+        window.onload = function() {
+            renderItems();
+        };
+    </script>
+</body>
+</html>
