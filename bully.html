@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مختبر البكرات التفاعلي - تصميم الأستاذ فادي أبو الكباش</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-short': 'bounceShort 1s infinite',
+                        'wave': 'waveBar 1.2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        bounceShort: {
+                            '0%, 100%': { transform: 'translateY(-5%)' },
+                            '50%': { transform: 'translateY(5%)' },
+                        },
+                        waveBar: {
+                            '0%': { height: '20%' },
+                            '100%': { height: '100%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            touch-action: manipulation;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f1f5f9;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        
+        .tab-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active {
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #0284c7;
+            cursor: pointer;
+            border: 3.5px solid white;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+            transition: transform 0.1s ease;
+        }
+
+        .custom-slider::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+            background: #0369a1;
+        }
+
+        .draggable-item {
+            cursor: grab;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.04);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .drop-zone {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drop-zone.drag-over {
+            background-color: #e0f2fe !important;
+            border-color: #0284c7 !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(2, 132, 199, 0.3);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        /* Soundwave equalizer animation */
+        .sound-bar {
+            width: 3px;
+            background-color: #0284c7;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .sound-bar:nth-child(1) { animation: waveBar 0.8s infinite alternate; }
+        .sound-bar:nth-child(2) { animation: waveBar 1.1s infinite alternate 0.2s; }
+        .sound-bar:nth-child(3) { animation: waveBar 0.9s infinite alternate 0.4s; }
+        .sound-bar:nth-child(4) { animation: waveBar 1.3s infinite alternate 0.1s; }
+
+        /* Confetti canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between relative">
+
+    <!-- Confetti Overlay Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Header Navigation -->
+    <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-700 text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-3 py-2.5 sm:px-6 flex flex-col md:flex-row items-center justify-between gap-3">
+            
+            <div class="flex items-center justify-between w-full md:w-auto">
+                <div class="flex items-center space-x-3 space-x-reverse">
+                    <div class="bg-white/10 p-2 sm:p-2.5 rounded-2xl backdrop-blur-md border border-white/20 shadow-inner">
+                        <i class="fa-solid fa-gear text-xl sm:text-2xl text-amber-400 animate-spin" style="animation-duration: 12s;"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl md:text-2xl font-black tracking-wide flex items-center gap-2">
+                            <span>مختبر البكرات التفاعلي</span>
+                        </h1>
+                        <p class="text-[11px] sm:text-xs text-brand-100 font-bold">مادة التكنولوجيا - الصف السادس الأساسي</p>
+                    </div>
+                </div>
+
+                <!-- Global Audio Controls Toggle -->
+                <div class="flex items-center gap-2 md:hidden">
+                    <button onclick="toggleSound()" id="sound-btn-mobile" title="تشغيل/إيقاف الصوت" class="p-2 bg-white/10 hover:bg-white/20 rounded-xl border border-white/20 text-amber-300 text-sm">
+                        <i class="fa-solid fa-volume-high" id="sound-icon-mobile"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex flex-wrap justify-center gap-1 sm:gap-1.5 bg-brand-950/40 p-1.5 rounded-2xl border border-white/10 w-full md:w-auto">
+                <button onclick="switchTab('lab')" id="tab-btn-lab" class="tab-btn active flex-1 sm:flex-none px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>المعمل التفاعلي</span>
+                </button>
+                <button onclick="switchTab('assembly')" id="tab-btn-assembly" class="tab-btn flex-1 sm:flex-none px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>ورشة التركيب</span>
+                </button>
+                <button onclick="switchTab('compare')" id="tab-btn-compare" class="tab-btn flex-1 sm:flex-none px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-table-columns"></i>
+                    <span>جدول الاستنتاج</span>
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="tab-btn flex-1 sm:flex-none px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>تحدي المعرفة</span>
+                </button>
+            </nav>
+
+            <!-- Audio Master Controls (Desktop) -->
+            <div class="hidden md:flex items-center gap-2">
+                <button onclick="toggleSound()" id="sound-btn-desktop" title="كتم/تشغيل الأصوات" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl border border-white/20 text-amber-300 text-xs font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-volume-high text-sm" id="sound-icon-desktop"></i>
+                    <span id="sound-text-desktop">الصوت مفعل</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-3 py-4 sm:px-6 sm:py-6 flex-grow w-full">
+
+        <!-- ================= TAB 1: INTERACTIVE LAB ================= -->
+        <section id="section-lab" class="tab-section block space-y-4 sm:space-y-6">
+            
+            <!-- Top Controls & System Selector -->
+            <div class="glass-card rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+                <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-brand-500"></i>
+                            اختر نظام البكرة للتجربة والاستكشاف:
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">حرك مقبض السحب لرفع الحمل وملاحظة اتجاه القوة والقوة المطلوبة</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="selectLabSystem('fixed')" id="sys-fixed" class="sys-btn flex-1 sm:flex-none px-3.5 py-2 rounded-xl border-2 border-brand-500 bg-brand-50 text-brand-700 font-bold text-xs sm:text-sm transition-all duration-200 shadow-sm active:scale-95">
+                            <i class="fa-solid fa-anchor ml-1"></i> البكرة الثابتة
+                        </button>
+                        <button onclick="selectLabSystem('movable')" id="sys-movable" class="sys-btn flex-1 sm:flex-none px-3.5 py-2 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-xs sm:text-sm hover:border-brand-300 transition-all duration-200 active:scale-95">
+                            <i class="fa-solid fa-arrows-up-down ml-1"></i> البكرة المتحركة
+                        </button>
+                        <button onclick="selectLabSystem('compound')" id="sys-compound" class="sys-btn flex-1 sm:flex-none px-3.5 py-2 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-xs sm:text-sm hover:border-brand-300 transition-all duration-200 active:scale-95">
+                            <i class="fa-solid fa-layer-group ml-1"></i> النظام المركب
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Simulation Workspace -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                
+                <!-- SVG Interactive Physics Screen -->
+                <div class="lg:col-span-8 glass-card rounded-2xl p-4 shadow-md flex flex-col justify-between relative overflow-hidden min-h-[500px] sm:min-h-[540px] bg-gradient-to-b from-sky-50/60 via-white to-sky-50/20">
+                    
+                    <!-- Screen Controls Bar -->
+                    <div class="flex flex-wrap justify-between items-center border-b pb-3 mb-2 gap-2">
+                        <span class="text-xs font-bold bg-brand-100 text-brand-800 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm" id="lab-system-badge">
+                            <i class="fa-solid fa-circle-info"></i> النظام الحالي: البكرة الثابتة
+                        </span>
+
+                        <div id="direction-indicator" class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-sm">
+                            <span class="text-xs font-bold text-amber-800">اتجاه الجهد المطبق:</span>
+                            <span id="dir-text" class="text-xs font-black text-amber-900 flex items-center gap-1">
+                                <i id="dir-icon" class="fa-solid fa-arrow-down text-amber-600"></i> لأسفل
+                            </span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs font-bold text-slate-600">الحمل المراد رفعه:</label>
+                            <select id="weight-select" onchange="updateWeight(this.value)" class="text-xs font-bold border-2 border-slate-300 rounded-lg px-2.5 py-1.5 bg-white shadow-sm focus:ring-2 focus:ring-brand-500 outline-none cursor-pointer">
+                                <option value="100">100 نيوتن (10 كغم)</option>
+                                <option value="200" selected>200 نيوتن (20 كغم)</option>
+                                <option value="400">400 نيوتن (40 كغم)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SVG Canvas Simulation Area -->
+                    <div class="w-full flex-grow flex items-center justify-center relative my-2">
+                        <svg id="sim-svg" class="w-full h-[340px] sm:h-[400px]" viewBox="0 0 600 390" preserveAspectRatio="xMidYMid meet">
+                            <!-- Drawn dynamically by JS -->
+                        </svg>
+                    </div>
+
+                    <!-- Interactive Rope Pulling Slider Control -->
+                    <div class="bg-slate-100/90 p-3.5 sm:p-4 rounded-xl border border-slate-200 space-y-2 shadow-inner">
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-700">
+                            <span class="flex items-center gap-1.5 text-brand-700">
+                                <i class="fa-solid fa-hand-pointer animate-bounce"></i> اسحب الحبل لرفع الثقل:
+                            </span>
+                            <span id="pull-percentage" class="bg-white px-2.5 py-0.5 rounded-md border border-brand-300 text-brand-700 font-mono font-black text-sm shadow-sm">0 %</span>
+                        </div>
+                        <input type="range" id="rope-pull-slider" min="0" max="100" value="0" oninput="onRopePull(this.value)" class="w-full custom-slider h-3 bg-slate-300 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[11px] text-slate-500 font-semibold px-1">
+                            <span>مستوى الأرض</span>
+                            <span>أقصى ارتفاع للحمل</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Live Metrics Panel -->
+                <div class="lg:col-span-4 space-y-4 flex flex-col justify-between">
+                    
+                    <div class="glass-card rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-800 border-b pb-2 flex items-center justify-between">
+                            <span><i class="fa-solid fa-gauge-high text-brand-500 ml-1"></i> القياسات الفيزيائية المباشرة</span>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full font-bold animate-pulse">تفاعلي</span>
+                        </h3>
+
+                        <!-- Metric 1: Load Weight -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-center hover:border-red-300 transition">
+                            <div>
+                                <span class="text-[11px] text-slate-500 font-bold block">وزن الحمل (المقاومة)</span>
+                                <span id="metric-load" class="text-lg sm:text-xl font-black text-slate-800 font-mono">200 نيوتن</span>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-lg shadow-sm">
+                                <i class="fa-solid fa-weight-hanging"></i>
+                            </div>
+                        </div>
+
+                        <!-- Metric 2: Required Force -->
+                        <div class="bg-brand-50 p-3 rounded-xl border border-brand-200 flex justify-between items-center hover:border-brand-400 transition">
+                            <div>
+                                <span class="text-[11px] text-brand-700 font-bold block">القوة المطلوبة (الجهد)</span>
+                                <span id="metric-effort" class="text-lg sm:text-xl font-black text-brand-600 font-mono">200 نيوتن</span>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center text-lg shadow-md">
+                                <i class="fa-solid fa-dumbbell"></i>
+                            </div>
+                        </div>
+
+                        <!-- Metric 3: Mechanical Advantage -->
+                        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 flex justify-between items-center hover:border-amber-400 transition">
+                            <div>
+                                <span class="text-[11px] text-amber-800 font-bold block">الفائدة الميكانيكية (الحمل ÷ الجهد)</span>
+                                <span id="metric-ma" class="text-lg sm:text-xl font-black text-amber-600 font-mono">1</span>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center text-lg font-black shadow-sm">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                        </div>
+
+                        <!-- Metric 4: Distance ratio -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between items-center">
+                            <div>
+                                <span class="text-[11px] text-slate-500 font-bold block">نسبة المسافة (سحب الحبل مقابل الارتفاع)</span>
+                                <span id="metric-distance" class="text-xs font-extrabold text-slate-700">1 متر حبل = 1 متر ارتفاع</span>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-ruler-vertical"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Arabic Voice Explanation Card -->
+                    <div class="glass-card rounded-2xl p-4 sm:p-5 shadow-sm border border-brand-200 bg-gradient-to-br from-brand-50/80 via-white to-sky-50 flex-grow space-y-3">
+                        <div class="flex justify-between items-center border-b border-brand-100 pb-2">
+                            <h4 class="text-xs font-black text-brand-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-volume-high text-brand-600 text-sm"></i> الشرح الصوتي والاستنتاج:
+                            </h4>
+                            
+                            <!-- Sound Wave Visualizer Indicator -->
+                            <div id="voice-wave" class="hidden items-center gap-0.5 h-4">
+                                <span class="sound-bar h-full"></span>
+                                <span class="sound-bar h-full"></span>
+                                <span class="sound-bar h-full"></span>
+                                <span class="sound-bar h-full"></span>
+                            </div>
+                        </div>
+
+                        <p id="lab-explanation-text" class="text-xs text-slate-700 leading-relaxed font-semibold">
+                            البكرة الثابتة لا توفر في القوة (الجهد يساوي وزن الحمل)، لكنها تتيح تغيير اتجاه القوة المطبقة لأسفل مما يجعل رفع الثقل أسهل بفضل وزن الجسم.
+                        </p>
+
+                        <!-- Voice Play Button -->
+                        <button onclick="speakCurrentSystemExplanation()" id="voice-speak-btn" class="w-full py-2.5 px-4 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 text-white rounded-xl font-bold text-xs shadow-md flex items-center justify-center gap-2 transition active:scale-95">
+                            <i class="fa-solid fa-circle-play text-base text-amber-300"></i>
+                            <span id="voice-btn-text">استمع للشرح الصوتي بصوت المعلم 🔊</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: ASSEMBLY WORKSHOP ================= -->
+        <section id="section-assembly" class="tab-section hidden space-y-4 sm:space-y-6">
+            
+            <div class="glass-card rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-wrench text-brand-500"></i>
+                            ورشة التركيب والتطبيق العملي
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">انقر على القطعة المناسبة في صندوق القطع ثم انقر أو اسحب في منطقة التركيب لتركيب النظام المكون بنفسك.</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setAssemblyTask('fixed')" id="task-fixed" class="task-btn flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-brand-500 bg-brand-50 text-brand-700 transition active:scale-95">
+                            تركيب البكرة الثابتة
+                        </button>
+                        <button onclick="setAssemblyTask('movable')" id="task-movable" class="task-btn flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-slate-200 text-slate-600 hover:border-brand-300 transition active:scale-95">
+                            تركيب البكرة المتحركة
+                        </button>
+                        <button onclick="setAssemblyTask('compound')" id="task-compound" class="task-btn flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-slate-200 text-slate-600 hover:border-brand-300 transition active:scale-95">
+                            تركيب النظام المركب
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                
+                <!-- Parts Palette -->
+                <div class="lg:col-span-4 glass-card rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-3.5">
+                    <h3 class="text-sm font-bold text-slate-800 border-b pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-box-open text-amber-500"></i> صندوق الأجزاء والقطع
+                    </h3>
+                    <p class="text-xs text-slate-500">اختر القطعة بالنقر عليها أو سحبها لمنطقة التركيب:</p>
+
+                    <div class="space-y-2.5">
+                        <div id="part-fixed_wheel" draggable="true" ondragstart="onDragStart(event, 'fixed_wheel')" onclick="selectAssemblyPart('fixed_wheel')" class="draggable-item assembly-part-item bg-slate-50 hover:bg-brand-50 p-3 rounded-xl border-2 border-slate-200 flex items-center gap-3 cursor-pointer transition-all">
+                            <div class="w-11 h-11 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-xl font-bold shrink-0 pointer-events-none">
+                                <i class="fa-solid fa-circle-notch"></i>
+                            </div>
+                            <div class="pointer-events-none">
+                                <h4 class="text-xs font-extrabold text-slate-800">بكرة ذات تثبيت علوي</h4>
+                                <p class="text-[10px] text-slate-500 font-semibold">تثبت حلقة تعليقها في السقف الثابت</p>
+                            </div>
+                        </div>
+
+                        <div id="part-movable_wheel" draggable="true" ondragstart="onDragStart(event, 'movable_wheel')" onclick="selectAssemblyPart('movable_wheel')" class="draggable-item assembly-part-item bg-slate-50 hover:bg-brand-50 p-3 rounded-xl border-2 border-slate-200 flex items-center gap-3 cursor-pointer transition-all">
+                            <div class="w-11 h-11 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-bold shrink-0 pointer-events-none">
+                                <i class="fa-solid fa-circle-dot"></i>
+                            </div>
+                            <div class="pointer-events-none">
+                                <h4 class="text-xs font-extrabold text-slate-800">بكرة مع تعليقة سفلية</h4>
+                                <p class="text-[10px] text-slate-500 font-semibold">تتحرك مع الثقل صعوداً ونزولاً</p>
+                            </div>
+                        </div>
+
+                        <div id="part-weight" draggable="true" ondragstart="onDragStart(event, 'weight')" onclick="selectAssemblyPart('weight')" class="draggable-item assembly-part-item bg-slate-50 hover:bg-brand-50 p-3 rounded-xl border-2 border-slate-200 flex items-center gap-3 cursor-pointer transition-all">
+                            <div class="w-11 h-11 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-xl font-bold shrink-0 pointer-events-none">
+                                <i class="fa-solid fa-weight-hanging"></i>
+                            </div>
+                            <div class="pointer-events-none">
+                                <h4 class="text-xs font-extrabold text-slate-800">الحمل المراد رفعه (200N)</h4>
+                                <p class="text-[10px] text-slate-500 font-semibold">الثقل المكون للمقاومة</p>
+                            </div>
+                        </div>
+
+                        <div id="part-rope" draggable="true" ondragstart="onDragStart(event, 'rope')" onclick="selectAssemblyPart('rope')" class="draggable-item assembly-part-item bg-slate-50 hover:bg-brand-50 p-3 rounded-xl border-2 border-slate-200 flex items-center gap-3 cursor-pointer transition-all">
+                            <div class="w-11 h-11 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-xl font-bold shrink-0 pointer-events-none">
+                                <i class="fa-solid fa-scroll"></i>
+                            </div>
+                            <div class="pointer-events-none">
+                                <h4 class="text-xs font-extrabold text-slate-800">حبل السحب والتوصيل</h4>
+                                <p class="text-[10px] text-slate-500 font-semibold">يمر عبر مجاري البكرات لنقل القوة</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="resetAssembly()" class="w-full py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl transition mt-2 active:scale-95 shadow-sm">
+                        <i class="fa-solid fa-rotate-right ml-1"></i> إفراغ الورشة وإعادة البدء
+                    </button>
+                </div>
+
+                <!-- Assembly Drop Zone Canvas -->
+                <div class="lg:col-span-8 glass-card rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 flex flex-col items-center justify-between min-h-[420px] sm:min-h-[460px] relative bg-gradient-to-b from-slate-50 via-white to-sky-50/30">
+                    
+                    <div class="w-full flex justify-between items-center border-b pb-3">
+                        <span id="assembly-task-title" class="text-xs font-extrabold text-slate-800">المهمة: تركيب (البكرة الثابتة)</span>
+                        <span id="assembly-status-badge" class="text-[11px] font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full shadow-sm">
+                            بانتظار وضع القطعة الأولى...
+                        </span>
+                    </div>
+
+                    <div class="w-full my-auto flex flex-col items-center justify-center relative py-4">
+                        <div id="assembly-drop-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="clickToDrop()" class="drop-zone w-72 sm:w-80 h-72 border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center p-4 bg-white/80 relative cursor-pointer hover:border-brand-400 shadow-inner">
+                            <div id="assembly-canvas-content" class="text-center space-y-2 pointer-events-none">
+                                <i class="fa-solid fa-hand-pointer text-4xl text-brand-500 animate-bounce"></i>
+                                <p class="text-xs text-slate-700 font-bold leading-relaxed">انقر لاختيار القطعة من القائمة اليسرى<br/>ثم انقر هنا لتركيبها في منطقة الورشة</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="assembly-feedback" class="w-full bg-slate-100 p-3 rounded-xl border border-slate-200 text-xs font-extrabold text-slate-700 text-center shadow-sm">
+                        الخطوة 1: انقر أو اسحب <strong>البكرة ذات التثبيت العلوي</strong> لوضعها في مكانها المناسب بالسقف.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: DEDUCTION & COMPARISON ================= -->
+        <section id="section-compare" class="tab-section hidden space-y-4 sm:space-y-6">
+            
+            <div class="glass-card rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200">
+                <div class="max-w-3xl">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-brain text-brand-500"></i>
+                        جدول استنتاج الفروق والخصائص العلمية
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">حدد الإجابة الصحيحة في كل خانة بناءً على التجارب العلمية التي أجريتها بالمعمل:</p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-3 sm:p-6 shadow-sm border border-slate-200 overflow-x-auto">
+                <table class="w-full text-xs text-right border-collapse min-w-[650px]">
+                    <thead>
+                        <tr class="bg-brand-800 text-white font-bold text-xs sm:text-sm">
+                            <th class="p-3.5 rounded-tr-xl w-1/4">وجه المقارنة</th>
+                            <th class="p-3.5 text-center w-1/4">البكرة الثابتة</th>
+                            <th class="p-3.5 text-center w-1/4">البكرة المتحركة</th>
+                            <th class="p-3.5 text-center rounded-tl-xl w-1/4">النظام المركب</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 font-medium text-slate-700">
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3.5 font-bold bg-slate-50 text-slate-900">حركة محور البكرة</td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-1" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="fixed">ثابت بالسقف لا يتحرك</option>
+                                    <option value="moving">يتحرك صعوداً وهبوطاً</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-2" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="fixed">ثابت بالسقف</option>
+                                    <option value="moving">يتحرك صعوداً ونزولاً مع الحمل</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-3" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="both">تجمع بين بكرة ثابتة وأخرى متحركة</option>
+                                    <option value="moving">متحركة فقط</option>
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3.5 font-bold bg-slate-50 text-slate-900">تغيير اتجاه القوة المطبقة</td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-4" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="yes">نعم (نسحب لأسفل ليرتفع الثقل)</option>
+                                    <option value="no">لا تتغير</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-5" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="yes">نعم</option>
+                                    <option value="no">لا (السحب باتجاه الحركة لأعلى)</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-6" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="yes">نعم (بفضل وجود البكرة الثابتة)</option>
+                                    <option value="no">لا تغير الاتجاه</option>
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3.5 font-bold bg-slate-50 text-slate-900">الجهد المطلوب لحمل 100N</td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-7" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="100">100 نيوتن (يساوي الوزن)</option>
+                                    <option value="50">50 نيوتن (النصف)</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-8" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="100">100 نيوتن</option>
+                                    <option value="50">50 نيوتن (تخفف نصف الجهد)</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-9" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="100">100 نيوتن</option>
+                                    <option value="50">50 نيوتن (تجمع بين التوفير وتغيير الاتجاه)</option>
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3.5 font-bold bg-slate-50 text-slate-900">الفائدة الميكانيكية (MA)</td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-10" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="1">تساوي 1</option>
+                                    <option value="2">تساوي 2</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-11" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="1">تساوي 1</option>
+                                    <option value="2">تساوي 2 (تضاعف القوة)</option>
+                                </select>
+                            </td>
+                            <td class="p-2.5 text-center">
+                                <select id="deduce-12" onchange="checkDeductions()" class="w-full text-xs font-bold border-2 border-slate-300 rounded-xl p-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none shadow-sm">
+                                    <option value="">-- اختر --</option>
+                                    <option value="1">تساوي 1</option>
+                                    <option value="2">تساوي 2</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="deduction-result-box" class="glass-card rounded-2xl p-5 border border-slate-200 text-center flex flex-col items-center justify-center gap-2">
+                <div class="text-3xl text-brand-500"><i class="fa-solid fa-clipboard-check"></i></div>
+                <h3 class="text-sm font-bold text-slate-800">حدد جميع الاختيارات للتحقق من الاستنتاجات العلمية</h3>
+                <p id="deduction-status-text" class="text-xs text-slate-500 font-semibold">أكمل اختيار كل الحقول للحصول على تقييم المهندس الصغير!</p>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: GAMIFIED QUIZ ================= -->
+        <section id="section-quiz" class="tab-section hidden space-y-4 sm:space-y-6">
+            <div class="max-w-3xl mx-auto glass-card rounded-2xl p-5 sm:p-7 shadow-md border border-slate-200 space-y-6">
+                
+                <div class="flex justify-between items-center border-b pb-4">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-trophy text-amber-500 animate-bounce"></i> اختبر معلوماتك التكنولوجية
+                        </h2>
+                        <p class="text-xs text-slate-500">أسئلة معززة بالمؤثرات الصوتية والتقييم الفوري</p>
+                    </div>
+                    <div class="text-right bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                        <span class="text-[10px] text-amber-800 font-bold block">النتيجة الحالية</span>
+                        <span id="quiz-score" class="text-xl sm:text-2xl font-black text-brand-700 font-mono">0 / 5</span>
+                    </div>
+                </div>
+
+                <div id="quiz-box" class="space-y-4">
+                    <!-- Questions injected dynamically -->
+                </div>
+
+                <div class="flex justify-between items-center pt-3 border-t">
+                    <span id="question-progress" class="text-xs font-bold text-slate-500">السؤال 1 من 5</span>
+                    <button id="next-quiz-btn" onclick="nextQuestion()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs sm:text-sm rounded-xl transition shadow-md hidden active:scale-95">
+                        السؤال التالي <i class="fa-solid fa-arrow-left mr-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer & Credits Badge -->
+    <footer class="bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 text-slate-300 py-6 border-t border-brand-900/50 mt-10 shadow-2xl relative z-10">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-3">
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2 text-xs sm:text-sm font-extrabold text-white">
+                <span class="bg-brand-600/40 px-3 py-1 rounded-full border border-brand-400/30 flex items-center gap-2 shadow-inner">
+                    <i class="fa-solid fa-graduation-cap text-amber-400 text-base"></i>
+                    تطوير وتصميم: الأستاذ فادي أبو الكباش
+                </span>
+            </div>
+
+            <p class="text-[11px] sm:text-xs text-slate-400 font-medium">
+                برمجية تفاعلية لمادة التكنولوجيا - منهج الصف السادس الأساسي | جميع الحقوق محفوظة © 2026
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        /* ================= AUDIO SYNTHESIZER (WEB AUDIO API) ================= */
+        // Synthesizes sound effects locally without any external file dependency
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        let soundMuted = false;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, gainVal = 0.15) {
+            if (soundMuted) return;
+            try {
+                initAudioContext();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log("Audio not allowed yet");
+            }
+        }
+
+        function playClickSound() {
+            playTone(600, 'sine', 0.08, 0.1);
+        }
+
+        function playSuccessSound() {
+            if (soundMuted) return;
+            initAudioContext();
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                setTimeout(() => playTone(freq, 'triangle', 0.25, 0.2), idx * 80);
+            });
+        }
+
+        function playErrorSound() {
+            if (soundMuted) return;
+            initAudioContext();
+            [220, 180].forEach((freq, idx) => {
+                setTimeout(() => playTone(freq, 'sawtooth', 0.2, 0.15), idx * 120);
+            });
+        }
+
+        function playTrophySound() {
+            if (soundMuted) return;
+            initAudioContext();
+            const notes = [440, 554.37, 659.25, 880, 1108.73];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => playTone(freq, 'sine', 0.3, 0.2), idx * 100);
+            });
+            setTimeout(() => triggerConfetti(), 200);
+        }
+
+        function toggleSound() {
+            soundMuted = !soundMuted;
+            const iconD = document.getElementById('sound-icon-desktop');
+            const textD = document.getElementById('sound-text-desktop');
+            const iconM = document.getElementById('sound-icon-mobile');
+
+            if (soundMuted) {
+                if (iconD) iconD.className = 'fa-solid fa-volume-xmark text-sm';
+                if (textD) textD.innerText = 'الصوت مكتوم';
+                if (iconM) iconM.className = 'fa-solid fa-volume-xmark';
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            } else {
+                if (iconD) iconD.className = 'fa-solid fa-volume-high text-sm';
+                if (textD) textD.innerText = 'الصوت مفعل';
+                if (iconM) iconM.className = 'fa-solid fa-volume-high';
+                playClickSound();
+            }
+        }
+
+        /* ================= ARABIC SPEECH SYNTHESIS NARRATION ================= */
+        let isSpeaking = false;
+
+        const systemDescriptionsArabic = {
+            'fixed': "البكرة الثابتة هي بكرة مثبتة في السقف. لا توفر في مقدار القوة المطلوبة لرفع الثقل؛ فإذا كان وزن الثقل مائتي نيوتن، سنحتاج لجهد مائتي نيوتن. لكن فائدتها الرئيسية هي تغيير اتجاه القوة لأسفل، مما يتيح لك الاستفادة من وزن جسمك أثناء السحب لراحة وأمان أكبر.",
+            'movable': "البكرة المتحركة تتحرك صعوداً ونزولاً مع الثقل المراد رفعه. تتميز بتوفير نصف الجهد؛ فإذا كان الوزن مائتي نيوتن، ستستعمل قوة مائة نيوتن فقط، وفائدتها الميكانيكية تساوي اثنين. ولكن بالمقابل يتطلب ذلك سحب ضعف مسافة الارتفاع، مع بقاء اتجاه القوة لأعلى.",
+            'compound': "النظام المركب يجمع بين البكرة الثابتة والبكرة المتحركة معا. ويوفر لك أفضل الميزات: حيث يقلل القوة المطلوبة إلى النصف بفضل البكرة المتحركة، ويغير اتجاه السحب إلى الأسفل بفضل البكرة الثابتة، مما يجعل عملية رفع الأثقال شديدة السهولة والكفاءة."
+        };
+
+        function speakCurrentSystemExplanation() {
+            initAudioContext();
+            const text = systemDescriptionsArabic[currentLabSystem];
+            
+            if (!('speechSynthesis' in window)) {
+                alertModal("عذراً، متصفحك لا يدعم خاصية القراءة الصوتية المباشرة.");
+                return;
+            }
+
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                stopSpeakingUI();
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.88; // Comfortable classroom learning speed
+            utterance.pitch = 1.0;
+
+            // Try to find Arabic Voice
+            const voices = window.speechSynthesis.getVoices();
+            const arVoice = voices.find(v => v.lang && v.lang.toLowerCase().includes('ar'));
+            if (arVoice) utterance.voice = arVoice;
+
+            utterance.onstart = function() {
+                isSpeaking = true;
+                startSpeakingUI();
+            };
+
+            utterance.onend = function() {
+                isSpeaking = false;
+                stopSpeakingUI();
+            };
+
+            utterance.onerror = function() {
+                isSpeaking = false;
+                stopSpeakingUI();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function startSpeakingUI() {
+            const btnText = document.getElementById('voice-btn-text');
+            const wave = document.getElementById('voice-wave');
+            if (btnText) btnText.innerText = "جاري القراءة الصوتية... (اضغط للإيقاف) ⏸️";
+            if (wave) {
+                wave.classList.remove('hidden');
+                wave.classList.add('flex');
+            }
+        }
+
+        function stopSpeakingUI() {
+            const btnText = document.getElementById('voice-btn-text');
+            const wave = document.getElementById('voice-wave');
+            if (btnText) btnText.innerText = "استمع للشرح الصوتي بصوت المعلم 🔊";
+            if (wave) {
+                wave.classList.add('hidden');
+                wave.classList.remove('flex');
+            }
+        }
+
+        /* ================= CONFETTI PARTICLE SYSTEM ================= */
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#0284c7', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
+
+            for (let i = 0; i < 90; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 3,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.8) * 10,
+                    size: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    rotation: Math.random() * 360,
+                    rSpeed: (Math.random() - 0.5) * 10,
+                    opacity: 1
+                });
+            }
+
+            let animationFrame;
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.2; // gravity
+                    p.rotation += p.rSpeed;
+                    p.opacity -= 0.012;
+
+                    if (p.opacity > 0) {
+                        alive = true;
+                        ctx.save();
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate((p.rotation * Math.PI) / 180);
+                        ctx.globalAlpha = Math.max(0, p.opacity);
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                        ctx.restore();
+                    }
+                });
+
+                if (alive) {
+                    animationFrame = requestAnimationFrame(render);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    cancelAnimationFrame(animationFrame);
+                }
+            }
+            render();
+        }
+
+        /* ================= GLOBAL STATE ================= */
+        let currentTab = 'lab';
+        let currentLabSystem = 'fixed'; // 'fixed', 'movable', 'compound'
+        let currentLoadWeight = 200; // Newtons
+        let ropePullProgress = 0; // 0 to 100 %
+
+        /* Assembly State */
+        let currentAssemblyTask = 'fixed';
+        let assemblyStep = 0;
+        let selectedAssemblyPartId = null;
+
+        /* Quiz State */
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        const quizQuestions = [
+            {
+                question: "1. أي من أنواع البكرات التالية تغير اتجاه القوة المطبقة لأسفل دون تقليل مقدار الجهد؟",
+                options: ["البكرة المتحركة", "البكرة الثابتة", "النظام المركب", "العجلة والمحور"],
+                correct: 1,
+                explanation: "البكرة الثابتة لا تقلل القوة المطلوبة لرفع الثقل، بل تسهل العمل بتغيير اتجاه السحب لأسفل استغلالاً لوزن الجسم."
+            },
+            {
+                question: "2. عند استخدام بكرة متحركة لرفع حمولة وزنها 200 نيوتن، كم تكون القوة (الجهد) المطلوبة؟",
+                options: ["200 نيوتن", "400 نيوتن", "100 نيوتن", "50 نيوتن"],
+                correct: 2,
+                explanation: "البكرة المتحركة تقسم وزن الحمل على فرعي الحبل، فيصبح الجهد المطلوب نصف الوزن تماماً (200 ÷ 2 = 100N)."
+            },
+            {
+                question: "3. ما هي الفائدة الميكانيكية للنظام المركب المكون من بكرة ثابتة وأخرى متحركة؟",
+                options: ["1", "2", "3", "0.5"],
+                correct: 1,
+                explanation: "الفائدة الميكانيكية لنظام مركب يحوي بكرة متحركة واحدة تساوي 2 (الحمل ÷ الجهد = 2)."
+            },
+            {
+                question: "4. في البكرة المتحركة، إذا أردنا رفع الحمل مسافة 1 متر، كم متراً يجب سحب الحبل؟",
+                options: ["0.5 متر", "1 متر", "2 متر", "4 أمتار"],
+                correct: 2,
+                explanation: "في الآلات البسيطة الموفرة للجهد، المقابل للتوفير في القوة هو قطع مسافة سحب مضاعفة (2 متر حبل مقابل 1 متر ارتفاع)."
+            },
+            {
+                question: "5. ما الفائدة الرئيسية لإضافة بكرة ثابتة إلى بكرة متحركة لتشكيل (نظام مركب)؟",
+                options: ["زيادة الوزن المرفوع", "تقليل طول الحبل", "تغيير اتجاه القوة المطبقة لأسفل مع الحفاظ على توفير الجهد", "إلغاء القوة تماماً"],
+                correct: 2,
+                explanation: "تضيف البكرة الثابتة خاصية تغيير اتجاه القوة لأسفل لأمان وراحة أكبر، بينما يوفر وجود البكرة المتحركة نصف الجهد."
+            }
+        ];
+
+        /* ================= TAB NAVIGATION ================= */
+        function switchTab(tabId) {
+            playClickSound();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            stopSpeakingUI();
+
+            currentTab = tabId;
+            document.querySelectorAll('.tab-section').forEach(sec => {
+                sec.classList.add('hidden');
+                sec.classList.remove('block');
+            });
+            const targetSection = document.getElementById(`section-${tabId}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('block');
+            }
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (tabId === 'lab') {
+                drawSimSVG();
+            } else if (tabId === 'quiz' && currentQuizIndex === 0) {
+                loadQuizQuestion();
+            }
+        }
+
+        /* ================= LAB CONTROLS ================= */
+        function selectLabSystem(sys) {
+            playClickSound();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            stopSpeakingUI();
+
+            currentLabSystem = sys;
+            document.querySelectorAll('.sys-btn').forEach(b => {
+                b.classList.remove('border-brand-500', 'bg-brand-50', 'text-brand-700', 'shadow-sm');
+                b.classList.add('border-slate-200', 'text-slate-600');
+            });
+            const btn = document.getElementById(`sys-${sys}`);
+            if (btn) {
+                btn.classList.remove('border-slate-200', 'text-slate-600');
+                btn.classList.add('border-brand-500', 'bg-brand-50', 'text-brand-700', 'shadow-sm');
+            }
+
+            ropePullProgress = 0;
+            const slider = document.getElementById('rope-pull-slider');
+            if (slider) slider.value = 0;
+            document.getElementById('pull-percentage').innerText = "0 %";
+
+            updateLabUI();
+            drawSimSVG();
+        }
+
+        function updateWeight(val) {
+            playClickSound();
+            currentLoadWeight = parseInt(val, 10);
+            updateLabUI();
+            drawSimSVG();
+        }
+
+        function onRopePull(val) {
+            ropePullProgress = parseInt(val, 10);
+            document.getElementById('pull-percentage').innerText = `${ropePullProgress} %`;
+            if (ropePullProgress % 15 === 0) {
+                playTone(200 + ropePullProgress * 3, 'sine', 0.04, 0.05);
+            }
+            drawSimSVG();
+        }
+
+        function updateLabUI() {
+            const badge = document.getElementById('lab-system-badge');
+            const dirIcon = document.getElementById('dir-icon');
+            const dirText = document.getElementById('dir-text');
+            const metricLoad = document.getElementById('metric-load');
+            const metricEffort = document.getElementById('metric-effort');
+            const metricMa = document.getElementById('metric-ma');
+            const metricDist = document.getElementById('metric-distance');
+            const expText = document.getElementById('lab-explanation-text');
+
+            metricLoad.innerText = `${currentLoadWeight} نيوتن`;
+
+            if (currentLabSystem === 'fixed') {
+                badge.innerHTML = '<i class="fa-solid fa-circle-info"></i> النظام الحالي: البكرة الثابتة';
+                dirIcon.className = 'fa-solid fa-arrow-down text-amber-600';
+                dirText.innerHTML = '<i id="dir-icon" class="fa-solid fa-arrow-down text-amber-600"></i> لأسفل';
+                metricEffort.innerText = `${currentLoadWeight} نيوتن`;
+                metricMa.innerText = "1";
+                metricDist.innerText = "1 متر حبل = 1 متر ارتفاع";
+                expText.innerText = "البكرة الثابتة لا توفر في القوة (الجهد يساوي وزن الحمل)، لكنها تتيح تغيير اتجاه القوة المطبقة لأسفل مما يجعل رفع الثقل أسهل بفضل وزن الجسم.";
+            } else if (currentLabSystem === 'movable') {
+                badge.innerHTML = '<i class="fa-solid fa-circle-info"></i> النظام الحالي: البكرة المتحركة';
+                dirIcon.className = 'fa-solid fa-arrow-up text-brand-600';
+                dirText.innerHTML = '<i id="dir-icon" class="fa-solid fa-arrow-up text-brand-600"></i> لأعلى';
+                metricEffort.innerText = `${currentLoadWeight / 2} نيوتن`;
+                metricMa.innerText = "2";
+                metricDist.innerText = "2 متر حبل = 1 متر ارتفاع";
+                expText.innerText = "البكرة المتحركة توفر نصف الجهد المبذول (الفائدة الميكانيكية = 2)، لكنها تتطلب سحب ضعف مسافة الارتفاع ولا تغير اتجاه القوة.";
+            } else if (currentLabSystem === 'compound') {
+                badge.innerHTML = '<i class="fa-solid fa-circle-info"></i> النظام الحالي: النظام المركب';
+                dirIcon.className = 'fa-solid fa-arrow-down text-emerald-600';
+                dirText.innerHTML = '<i id="dir-icon" class="fa-solid fa-arrow-down text-emerald-600"></i> لأسفل';
+                metricEffort.innerText = `${currentLoadWeight / 2} نيوتن`;
+                metricMa.innerText = "2";
+                metricDist.innerText = "2 متر حبل = 1 متر ارتفاع";
+                expText.innerText = "النظام المركب يجمع بين ميزات البكرة الثابتة والبكرة المتحركة؛ فهو يوفر نصف الجهد (الفائدة = 2) ويغير اتجاه القوة لأسفل لراحة وأمان أكبر أثناء الرفع.";
+            }
+        }
+
+        function drawSimSVG() {
+            const svg = document.getElementById('sim-svg');
+            if (!svg) return;
+
+            const pullRatio = ropePullProgress / 100;
+            const liftHeight = pullRatio * 130;
+
+            let svgContent = `
+                <!-- Ceiling Beam -->
+                <rect x="30" y="20" width="540" height="18" fill="#334155" rx="4"/>
+                <pattern id="hatch" width="14" height="14" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                    <line x1="0" y1="0" x2="0" y2="14" stroke="#1e293b" stroke-width="4" />
+                </pattern>
+                <rect x="30" y="8" width="540" height="12" fill="url(#hatch)" />
+            `;
+
+            if (currentLabSystem === 'fixed') {
+                const fixedX = 300;
+                const fixedY = 85;
+                const weightY = 270 - liftHeight;
+                const pullHandY = 160 + liftHeight;
+
+                svgContent += `
+                    <!-- Support Hook -->
+                    <line x1="${fixedX}" y1="38" x2="${fixedX}" y2="${fixedY}" stroke="#334155" stroke-width="8"/>
+
+                    <!-- Rope -->
+                    <path d="M ${fixedX - 30} ${weightY + 20} L ${fixedX - 30} ${fixedY} A 30 30 0 0 1 ${fixedX + 30} ${fixedY} L ${fixedX + 30} ${pullHandY}" fill="none" stroke="#d97706" stroke-width="7" stroke-dasharray="8 4"/>
+
+                    <!-- Fixed Pulley Wheel -->
+                    <circle cx="${fixedX}" cy="${fixedY}" r="30" fill="#0284c7" stroke="#0369a1" stroke-width="5"/>
+                    <circle cx="${fixedX}" cy="${fixedY}" r="8" fill="#ffffff"/>
+
+                    <!-- Weight Box -->
+                    <g transform="translate(${fixedX - 30 - 35}, ${weightY + 20})">
+                        <line x1="35" y1="-20" x2="35" y2="0" stroke="#334155" stroke-width="4"/>
+                        <rect x="0" y="0" width="70" height="50" rx="10" fill="#ef4444" stroke="#b91c1c" stroke-width="3"/>
+                        <text x="35" y="31" text-anchor="middle" fill="#ffffff" font-weight="900" font-size="16">${currentLoadWeight} N</text>
+                    </g>
+
+                    <!-- Pull Handle -->
+                    <g transform="translate(${fixedX + 30}, ${pullHandY})">
+                        <circle cx="0" cy="0" r="15" fill="#f59e0b" stroke="#b45309" stroke-width="3"/>
+                        <path d="M -6 -3 L 0 5 L 6 -3" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                        <text x="24" y="5" font-size="13" font-weight="900" fill="#0369a1">مقبض السحب</text>
+                    </g>
+                `;
+            } else if (currentLabSystem === 'movable') {
+                const anchorX = 210;
+                const movableX = 300;
+                const movableY = 240 - liftHeight;
+                const pullY = 85 - (liftHeight * 0.3);
+
+                svgContent += `
+                    <!-- Fixed Ceiling Anchor -->
+                    <circle cx="${anchorX}" cy="38" r="7" fill="#334155"/>
+
+                    <!-- Rope -->
+                    <path d="M ${anchorX} 38 L ${movableX - 30} ${movableY} A 30 30 0 0 0 ${movableX + 30} ${movableY} L ${movableX + 30} ${pullY}" fill="none" stroke="#d97706" stroke-width="7" stroke-dasharray="8 4"/>
+
+                    <!-- Movable Pulley Wheel -->
+                    <g transform="translate(${movableX}, ${movableY})">
+                        <circle cx="0" cy="0" r="30" fill="#f59e0b" stroke="#b45309" stroke-width="5"/>
+                        <circle cx="0" cy="0" r="8" fill="#ffffff"/>
+                        <line x1="0" y1="30" x2="0" y2="48" stroke="#334155" stroke-width="5"/>
+                        <!-- Weight Box attached below -->
+                        <rect x="-35" y="48" width="70" height="50" rx="10" fill="#ef4444" stroke="#b91c1c" stroke-width="3"/>
+                        <text x="0" y="79" text-anchor="middle" fill="#ffffff" font-weight="900" font-size="16">${currentLoadWeight} N</text>
+                    </g>
+
+                    <!-- Pull Handle (Pulling Up) -->
+                    <g transform="translate(${movableX + 30}, ${pullY})">
+                        <circle cx="0" cy="0" r="15" fill="#0284c7" stroke="#0369a1" stroke-width="3"/>
+                        <path d="M -6 3 L 0 -5 L 6 3" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                        <text x="24" y="5" font-size="13" font-weight="900" fill="#0369a1">سحب لأعلى (${currentLoadWeight/2}N)</text>
+                    </g>
+                `;
+            } else if (currentLabSystem === 'compound') {
+                const fixedX = 370;
+                const fixedY = 85;
+                const movableX = 270;
+                const movableY = 240 - liftHeight;
+                const pullHandY = 160 + liftHeight;
+
+                svgContent += `
+                    <!-- Fixed Pulley Support Hook -->
+                    <line x1="${fixedX}" y1="38" x2="${fixedX}" y2="${fixedY}" stroke="#334155" stroke-width="8"/>
+
+                    <!-- Rope Anchor on Ceiling -->
+                    <line x1="${movableX - 30}" y1="38" x2="${movableX - 30}" y2="42" stroke="#334155" stroke-width="5"/>
+                    <circle cx="${movableX - 30}" cy="42" r="6" fill="#334155"/>
+
+                    <!-- Continuous Rope Path -->
+                    <path d="M ${movableX - 30} 42 L ${movableX - 30} ${movableY} A 30 30 0 0 0 ${movableX + 30} ${movableY} L ${fixedX - 30} ${fixedY} A 30 30 0 0 1 ${fixedX + 30} ${fixedY} L ${fixedX + 30} ${pullHandY}" fill="none" stroke="#d97706" stroke-width="7" stroke-dasharray="8 4"/>
+
+                    <!-- Fixed Wheel -->
+                    <circle cx="${fixedX}" cy="${fixedY}" r="30" fill="#0284c7" stroke="#0369a1" stroke-width="5"/>
+                    <circle cx="${fixedX}" cy="${fixedY}" r="8" fill="#ffffff"/>
+
+                    <!-- Movable Wheel & Weight -->
+                    <g transform="translate(${movableX}, ${movableY})">
+                        <circle cx="0" cy="0" r="30" fill="#f59e0b" stroke="#b45309" stroke-width="5"/>
+                        <circle cx="0" cy="0" r="8" fill="#ffffff"/>
+                        <line x1="0" y1="30" x2="0" y2="48" stroke="#334155" stroke-width="5"/>
+                        <rect x="-35" y="48" width="70" height="50" rx="10" fill="#ef4444" stroke="#b91c1c" stroke-width="3"/>
+                        <text x="0" y="79" text-anchor="middle" fill="#ffffff" font-weight="900" font-size="16">${currentLoadWeight} N</text>
+                    </g>
+
+                    <!-- Pull Handle -->
+                    <g transform="translate(${fixedX + 30}, ${pullHandY})">
+                        <circle cx="0" cy="0" r="15" fill="#10b981" stroke="#047857" stroke-width="3"/>
+                        <path d="M -6 -3 L 0 5 L 6 -3" fill="none" stroke="#ffffff" stroke-width="3.5"/>
+                        <text x="24" y="5" font-size="13" font-weight="900" fill="#047857">سحب لأسفل (${currentLoadWeight/2}N)</text>
+                    </g>
+                `;
+            }
+
+            svg.innerHTML = svgContent;
+        }
+
+        /* ================= ASSEMBLY WORKSHOP LOGIC ================= */
+        function setAssemblyTask(task) {
+            playClickSound();
+            currentAssemblyTask = task;
+            document.querySelectorAll('.task-btn').forEach(b => {
+                b.classList.remove('border-brand-500', 'bg-brand-50', 'text-brand-700');
+                b.classList.add('border-slate-200', 'text-slate-600');
+            });
+            const btn = document.getElementById(`task-${task}`);
+            if (btn) btn.classList.add('border-brand-500', 'bg-brand-50', 'text-brand-700');
+            resetAssembly();
+        }
+
+        function resetAssembly() {
+            assemblyStep = 0;
+            selectedAssemblyPartId = null;
+
+            document.querySelectorAll('.assembly-part-item').forEach(el => {
+                el.classList.remove('border-brand-500', 'bg-brand-50', 'ring-2', 'ring-brand-300');
+                el.classList.add('border-slate-200', 'bg-slate-50');
+            });
+
+            const dropZone = document.getElementById('assembly-drop-zone');
+            const statusBadge = document.getElementById('assembly-status-badge');
+            const feedback = document.getElementById('assembly-feedback');
+            const taskTitle = document.getElementById('assembly-task-title');
+
+            if (currentAssemblyTask === 'fixed') {
+                taskTitle.innerText = "المهمة: تركيب (البكرة الثابتة)";
+                feedback.innerHTML = "الخطوة 1: انقر أو اسحب <strong>البكرة ذات التثبيت العلوي</strong> لوضعها في مكانها بالسقف.";
+            } else if (currentAssemblyTask === 'movable') {
+                taskTitle.innerText = "المهمة: تركيب (البكرة المتحركة)";
+                feedback.innerHTML = "الخطوة 1: انقر أو اسحب <strong>البكرة ذات التعليقة السفلية</strong> لوضعها في منطقة التركيب.";
+            } else if (currentAssemblyTask === 'compound') {
+                taskTitle.innerText = "المهمة: تركيب (النظام المركب)";
+                feedback.innerHTML = "الخطوة 1: انقر أو اسحب <strong>البكرة ذات التثبيت العلوي</strong> لبدء تركيب النظام المركب.";
+            }
+
+            statusBadge.className = "text-[11px] font-bold bg-amber-100 text-amber-800 px-3 py-1 rounded-full shadow-sm";
+            statusBadge.innerText = "بانتظار وضع القطعة الأولى...";
+
+            dropZone.innerHTML = `
+                <div id="assembly-canvas-content" class="text-center space-y-2 pointer-events-none">
+                    <i class="fa-solid fa-hand-pointer text-4xl text-brand-500 animate-bounce"></i>
+                    <p class="text-xs text-slate-700 font-bold leading-relaxed">انقر لاختيار القطعة من القائمة اليسرى<br/>ثم انقر هنا لتركيبها في منطقة الورشة</p>
+                </div>
+            `;
+        }
+
+        function selectAssemblyPart(partId) {
+            playClickSound();
+            selectedAssemblyPartId = partId;
+            document.querySelectorAll('.assembly-part-item').forEach(el => {
+                el.classList.remove('border-brand-500', 'bg-brand-50', 'ring-2', 'ring-brand-300');
+                el.classList.add('border-slate-200', 'bg-slate-50');
+            });
+            const partEl = document.getElementById(`part-${partId}`);
+            if (partEl) {
+                partEl.classList.remove('border-slate-200', 'bg-slate-50');
+                partEl.classList.add('border-brand-500', 'bg-brand-50', 'ring-2', 'ring-brand-300');
+            }
+        }
+
+        function onDragStart(ev, partId) {
+            ev.dataTransfer.setData("text/plain", partId);
+            selectAssemblyPart(partId);
+        }
+
+        function onDragOver(ev) {
+            ev.preventDefault();
+            const dz = document.getElementById('assembly-drop-zone');
+            if (dz) dz.classList.add('drag-over');
+        }
+
+        function onDragLeave(ev) {
+            const dz = document.getElementById('assembly-drop-zone');
+            if (dz) dz.classList.remove('drag-over');
+        }
+
+        function onDrop(ev) {
+            ev.preventDefault();
+            const dz = document.getElementById('assembly-drop-zone');
+            if (dz) dz.classList.remove('drag-over');
+            const partId = ev.dataTransfer.getData("text/plain") || selectedAssemblyPartId;
+            if (partId) {
+                processAssemblyStep(partId);
+            }
+        }
+
+        function clickToDrop() {
+            if (selectedAssemblyPartId) {
+                processAssemblyStep(selectedAssemblyPartId);
+            }
+        }
+
+        function processAssemblyStep(partId) {
+            const feedback = document.getElementById('assembly-feedback');
+            const dropZone = document.getElementById('assembly-drop-zone');
+            const statusBadge = document.getElementById('assembly-status-badge');
+
+            if (currentAssemblyTask === 'fixed') {
+                if (assemblyStep === 0) {
+                    if (partId === 'fixed_wheel') {
+                        playTone(500, 'sine', 0.15, 0.2);
+                        assemblyStep = 1;
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <line x1="100" y1="18" x2="100" y2="50" stroke="#334155" stroke-width="6"/>
+                                <circle cx="100" cy="50" r="22" fill="#0284c7" stroke="#0369a1" stroke-width="4"/>
+                                <circle cx="100" cy="50" r="6" fill="#ffffff"/>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-brand-700 bg-white/95 px-2.5 py-1 rounded-full shadow-sm border">تم تثبيت البكرة بالسقف ✓</span>
+                        `;
+                        feedback.innerHTML = "الخطوة 2 ممتاز! الآن اختر <strong>الحمل المراد رفعه (200N)</strong> لربطه بالنظام.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> ابدأ أولاً بوضع البكرة المثبتة بالسقف!";
+                    }
+                } else if (assemblyStep === 1) {
+                    if (partId === 'weight') {
+                        playTone(550, 'sine', 0.15, 0.2);
+                        assemblyStep = 2;
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <line x1="100" y1="18" x2="100" y2="50" stroke="#334155" stroke-width="6"/>
+                                <circle cx="100" cy="50" r="22" fill="#0284c7" stroke="#0369a1" stroke-width="4"/>
+                                <circle cx="100" cy="50" r="6" fill="#ffffff"/>
+                                <rect x="52" y="140" width="48" height="34" rx="6" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                                <text x="76" y="161" text-anchor="middle" fill="#ffffff" font-weight="bold" font-size="11">200 N</text>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-red-700 bg-white/95 px-2.5 py-1 rounded-full shadow-sm border">تم تموضع الحمل ✓</span>
+                        `;
+                        feedback.innerHTML = "الخطوة 3 أحسنت! أخيراً اختر <strong>حبل السحب والتوصيل</strong> لإتمام التركيب.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> يرجى وضع الثقل أولاً قبل الحبل.";
+                    }
+                } else if (assemblyStep === 2) {
+                    if (partId === 'rope') {
+                        playSuccessSound();
+                        triggerConfetti();
+                        assemblyStep = 3;
+                        statusBadge.className = "text-[11px] font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full animate-pulse shadow-sm";
+                        statusBadge.innerText = "اكتمل التركيب بنجاح! 🎉";
+
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <line x1="100" y1="18" x2="100" y2="50" stroke="#334155" stroke-width="6"/>
+                                <path d="M 78 140 L 78 50 A 22 22 0 0 1 122 50 L 122 150" fill="none" stroke="#d97706" stroke-width="5" stroke-dasharray="5 3"/>
+                                <circle cx="100" cy="50" r="22" fill="#0284c7" stroke="#0369a1" stroke-width="4"/>
+                                <circle cx="100" cy="50" r="6" fill="#ffffff"/>
+                                <rect x="54" y="140" width="48" height="34" rx="6" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                                <text x="78" y="161" text-anchor="middle" fill="#ffffff" font-weight="bold" font-size="11">200 N</text>
+                                <circle cx="122" cy="150" r="9" fill="#f59e0b"/>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-emerald-700 bg-white/95 px-3 py-1 rounded-full shadow border border-emerald-300">نظام البكرة الثابتة جاهز للعمل 👏</span>
+                        `;
+
+                        feedback.className = "w-full bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs font-bold text-emerald-800 text-center shadow-sm";
+                        feedback.innerHTML = "مبدع! أكملت تركيب البكرة الثابتة بنجاح.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> اختر حبل السحب لتوصيل النظام.";
+                    }
+                }
+            } else if (currentAssemblyTask === 'movable') {
+                if (assemblyStep === 0) {
+                    if (partId === 'movable_wheel') {
+                        playTone(500, 'sine', 0.15, 0.2);
+                        assemblyStep = 1;
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <g transform="translate(100, 110)">
+                                    <circle cx="0" cy="0" r="22" fill="#f59e0b" stroke="#b45309" stroke-width="4"/>
+                                    <circle cx="0" cy="0" r="6" fill="#ffffff"/>
+                                    <line x1="0" y1="22" x2="0" y2="38" stroke="#334155" stroke-width="4"/>
+                                </g>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-amber-700 bg-white/95 px-2.5 py-1 rounded-full shadow-sm border">تم وضع البكرة المتحركة ✓</span>
+                        `;
+                        feedback.innerHTML = "الخطوة 2 ممتاز! قم الآن بتعليق <strong>الحمل (200N)</strong> في أسفل البكرة المتحركة.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> لتركيب البكرة المتحركة اختر البكرة ذات التعليقة السفلية!";
+                    }
+                } else if (assemblyStep === 1) {
+                    if (partId === 'weight') {
+                        playTone(550, 'sine', 0.15, 0.2);
+                        assemblyStep = 2;
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <g transform="translate(100, 110)">
+                                    <circle cx="0" cy="0" r="22" fill="#f59e0b" stroke="#b45309" stroke-width="4"/>
+                                    <circle cx="0" cy="0" r="6" fill="#ffffff"/>
+                                    <line x1="0" y1="22" x2="0" y2="38" stroke="#334155" stroke-width="4"/>
+                                    <rect x="-24" y="38" width="48" height="34" rx="6" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                                    <text x="0" y="59" text-anchor="middle" fill="#ffffff" font-weight="bold" font-size="11">200 N</text>
+                                </g>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-red-700 bg-white/95 px-2.5 py-1 rounded-full shadow-sm border">تم تعليق الثقل بالبكرة ✓</span>
+                        `;
+                        feedback.innerHTML = "الخطوة 3 رائع! اختر <strong>حبل السحب</strong> ليمر أسفل البكرة ويتثبت بالسقف.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> يرجى تعليق الثقل بالبكرة أولاً.";
+                    }
+                } else if (assemblyStep === 2) {
+                    if (partId === 'rope') {
+                        playSuccessSound();
+                        triggerConfetti();
+                        assemblyStep = 3;
+                        statusBadge.className = "text-[11px] font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full animate-pulse shadow-sm";
+                        statusBadge.innerText = "اكتمل التركيب بنجاح! 🎉";
+
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <circle cx="56" cy="18" r="4" fill="#334155"/>
+                                <path d="M 56 18 L 78 110 A 22 22 0 0 0 122 110 L 122 40" fill="none" stroke="#d97706" stroke-width="5" stroke-dasharray="5 3"/>
+                                <g transform="translate(100, 110)">
+                                    <circle cx="0" cy="0" r="22" fill="#f59e0b" stroke="#b45309" stroke-width="4"/>
+                                    <circle cx="0" cy="0" r="6" fill="#ffffff"/>
+                                    <line x1="0" y1="22" x2="0" y2="38" stroke="#334155" stroke-width="4"/>
+                                    <rect x="-24" y="38" width="48" height="34" rx="6" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                                    <text x="0" y="59" text-anchor="middle" fill="#ffffff" font-weight="bold" font-size="11">200 N</text>
+                                </g>
+                                <circle cx="122" cy="40" r="9" fill="#0284c7"/>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-emerald-700 bg-white/95 px-3 py-1 rounded-full shadow border border-emerald-300">نظام البكرة المتحركة جاهز لتقليل الجهد 👏</span>
+                        `;
+
+                        feedback.className = "w-full bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs font-bold text-emerald-800 text-center shadow-sm";
+                        feedback.innerHTML = "أبدعت! تم تركيب البكرة المتحركة بنجاح وتوفير نصف الجهد (100N فقط).";
+                    } else {
+                        playErrorSound();
+                    }
+                }
+            } else if (currentAssemblyTask === 'compound') {
+                if (assemblyStep === 0) {
+                    if (partId === 'fixed_wheel') {
+                        playTone(500, 'sine', 0.15, 0.2);
+                        assemblyStep = 1;
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <line x1="130" y1="18" x2="130" y2="45" stroke="#334155" stroke-width="5"/>
+                                <circle cx="130" cy="45" r="18" fill="#0284c7" stroke="#0369a1" stroke-width="3"/>
+                                <circle cx="130" cy="45" r="5" fill="#ffffff"/>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-brand-700 bg-white/95 px-2.5 py-1 rounded-full shadow-sm border">تم تثبيت البكرة العليا الثابتة ✓</span>
+                        `;
+                        feedback.innerHTML = "الخطوة 2 رائع! اختر الآن <strong>البكرة ذات التعليقة السفلية</strong> لوضع البكرة المتحركة.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> ابدأ أولاً بتثبيت البكرة العليا في السقف.";
+                    }
+                } else if (assemblyStep === 1) {
+                    if (partId === 'movable_wheel') {
+                        playTone(550, 'sine', 0.15, 0.2);
+                        assemblyStep = 2;
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <line x1="130" y1="18" x2="130" y2="45" stroke="#334155" stroke-width="5"/>
+                                <circle cx="130" cy="45" r="18" fill="#0284c7" stroke="#0369a1" stroke-width="3"/>
+                                <circle cx="130" cy="45" r="5" fill="#ffffff"/>
+                                <g transform="translate(80, 120)">
+                                    <circle cx="0" cy="0" r="18" fill="#f59e0b" stroke="#b45309" stroke-width="3"/>
+                                    <circle cx="0" cy="0" r="5" fill="#ffffff"/>
+                                    <line x1="0" y1="18" x2="0" y2="30" stroke="#334155" stroke-width="4"/>
+                                </g>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-amber-700 bg-white/95 px-2.5 py-1 rounded-full shadow-sm border">تمت إضافة البكرة المتحركة السفلية ✓</span>
+                        `;
+                        feedback.innerHTML = "الخطوة 3 ممتاز! الآن قم بتعليق <strong>الحمل (200N)</strong> بالبكرة المتحركة.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> يرجى اختيار البكرة السفلية المتحركة أولاً.";
+                    }
+                } else if (assemblyStep === 2) {
+                    if (partId === 'weight') {
+                        playTone(600, 'sine', 0.15, 0.2);
+                        assemblyStep = 3;
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <line x1="130" y1="18" x2="130" y2="45" stroke="#334155" stroke-width="5"/>
+                                <circle cx="130" cy="45" r="18" fill="#0284c7" stroke="#0369a1" stroke-width="3"/>
+                                <circle cx="130" cy="45" r="5" fill="#ffffff"/>
+                                <g transform="translate(80, 120)">
+                                    <circle cx="0" cy="0" r="18" fill="#f59e0b" stroke="#b45309" stroke-width="3"/>
+                                    <circle cx="0" cy="0" r="5" fill="#ffffff"/>
+                                    <line x1="0" y1="18" x2="0" y2="30" stroke="#334155" stroke-width="4"/>
+                                    <rect x="-20" y="30" width="40" height="30" rx="5" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                                    <text x="0" y="49" text-anchor="middle" fill="#ffffff" font-weight="bold" font-size="10">200 N</text>
+                                </g>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-red-700 bg-white/95 px-2.5 py-1 rounded-full shadow-sm border">تم ربط الثقل المرفوع ✓</span>
+                        `;
+                        feedback.innerHTML = "الخطوة 4 أخيراً! اختر <strong>حبل السحب والتوصيل</strong> لربط النظام المركب كاملاً.";
+                    } else {
+                        playErrorSound();
+                        feedback.innerHTML = "<span class='text-red-600 font-bold'><i class='fa-solid fa-circle-xmark ml-1'></i> خطأ:</span> يرجى ربط الحمل المرفوع بالبكرة المتحركة قبل الحبل.";
+                    }
+                } else if (assemblyStep === 3) {
+                    if (partId === 'rope') {
+                        playSuccessSound();
+                        triggerConfetti();
+                        assemblyStep = 4;
+                        statusBadge.className = "text-[11px] font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full animate-pulse shadow-sm";
+                        statusBadge.innerText = "اكتمل تركيب النظام المركب! 🎉";
+
+                        dropZone.innerHTML = `
+                            <svg class="w-full h-full" viewBox="0 0 200 220">
+                                <rect x="30" y="10" width="140" height="8" fill="#475569" rx="2"/>
+                                <circle cx="62" cy="18" r="4" fill="#334155"/>
+                                <path d="M 62 18 L 62 120 A 18 18 0 0 0 98 120 L 112 45 A 18 18 0 0 1 148 45 L 148 140" fill="none" stroke="#d97706" stroke-width="4" stroke-dasharray="4 2"/>
+                                <line x1="130" y1="18" x2="130" y2="45" stroke="#334155" stroke-width="5"/>
+                                <circle cx="130" cy="45" r="18" fill="#0284c7" stroke="#0369a1" stroke-width="3"/>
+                                <circle cx="130" cy="45" r="5" fill="#ffffff"/>
+                                <g transform="translate(80, 120)">
+                                    <circle cx="0" cy="0" r="18" fill="#f59e0b" stroke="#b45309" stroke-width="3"/>
+                                    <circle cx="0" cy="0" r="5" fill="#ffffff"/>
+                                    <line x1="0" y1="18" x2="0" y2="30" stroke="#334155" stroke-width="4"/>
+                                    <rect x="-20" y="30" width="40" height="30" rx="5" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                                    <text x="0" y="49" text-anchor="middle" fill="#ffffff" font-weight="bold" font-size="10">200 N</text>
+                                </g>
+                                <circle cx="148" cy="140" r="8" fill="#10b981"/>
+                            </svg>
+                            <span class="absolute bottom-2 text-[11px] font-bold text-emerald-700 bg-white/95 px-3 py-1 rounded-full shadow border border-emerald-300">النظام المركب جاهز بكفاءة عالية 👏</span>
+                        `;
+
+                        feedback.className = "w-full bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs font-bold text-emerald-800 text-center shadow-sm";
+                        feedback.innerHTML = "عمل أسطوري! قمت بتركيب النظام المركب الذي يقلل الجهد إلى النصف ويغير اتجاه القوة لأسفل.";
+                    } else {
+                        playErrorSound();
+                    }
+                }
+            }
+
+            selectedAssemblyPartId = null;
+            document.querySelectorAll('.assembly-part-item').forEach(el => {
+                el.classList.remove('border-brand-500', 'bg-brand-50', 'ring-2', 'ring-brand-300');
+                el.classList.add('border-slate-200', 'bg-slate-50');
+            });
+        }
+
+        /* ================= DEDUCTION LOGIC ================= */
+        function checkDeductions() {
+            playClickSound();
+            const correctAnswers = {
+                'deduce-1': 'fixed',
+                'deduce-2': 'moving',
+                'deduce-3': 'both',
+                'deduce-4': 'yes',
+                'deduce-5': 'no',
+                'deduce-6': 'yes',
+                'deduce-7': '100',
+                'deduce-8': '50',
+                'deduce-9': '50',
+                'deduce-10': '1',
+                'deduce-11': '2',
+                'deduce-12': '2'
+            };
+
+            let correctCount = 0;
+            let total = 12;
+
+            for (let i = 1; i <= total; i++) {
+                const el = document.getElementById(`deduce-${i}`);
+                if (el && el.value === correctAnswers[`deduce-${i}`]) {
+                    el.classList.remove('border-slate-300', 'border-red-400');
+                    el.classList.add('border-emerald-500', 'bg-emerald-50');
+                    correctCount++;
+                } else if (el && el.value !== "") {
+                    el.classList.remove('border-slate-300', 'border-emerald-500');
+                    el.classList.add('border-red-400', 'bg-red-50');
+                }
+            }
+
+            const box = document.getElementById('deduction-result-box');
+            const statusText = document.getElementById('deduction-status-text');
+
+            if (correctCount === total) {
+                playTrophySound();
+                box.className = "glass-card rounded-2xl p-5 border-2 border-emerald-500 bg-emerald-50/90 text-center flex flex-col items-center justify-center gap-2 shadow-md animate-bounce-short";
+                box.innerHTML = `
+                    <div class="text-4xl text-amber-500"><i class="fa-solid fa-award"></i></div>
+                    <h3 class="text-base font-black text-emerald-900">مبارك! استنتجت جميع الخصائص بنجاح 🏅</h3>
+                    <p class="text-xs text-emerald-800 font-bold">حصلت على وسام "مهندس أنظمة البكرات للصف السادس". انتقل الآن لتحدي المعرفة!</p>
+                `;
+            } else {
+                statusText.innerText = `لقد أجبت بشكل صحيح على (${correctCount} من ${total}). استكمل باقي الإجابات للوصول للنتيجة النهائية!`;
+            }
+        }
+
+        /* ================= QUIZ LOGIC ================= */
+        function loadQuizQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            const box = document.getElementById('quiz-box');
+            const progress = document.getElementById('question-progress');
+            const nextBtn = document.getElementById('next-quiz-btn');
+
+            nextBtn.classList.add('hidden');
+            progress.innerText = `السؤال ${currentQuizIndex + 1} من ${quizQuestions.length}`;
+
+            box.innerHTML = `
+                <div class="space-y-3">
+                    <h3 class="text-sm sm:text-base font-extrabold text-slate-800 leading-snug">${q.question}</h3>
+                    <div class="space-y-2 mt-4" id="options-container">
+                        ${q.options.map((opt, idx) => `
+                            <button onclick="checkAnswer(${idx})" class="quiz-opt-btn w-full text-right p-3 rounded-xl border border-slate-200 hover:border-brand-400 hover:bg-brand-50 text-xs sm:text-sm font-bold transition flex items-center justify-between shadow-sm active:scale-98">
+                                <span>${opt}</span>
+                                <i class="fa-regular fa-circle text-slate-300"></i>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="quiz-explanation" class="hidden p-3 rounded-xl text-xs font-bold mt-3 shadow-sm"></div>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selectedIdx) {
+            const q = quizQuestions[currentQuizIndex];
+            const buttons = document.querySelectorAll('.quiz-opt-btn');
+            const expBox = document.getElementById('quiz-explanation');
+            const nextBtn = document.getElementById('next-quiz-btn');
+
+            buttons.forEach(b => b.disabled = true);
+
+            if (selectedIdx === q.correct) {
+                playSuccessSound();
+                quizScore++;
+                document.getElementById('quiz-score').innerText = `${quizScore} / ${quizQuestions.length}`;
+                buttons[selectedIdx].className = "w-full text-right p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-xs sm:text-sm font-black text-emerald-800 flex items-center justify-between shadow-md";
+                buttons[selectedIdx].querySelector('i').className = "fa-solid fa-circle-check text-emerald-600 text-lg";
+
+                expBox.className = "block p-3.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-200 mt-3";
+                expBox.innerHTML = `<i class="fa-solid fa-check ml-1 text-emerald-600"></i> <strong>إجابة صحيحة!</strong> ${q.explanation}`;
+            } else {
+                playErrorSound();
+                buttons[selectedIdx].className = "w-full text-right p-3 rounded-xl border-2 border-red-500 bg-red-50 text-xs sm:text-sm font-black text-red-800 flex items-center justify-between shadow-md";
+                buttons[selectedIdx].querySelector('i').className = "fa-solid fa-circle-xmark text-red-600 text-lg";
+
+                buttons[q.correct].className = "w-full text-right p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-xs sm:text-sm font-black text-emerald-800 flex items-center justify-between";
+
+                expBox.className = "block p-3.5 rounded-xl text-xs font-bold bg-red-100 text-red-900 border border-red-200 mt-3";
+                expBox.innerHTML = `<i class="fa-solid fa-circle-info ml-1 text-red-600"></i> <strong>توضيح معلم المادة:</strong> ${q.explanation}`;
+            }
+
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playClickSound();
+            if (currentQuizIndex < quizQuestions.length - 1) {
+                currentQuizIndex++;
+                loadQuizQuestion();
+            } else {
+                showFinalQuizResult();
+            }
+        }
+
+        function showFinalQuizResult() {
+            playTrophySound();
+            const box = document.getElementById('quiz-box');
+            const nextBtn = document.getElementById('next-quiz-btn');
+            nextBtn.classList.add('hidden');
+
+            let badgeMsg = "";
+            if (quizScore === 5) {
+                badgeMsg = "ممتاز جداً! حصلت على العلامة الكاملة 🌟 أنت بطل الفيزياء والتكنولوجيا الفذة!";
+            } else if (quizScore >= 3) {
+                badgeMsg = "جيد جداً! استوعبت مفاهيم البكرات وقوانينها الميكانيكية بشكل ممتاز 👍";
+            } else {
+                badgeMsg = "يمكنك العودة للمعمل التفاعلي والاستماع للشرح الصوتي لإعادة التجارب وتعزيز فهمك 💡";
+            }
+
+            box.innerHTML = `
+                <div class="text-center py-6 space-y-4">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-amber-100 text-amber-500 flex items-center justify-center text-4xl shadow-lg border-2 border-amber-300 animate-bounce">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h3 class="text-xl font-black text-slate-800">نتيجة الاختبار النهائية</h3>
+                    <div class="text-3xl font-black text-brand-600 font-mono">${quizScore} / ${quizQuestions.length}</div>
+                    <p class="text-xs sm:text-sm font-bold text-slate-700 max-w-md mx-auto leading-relaxed">${badgeMsg}</p>
+                    <button onclick="restartQuiz()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition mt-4 active:scale-95">
+                        <i class="fa-solid fa-rotate-right ml-1"></i> إعادة الاختبار
+                    </button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            playClickSound();
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').innerText = `0 / ${quizQuestions.length}`;
+            loadQuizQuestion();
+        }
+
+        function alertModal(msg) {
+            const div = document.createElement('div');
+            div.className = "fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4";
+            div.innerHTML = `
+                <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border border-slate-200">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                    <p class="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">${msg}</p>
+                    <button onclick="this.closest('.fixed').remove()" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs shadow-md transition">
+                        حسناً
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(div);
+        }
+
+        /* Initial Setup On Load */
+        document.addEventListener('DOMContentLoaded', () => {
+            selectLabSystem('fixed');
+            drawSimSVG();
+        });
+    </script>
+</body>
+</html>
