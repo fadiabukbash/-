@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طاقة الرياح - التكنولوجيا الصف التاسع</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        skybrand: {
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        tajawal: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+            min-height: 100vh;
+        }
+
+        /* custom fan spin animation */
+        @keyframes spinBlades {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spinBlades var(--spin-speed, 2s) linear infinite;
+            transform-origin: center;
+        }
+
+        /* Bulb Glow Animation */
+        .bulb-glow {
+            filter: drop-shadow(0px 0px var(--glow-radius, 0px) rgba(250, 204, 21, var(--glow-opacity, 0)));
+            transition: filter 0.2s ease-out;
+        }
+
+        /* Wind particle animation */
+        @keyframes flowWind {
+            0% { transform: translateX(-50px); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateX(250px); opacity: 0; }
+        }
+
+        .wind-particle {
+            animation: flowWind var(--wind-duration, 1.5s) linear infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0ea5e9;
+            border-radius: 4px;
+        }
+
+        /* Glassmorphic card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body class="text-slate-800 pb-12">
+
+    <!-- Top Navigation / Header -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-md border-b border-sky-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center text-white shadow-lg text-2xl">
+                    <i class="fa-solid fa-fan fa-spin" style="--fa-animation-duration: 8s;"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-sky-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                        طاقة الرياح
+                    </h1>
+                    <p class="text-xs text-slate-500 font-semibold">مادة التكنولوجيا - الصف التاسع الأساسي</p>
+                </div>
+            </div>
+
+            <!-- Voice Control & Audio Helper -->
+            <div class="flex items-center gap-2 bg-sky-50 p-1.5 rounded-xl border border-sky-200">
+                <button id="btnVoiceToggle" onclick="toggleVoiceAssistance()" class="flex items-center gap-2 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-bold text-xs sm:text-sm transition-all shadow-sm">
+                    <i class="fa-solid fa-volume-high" id="voiceIcon"></i>
+                    <span id="voiceText">الراوي الصوتي: مفعل</span>
+                </button>
+                <button onclick="speakText('مرحباً بكم في الدرس التفاعلي لطاقة الرياح للصف التاسع مع المساعد الصوتي')" class="px-2 py-1.5 text-sky-700 hover:bg-sky-100 rounded-lg text-xs font-bold" title="إعادة الترحيب الصوتي">
+                    <i class="fa-solid fa-circle-play text-base"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 space-x-reverse border-t border-slate-100 mt-2 overflow-x-auto">
+            <button onclick="switchTab('tab-lesson')" id="tabBtn-lesson" class="tab-btn px-4 py-2.5 text-sm font-bold border-b-2 border-sky-600 text-sky-600 flex items-center gap-2 transition-all whitespace-nowrap">
+                <i class="fa-solid fa-book-open"></i> 1. الشرح التفاعلي
+            </button>
+            <button onclick="switchTab('tab-motor')" id="tabBtn-motor" class="tab-btn px-4 py-2.5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-sky-600 flex items-center gap-2 transition-all whitespace-nowrap">
+                <i class="fa-solid fa-gears"></i> 2. تركيب المولد (الماتور)
+            </button>
+            <button onclick="switchTab('tab-sim')" id="tabBtn-sim" class="tab-btn px-4 py-2.5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-sky-600 flex items-center gap-2 transition-all whitespace-nowrap">
+                <i class="fa-solid fa-flask"></i> 3. المحاكي والمختبر
+            </button>
+            <button onclick="switchTab('tab-quiz')" id="tabBtn-quiz" class="tab-btn px-4 py-2.5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-sky-600 flex items-center gap-2 transition-all whitespace-nowrap">
+                <i class="fa-solid fa-gamepad"></i> 4. اللعبة والتحدي
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+
+        <!-- TAB 1: LESSON CONTENT -->
+        <section id="tab-lesson" class="tab-content space-y-6">
+            <!-- Intro Banner -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border-r-8 border-sky-500">
+                <div class="relative z-10 max-w-3xl">
+                    <span class="inline-block px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-bold mb-3">نشاط (1 : 2 : 1) المنهاج الفلسطيني</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-4">تحويل طاقة الرياح إلى طاقة كهربائية</h2>
+                    <p class="text-slate-600 leading-relaxed mb-6 text-sm sm:text-base">
+                        تعتبر طاقة الرياح من أهم مصادر الطاقة المتجددة والنظيفة. حيث تستخدم **العنفة الهوائية (المروحة)** لتحويل الطاقة الحركية للرياح إلى طاقة ميكانيكية دورانية، والتي تقوم بدورها بتدوير **المولد الكهربائي (DC Motor)** لتوليد فرق جهد وتيار كهربائي يشغل الأحمال مثل المصباح.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="speakText('نشاط طاقة الرياح. تهدف التجربة إلى تركيب دارة كهربائية بسيطة تستخدم عنفة هوائية لتشغيل مصباح، وقياس الجهد والتيار باستخدام جهاز الأفوميتر DMM عند سرعات مختلفة.')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-circle-play"></i> استمع لشرح النشاط
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experiment Circuit Breakdown Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Concept 1 -->
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-100 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">
+                        <i class="fa-solid fa-wind"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">1. العنفة والمولد الكهربائي</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                        عند التعرض لتيار هوائي، تدور ريش المروحة. يدور محور المولد الكهربائي الموصول بها، فيقوم بتحويل حركة المغناطيس داخل الملفات إلى **فرق جهد وتيار كهربائي**.
+                    </p>
+                    <button onclick="speakText('تدور المروحة بفعل الرياح، فيدور المولد الكهربائي ويولد تياراً كهربائياً يزداد بزيادة سرعة الدوران.')" class="text-xs text-sky-600 font-bold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high"></i> استمع للجزئية
+                    </button>
+                </div>
+
+                <!-- Concept 2 -->
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-100 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">2. طريقة قياس الجهد والتيار (DMM)</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                        • **جهاز فولتميتر:** يوصل على **التوازي** مع المصباح لقياس فرق الجهد (فولت V).<br>
+                        • **جهاز أمبيرميتر:** يوصل على **التوالي** في الدارة لقياس شدة التيار (أمبير A أو mA).
+                    </p>
+                    <button onclick="speakText('لقياس فرق الجهد نربط الفولتميتر على التوازي مع المصباح، ولقياس شدة التيار نربط الأمبيرميتر على التوالي في الدارة.')" class="text-xs text-sky-600 font-bold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high"></i> استمع للجزئية
+                    </button>
+                </div>
+
+                <!-- Concept 3 -->
+                <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-100 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl font-bold mb-4">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-2">3. سؤال النشاط المنهجي</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                        **لماذا لا يعمل المصباح في بعض الأحيان؟**<br>
+                        لأن سرعة الرياح الضعيفة تولد فرق جهد أقل من **جهد العتبة (Threshold Voltage)** المطلوب لإضاءة المصباح، أو بسبب المقاومة الداخلية للدارة.
+                    </p>
+                    <button onclick="speakText('سؤال هام: لماذا لا يعمل المصباح في بعض الأحيان؟ الإجابة: لأن سرعة الدوران الضعيفة تولد فرق جهد غير كاف لتشغيل المصباح، حيث يحتاج المصباح لجهد أدنى يسمى جهد التشغيل.')" class="text-xs text-sky-600 font-bold hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-volume-high"></i> استمع للجواب
+                    </button>
+                </div>
+            </div>
+
+            <!-- Call to Action to Simulator -->
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white flex flex-wrap justify-between items-center gap-4 shadow-lg">
+                <div>
+                    <h3 class="text-xl font-bold mb-1">جاهز للتجربة العملية الافتراضية؟</h3>
+                    <p class="text-emerald-100 text-sm">انتقل إلى المختبر للتحكم بسرعة الرياح وتسجيل القراءات بيدك!</p>
+                </div>
+                <button onclick="switchTab('tab-sim')" class="px-6 py-3 bg-white text-emerald-700 hover:bg-emerald-50 font-extrabold rounded-xl shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-flask"></i> ابدأ المختبر التفاعلي الان
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB 2: MOTOR STRUCTURE & GENERATION MECHANISM -->
+        <section id="tab-motor" class="tab-content hidden space-y-6">
+            <!-- Glass card summary -->
+            <div class="glass-card rounded-3xl p-6 shadow-xl border-r-8 border-amber-500">
+                <div class="flex flex-wrap justify-between items-start gap-4">
+                    <div>
+                        <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold mb-2">كيف يتولد التيار من الحركة؟</span>
+                        <h2 class="text-2xl font-extrabold text-slate-800 mb-2">تركيب المولد الكهربائي (DC Motor) وآلية التوليد</h2>
+                        <p class="text-slate-600 text-sm leading-relaxed max-w-3xl">
+                            المولد الكهربائي هو جهاز يحول **الطاقة الميكانيكية الدورانية** (الناتجة عن حركة الرياح للعنفة) إلى **طاقة كهربائية** باعتمد مبدأ **الحث الكهرومغناطيسي (قانون فراداي)**.
+                        </p>
+                    </div>
+                    <button onclick="speakText('تركيب المولد الكهربائي. يتكون المولد من مغناطيس دائم وملف نحاسي تدوره الرياح داخل المجال المغناطيسي فتتولد الكهرباء بناء على مبدأ الحث الكهرومغناطيسي.')" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs shadow-md flex items-center gap-2">
+                        <i class="fa-solid fa-volume-high"></i> استمع لشرح المولد
+                    </button>
+                </div>
+            </div>
+
+            <!-- Motor Breakdown Cards & Interactive Graphic -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Detailed explanation list -->
+                <div class="lg:col-span-5 space-y-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:border-amber-300 transition-all">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-extrabold text-sm">1</span>
+                            <h3 class="font-extrabold text-slate-800 text-base">المغناطيس الدائم (Stator)</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed pr-11">
+                            يوفر مجالاً مغناطيسياً ثابتاً ينبعث من القطب الشمالي (N) نحو القطب الجنوبي (S).
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:border-amber-300 transition-all">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-extrabold text-sm">2</span>
+                            <h3 class="font-extrabold text-slate-800 text-base">الملف النحاسي والعضو الدوار (Rotor)</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed pr-11">
+                            لفات من السلك النحاسي المعزول يدور مع محور المروحة بين قطبي المغناطيس.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:border-amber-300 transition-all">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-extrabold text-sm">3</span>
+                            <h3 class="font-extrabold text-slate-800 text-base">المبادل / الجامع (Commutator)</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed pr-11">
+                            حلقة معدنية مشقوقة تدور مع الملف لتوحيد اتجاه التيار المتولد ليصبح تياراً مستمراً (DC).
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 hover:border-amber-300 transition-all">
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-extrabold text-sm">4</span>
+                            <h3 class="font-extrabold text-slate-800 text-base">الفرش الكربونية (Brushes)</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed pr-11">
+                            تتلامس مع المبادل لنقل التيار المتولد من الملف الدوار إلى الدارة الخارجية والمصباح.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Interactive Animated SVG Diagram of Motor Internal Structure -->
+                <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-md border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i class="fa-solid fa-microchip text-amber-500"></i> الرسم التوضيحي لأجزاء المولد الداخلي
+                            </h3>
+                            <button onclick="toggleMotorDemoAnimation()" id="btnDemoMotor" class="px-3 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-800 rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                                <i class="fa-solid fa-pause"></i> إيقاف الدوران
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3">عندما يقطع الملف النحاسي الدوار خطوط المجال المغناطيسي، يتولد فرق جهد وقوة دافعة كهربائية.</p>
+                    </div>
+
+                    <!-- Motor Diagram SVG Stage -->
+                    <div class="bg-slate-900 rounded-xl p-3 flex items-center justify-center relative overflow-hidden h-[300px]">
+                        <svg viewBox="0 0 600 350" class="w-full h-full object-contain">
+                            <!-- Magnetic Poles -->
+                            <rect x="40" y="80" width="100" height="180" fill="#ef4444" rx="10" />
+                            <text x="90" y="175" font-size="42" fill="#ffffff" font-weight="extrabold" text-anchor="middle">N</text>
+                            <text x="90" y="205" font-size="12" fill="#fca5a5" font-weight="bold" text-anchor="middle">قطب شمالي</text>
+
+                            <rect x="460" y="80" width="100" height="180" fill="#2563eb" rx="10" />
+                            <text x="510" y="175" font-size="42" fill="#ffffff" font-weight="extrabold" text-anchor="middle">S</text>
+                            <text x="510" y="205" font-size="12" fill="#93c5fd" font-weight="bold" text-anchor="middle">قطب جنوبي</text>
+
+                            <!-- Magnetic Field Lines -->
+                            <g stroke="#38bdf8" stroke-width="2" stroke-dasharray="6,4" opacity="0.6">
+                                <line x1="140" y1="120" x2="460" y2="120" />
+                                <line x1="140" y1="150" x2="460" y2="150" />
+                                <line x1="140" y1="180" x2="460" y2="180" />
+                                <line x1="140" y1="210" x2="460" y2="210" />
+                                <line x1="140" y1="240" x2="460" y2="240" />
+                            </g>
+                            <text x="300" y="105" font-size="11" fill="#7dd3fc" font-weight="bold" text-anchor="middle">خطوط المجال المغناطيسي (من N إلى S)</text>
+
+                            <!-- Axis Shaft -->
+                            <line x1="200" y1="170" x2="400" y2="170" stroke="#94a3b8" stroke-width="8" />
+
+                            <!-- Rotating Copper Coil -->
+                            <g id="svgMotorCoilGroup" class="spinning" style="transform-origin: 300px 170px; --spin-speed: 1.2s;">
+                                <rect x="220" y="110" width="160" height="120" fill="none" stroke="#f59e0b" stroke-width="8" rx="8" />
+                                <line x1="220" y1="170" x2="380" y2="170" stroke="#d97706" stroke-width="3" />
+                                <text x="300" y="165" font-size="12" fill="#fef08a" font-weight="bold" text-anchor="middle">ملف نحاسي يدور</text>
+                            </g>
+
+                            <!-- Commutator Split Ring & Brushes -->
+                            <g transform="translate(300, 260)">
+                                <circle cx="0" cy="0" r="22" fill="none" stroke="#eab308" stroke-width="6" stroke-dasharray="30,8" />
+                                <rect x="-35" y="-6" width="10" height="12" fill="#64748b" />
+                                <rect x="25" y="-6" width="10" height="12" fill="#64748b" />
+                                <path d="M -35 0 L -80 0 L -80 30 L 80 30 L 80 0 L 25 0" stroke="#ef4444" stroke-width="3" fill="none" />
+                                <circle cx="0" cy="30" r="12" fill="#fef08a" stroke="#eab308" stroke-width="2" />
+                                <text x="0" y="34" font-size="9" font-weight="bold" fill="#78350f" text-anchor="middle">مصباح</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Explanatory note -->
+                    <div class="mt-3 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex justify-between items-center">
+                        <span><i class="fa-solid fa-lightbulb text-amber-600"></i> **الخلاصة:** زيادة سرعة دوران الرياح يزيد من سرعة قطع الملف لخطوط المجال، فيرتفع الجهد والتيار المولد.</span>
+                        <button onclick="speakText('الخلاصة: كلما زادت سرعة دوران المروحة، زادت سرعة قطع الملف لخطوط المجال المغناطيسي، فيرتفع الجهد والتيار المولد.')" class="text-amber-800 hover:underline font-bold mr-2">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: INTERACTIVE SIMULATOR LAB (COMPACT UNIFIED VIEW) -->
+        <section id="tab-sim" class="tab-content hidden space-y-4">
+            
+            <!-- Compact Single Container Stage -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-lg border border-slate-100 space-y-4">
+                
+                <!-- Unified Control & DMM Meter Toolbar -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 bg-slate-900 text-white p-3.5 rounded-2xl border border-slate-800 items-center">
+                    
+                    <!-- Wind Slider & Presets (5 cols) -->
+                    <div class="lg:col-span-5 space-y-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-sky-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-wind text-sky-400 text-sm"></i> سرعة النفخ / الرياح:
+                            </span>
+                            <span id="windSpeedVal" class="text-sky-300 text-xs font-black bg-sky-950 px-2 py-0.5 rounded-md border border-sky-800">0 %</span>
+                            <span id="speedRPM" class="text-amber-400 text-xs font-bold bg-amber-950/80 px-2 py-0.5 rounded-md border border-amber-800/80">0 RPM</span>
+                        </div>
+                        <input type="range" id="windSlider" min="0" max="100" value="0" step="1" oninput="updateSimulation()" class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-500">
+                        <div class="flex justify-between items-center pt-0.5">
+                            <div class="flex gap-1.5">
+                                <button onclick="setPresetWind(25)" class="px-2 py-1 bg-sky-900/80 hover:bg-sky-800 text-sky-200 text-[11px] font-bold rounded-lg border border-sky-700/50 transition-all">
+                                    ضعيفة (25%)
+                                </button>
+                                <button onclick="setPresetWind(80)" class="px-2 py-1 bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 text-[11px] font-bold rounded-lg border border-emerald-700/50 transition-all">
+                                    قوية (80%)
+                                </button>
+                            </div>
+                            <button onclick="setPresetWind(0)" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold rounded-lg transition-all">
+                                إيقاف (0%)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live DMM Digital Meters (4 cols) -->
+                    <div class="lg:col-span-4 grid grid-cols-2 gap-2">
+                        <!-- Voltmeter -->
+                        <div class="bg-slate-950 p-2 rounded-xl border border-amber-500/40 text-center">
+                            <span class="text-[10px] text-amber-400 font-bold block leading-none mb-1">فولتميتر (توازي)</span>
+                            <div class="text-amber-400 font-mono font-black text-lg leading-tight">
+                                <span id="dmmVoltage">0.00</span> <span class="text-[10px] font-bold">V</span>
+                            </div>
+                        </div>
+                        <!-- Ammeter -->
+                        <div class="bg-slate-950 p-2 rounded-xl border border-cyan-500/40 text-center">
+                            <span class="text-[10px] text-cyan-400 font-bold block leading-none mb-1">أمبيرميتر (توالي)</span>
+                            <div class="text-cyan-400 font-mono font-black text-lg leading-tight">
+                                <span id="dmmCurrent">0.0</span> <span class="text-[10px] font-bold">mA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status & Record Button (3 cols) -->
+                    <div class="lg:col-span-3 flex flex-col justify-between gap-1.5">
+                        <div id="bulbStatusBadge" class="p-1.5 rounded-lg bg-slate-800 text-center text-[11px] font-bold text-slate-400 transition-all truncate">
+                            المصباح: مطفأ
+                        </div>
+                        <button onclick="recordCurrentTrial()" class="w-full py-2 bg-gradient-to-r from-amber-500 to-emerald-500 hover:from-amber-600 hover:to-emerald-600 text-slate-950 font-black rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 text-xs">
+                            <i class="fa-solid fa-bookmark"></i> تسجيل القراءة بالجدول
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- Interactive Circuit Diagram Canvas directly under Controls -->
+                <div class="relative w-full h-[320px] sm:h-[380px] bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center p-2 overflow-hidden shadow-inner">
+                    
+                    <!-- Wind Stream Particle Layer -->
+                    <div id="windParticlesContainer" class="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div class="wind-particle absolute top-12 left-0 text-sky-300 text-lg opacity-0"><i class="fa-solid fa-wind"></i></div>
+                        <div class="wind-particle absolute top-28 left-0 text-sky-400 text-sm opacity-0" style="animation-delay: 0.5s;"><i class="fa-solid fa-wind"></i></div>
+                        <div class="wind-particle absolute top-48 left-0 text-sky-300 text-xl opacity-0" style="animation-delay: 0.9s;"><i class="fa-solid fa-wind"></i></div>
+                        <div class="wind-particle absolute top-64 left-0 text-sky-200 text-xs opacity-0" style="animation-delay: 0.2s;"><i class="fa-solid fa-wind"></i></div>
+                    </div>
+
+                    <!-- SVG Circuit Diagram -->
+                    <svg viewBox="0 0 800 500" class="w-full h-full object-contain z-10">
+                        
+                        <!-- Background Circuit Wires (Red = Positive, Black = Negative) -->
+                        <path d="M 220 250 L 320 250 L 320 120 L 400 120" stroke="#ef4444" stroke-width="4" fill="none" stroke-dasharray="6,2" />
+                        <path d="M 480 120 L 560 120 L 560 210" stroke="#ef4444" stroke-width="4" fill="none" stroke-dasharray="6,2" />
+                        <path d="M 560 290 L 560 380 L 220 380 L 220 270" stroke="#1e293b" stroke-width="4" fill="none" />
+
+                        <!-- Voltmeter Parallel Wires -->
+                        <path d="M 540 210 L 440 210 L 440 300" stroke="#ef4444" stroke-width="3" fill="none" stroke-dasharray="3,3" />
+                        <path d="M 540 290 L 440 290 L 440 330" stroke="#1e293b" stroke-width="3" fill="none" stroke-dasharray="3,3" />
+
+                        <!-- TURBINE & GENERATOR UNIT -->
+                        <g transform="translate(100, 160)">
+                            <rect x="75" y="100" width="30" height="150" fill="#94a3b8" rx="4" />
+                            <rect x="60" y="70" width="70" height="50" fill="#334155" rx="8" />
+                            <rect x="125" y="85" width="20" height="20" fill="#64748b" rx="2" />
+                            <text x="95" y="100" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="bold">مولد DC</text>
+
+                            <!-- Rotating Fan Blades -->
+                            <g id="svgFanGroup" class="spinning" style="transform-origin: 70px 95px; --spin-speed: 0s;">
+                                <circle cx="70" cy="95" r="14" fill="#0ea5e9" stroke="#0284c7" stroke-width="3" />
+                                <path d="M 70 95 Q 60 20 70 5 Q 80 20 70 95" fill="#38bdf8" stroke="#0284c7" />
+                                <path d="M 70 95 Q 145 130 155 145 Q 135 150 70 95" fill="#38bdf8" stroke="#0284c7" />
+                                <path d="M 70 95 Q -5 130 -15 145 Q 5 150 70 95" fill="#38bdf8" stroke="#0284c7" />
+                            </g>
+                        </g>
+
+                        <!-- AMMETER (Series DMM) -->
+                        <g transform="translate(380, 70)">
+                            <rect x="0" y="0" width="110" height="90" fill="#f59e0b" rx="12" stroke="#d97706" stroke-width="3" />
+                            <rect x="10" y="10" width="90" height="35" fill="#0284c7" rx="6" />
+                            <text id="svgAmmeterText" x="55" y="34" font-size="18" font-family="monospace" fill="#ffffff" font-weight="bold" text-anchor="middle">0.0 mA</text>
+                            <text x="55" y="65" font-size="11" fill="#78350f" font-weight="extrabold" text-anchor="middle">DMM أمبيرميتر</text>
+                            <text x="55" y="80" font-size="9" fill="#92400e" font-weight="bold" text-anchor="middle">(توالي)</text>
+                        </g>
+
+                        <!-- VOLTMETER (Parallel DMM) -->
+                        <g transform="translate(340, 270)">
+                            <rect x="0" y="0" width="110" height="90" fill="#f59e0b" rx="12" stroke="#d97706" stroke-width="3" />
+                            <rect x="10" y="10" width="90" height="35" fill="#0284c7" rx="6" />
+                            <text id="svgVoltmeterText" x="55" y="34" font-size="18" font-family="monospace" fill="#ffffff" font-weight="bold" text-anchor="middle">0.00 V</text>
+                            <text x="55" y="65" font-size="11" fill="#78350f" font-weight="extrabold" text-anchor="middle">DMM فولتميتر</text>
+                            <text x="55" y="80" font-size="9" fill="#92400e" font-weight="bold" text-anchor="middle">(توازي)</text>
+                        </g>
+
+                        <!-- LIGHT BULB ASSEMBLY -->
+                        <g transform="translate(530, 190)">
+                            <rect x="15" y="70" width="30" height="25" fill="#64748b" rx="3" />
+                            <rect x="20" y="95" width="20" height="10" fill="#334155" rx="2" />
+                            <circle id="svgBulbAura" cx="30" cy="38" r="45" fill="#facc15" opacity="0" class="transition-all duration-200" />
+                            <path d="M 10 40 C 10 15, 50 15, 50 40 C 50 55, 38 62, 38 70 L 22 70 C 22 62, 10 55, 10 40 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3" />
+                            <path id="svgFilament" d="M 22 55 L 26 35 L 34 35 L 38 55" stroke="#64748b" stroke-width="2" fill="none" />
+                            <text x="30" y="120" font-size="12" fill="#334155" font-weight="bold" text-anchor="middle">المصباح</text>
+                        </g>
+
+                    </svg>
+                </div>
+
+                <!-- Footer Quick Tip -->
+                <div class="p-2.5 bg-sky-50 rounded-xl border border-sky-100 text-xs text-sky-800 flex items-center justify-between">
+                    <span><i class="fa-solid fa-circle-info text-sky-600"></i> ملاحظة: كلما زادت سرعة الرياح من شريط التحكم علوياً، يزداد الجهد والتيار وتزداد شدة توهج المصباح.</span>
+                    <button onclick="speakText('ملاحظة تعليمية: كلما زادت سرعة الرياح يزداد الجهد والتيار المولد وتزداد إضاءة المصباح.')" class="font-bold text-sky-700 hover:underline">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 4: QUIZ & RESULTS TABLE -->
+        <section id="tab-quiz" class="tab-content hidden space-y-8">
+            
+            <!-- Table Section (Matching Student Textbook Page) -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-100">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-4 border-b pb-4">
+                    <div>
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold text-xs">جدول النتائج المنهجي</span>
+                        <h3 class="text-xl font-extrabold text-slate-800 mt-1">تسجيل نتائج قياس الجهد وشدة التيار</h3>
+                        <p class="text-xs text-slate-500">قم بتنفيذ المحاولات من قسم المحاكي، أو أدخل القراءات يدوياً لمقارنة النتائج.</p>
+                    </div>
+                    <button onclick="clearTrialsTable()" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1 border border-rose-200">
+                        <i class="fa-solid fa-trash-can"></i> مسح الجدول
+                    </button>
+                </div>
+
+                <!-- Responsive Data Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse min-w-[650px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-sm font-bold border-b border-slate-200">
+                                <th class="p-3.5 rounded-r-xl w-1/5">القراءة / المحاولة</th>
+                                <th class="p-3.5 w-1/4">سرعة الرياح (التقريبية)</th>
+                                <th class="p-3.5 text-center w-1/5">فرق الجهد (V)</th>
+                                <th class="p-3.5 text-center w-1/5">شدة التيار (mA)</th>
+                                <th class="p-3.5 rounded-l-xl text-center w-1/5">حالة المصباح</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trialsTableBody" class="divide-y divide-slate-100 text-sm font-semibold">
+                            <!-- Trial 1 -->
+                            <tr class="hover:bg-slate-50 transition-all">
+                                <td class="p-3.5 font-bold text-sky-700 whitespace-nowrap">المحاولة الأولى</td>
+                                <td class="p-3.5"><input type="text" id="t1_speed" placeholder="مثلاً: ضعيفة (20%)" class="w-full p-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm bg-slate-50 font-medium focus:bg-white focus:ring-2 focus:ring-sky-400 outline-none"></td>
+                                <td class="p-3.5 text-center"><input type="text" id="t1_volt" placeholder="0.00 V" class="w-full text-center p-2.5 border border-amber-300 rounded-xl text-sm sm:text-base font-mono font-black text-amber-700 bg-amber-50/60 focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none shadow-sm"></td>
+                                <td class="p-3.5 text-center"><input type="text" id="t1_curr" placeholder="0.0 mA" class="w-full text-center p-2.5 border border-cyan-300 rounded-xl text-sm sm:text-base font-mono font-black text-cyan-700 bg-cyan-50/60 focus:bg-white focus:ring-2 focus:ring-cyan-400 outline-none shadow-sm"></td>
+                                <td class="p-3.5 text-center"><span id="t1_status" class="inline-block px-3 py-1.5 bg-slate-200 text-slate-600 rounded-lg text-xs sm:text-sm font-bold">غير مسجل</span></td>
+                            </tr>
+                            <!-- Trial 2 -->
+                            <tr class="hover:bg-slate-50 transition-all">
+                                <td class="p-3.5 font-bold text-sky-700 whitespace-nowrap">المحاولة الثانية</td>
+                                <td class="p-3.5"><input type="text" id="t2_speed" placeholder="مثلاً: متوسطة (55%)" class="w-full p-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm bg-slate-50 font-medium focus:bg-white focus:ring-2 focus:ring-sky-400 outline-none"></td>
+                                <td class="p-3.5 text-center"><input type="text" id="t2_volt" placeholder="0.00 V" class="w-full text-center p-2.5 border border-amber-300 rounded-xl text-sm sm:text-base font-mono font-black text-amber-700 bg-amber-50/60 focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none shadow-sm"></td>
+                                <td class="p-3.5 text-center"><input type="text" id="t2_curr" placeholder="0.0 mA" class="w-full text-center p-2.5 border border-cyan-300 rounded-xl text-sm sm:text-base font-mono font-black text-cyan-700 bg-cyan-50/60 focus:bg-white focus:ring-2 focus:ring-cyan-400 outline-none shadow-sm"></td>
+                                <td class="p-3.5 text-center"><span id="t2_status" class="inline-block px-3 py-1.5 bg-slate-200 text-slate-600 rounded-lg text-xs sm:text-sm font-bold">غير مسجل</span></td>
+                            </tr>
+                            <!-- Trial 3 -->
+                            <tr class="hover:bg-slate-50 transition-all">
+                                <td class="p-3.5 font-bold text-sky-700 whitespace-nowrap">المحاولة الثالثة</td>
+                                <td class="p-3.5"><input type="text" id="t3_speed" placeholder="مثلاً: قوية (90%)" class="w-full p-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm bg-slate-50 font-medium focus:bg-white focus:ring-2 focus:ring-sky-400 outline-none"></td>
+                                <td class="p-3.5 text-center"><input type="text" id="t3_volt" placeholder="0.00 V" class="w-full text-center p-2.5 border border-amber-300 rounded-xl text-sm sm:text-base font-mono font-black text-amber-700 bg-amber-50/60 focus:bg-white focus:ring-2 focus:ring-amber-400 outline-none shadow-sm"></td>
+                                <td class="p-3.5 text-center"><input type="text" id="t3_curr" placeholder="0.0 mA" class="w-full text-center p-2.5 border border-cyan-300 rounded-xl text-sm sm:text-base font-mono font-black text-cyan-700 bg-cyan-50/60 focus:bg-white focus:ring-2 focus:ring-cyan-400 outline-none shadow-sm"></td>
+                                <td class="p-3.5 text-center"><span id="t3_status" class="inline-block px-3 py-1.5 bg-slate-200 text-slate-600 rounded-lg text-xs sm:text-sm font-bold">غير مسجل</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Textbook Question Discussion Interactive Box -->
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200 shadow-md">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-lg">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="text-lg font-black text-amber-900">سؤال النشاط المنهجي: في اعتقادك لماذا لا يعمل المصباح في بعض الأحيان؟</h4>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            اختر التفسير العلمي الأصح لمطابقته مع استنتاج التجربة:
+                        </p>
+
+                        <div id="textbookQuestionOptions" class="space-y-2 pt-2">
+                            <button onclick="checkQuestionAnswer(this, false)" class="w-full text-right p-3 bg-white hover:bg-amber-100 rounded-xl border border-amber-200 text-sm font-bold text-slate-800 transition-all flex items-center justify-between">
+                                <span>أ) لأن الأسلاك المستخدمة في الدارة غير مصنعة من النحاس.</span>
+                                <i class="fa-regular fa-circle text-amber-400"></i>
+                            </button>
+                            <button onclick="checkQuestionAnswer(this, true)" class="w-full text-right p-3 bg-white hover:bg-amber-100 rounded-xl border border-amber-200 text-sm font-bold text-slate-800 transition-all flex items-center justify-between">
+                                <span>ب) لأن سرعة دوران المروحة القليلة تولد جهداً أقل من الجهد الأدنى المطلوب لتشغيل المصباح.</span>
+                                <i class="fa-regular fa-circle text-amber-400"></i>
+                            </button>
+                            <button onclick="checkQuestionAnswer(this, false)" class="w-full text-right p-3 bg-white hover:bg-amber-100 rounded-xl border border-amber-200 text-sm font-bold text-slate-800 transition-all flex items-center justify-between">
+                                <span>ج) لأن المولد الكهربائي يعمل فقط بالبطاريات.</span>
+                                <i class="fa-regular fa-circle text-amber-400"></i>
+                            </button>
+                        </div>
+
+                        <!-- Feedback area -->
+                        <div id="questionFeedback" class="hidden p-4 rounded-xl text-sm font-bold mt-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gamified Interactive Quiz Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-md border border-slate-100 space-y-6">
+                <div class="flex justify-between items-center border-b pb-4">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-slate-800"><i class="fa-solid fa-trophy text-amber-500"></i> لعبة اختبر معلوماتك التفاعلية</h3>
+                        <p class="text-xs text-slate-500">أجب عن الأسئلة لجمع النقاط والحصول على لقب مهندس الطاقة المتجددة!</p>
+                    </div>
+                    <div class="text-left bg-sky-50 px-4 py-2 rounded-xl border border-sky-200">
+                        <span class="text-xs text-sky-600 font-bold block">النتيجة الحالية</span>
+                        <span id="quizScore" class="text-xl font-black text-sky-700">0 / 300</span>
+                    </div>
+                </div>
+
+                <!-- Quiz Question Container -->
+                <div id="quizContainer" class="space-y-6">
+                    <!-- Dynamic Question content populated via JS -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer with Designer Info -->
+    <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div class="bg-white rounded-2xl p-6 shadow-md border border-sky-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-right">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-sky-600 text-white rounded-xl flex items-center justify-center font-bold text-lg">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <div>
+                    <h4 class="font-extrabold text-slate-800 text-base">تصميم الأستاذ فادي أبو الكباش</h4>
+                    <p class="text-xs text-slate-500">مبني خصيصاً لمنهاج التكنولوجيا - فلسطين للصف التاسع الأساسي</p>
+                </div>
+            </div>
+            <div class="text-xs font-bold text-sky-700 bg-sky-50 px-4 py-2 rounded-xl border border-sky-200">
+                <i class="fa-solid fa-mobile-screen-button"></i> مناسب للعرض على كافة الأجهزة الذكية والألواح التفاعلية
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let isVoiceEnabled = true;
+        let windSpeed = 0; // 0 to 100%
+        let trialsRecordedCount = 0;
+        let score = 0;
+        let isMotorDemoSpinning = true;
+
+        // دالة تحديث المحاكي والمختبر فور تغيير سرعة الرياح
+        function updateSimulation() {
+            const slider = document.getElementById('windSlider');
+            if (!slider) return;
+            
+            windSpeed = parseInt(slider.value) || 0;
+            
+            // 1. تحديث نصوص السرعة وسرعة الدوران RPM
+            const windSpeedVal = document.getElementById('windSpeedVal');
+            const speedRPM = document.getElementById('speedRPM');
+            if (windSpeedVal) windSpeedVal.textContent = windSpeed + ' %';
+            
+            const rpm = Math.round(windSpeed * 35);
+            if (speedRPM) speedRPM.textContent = rpm + ' RPM';
+
+            // 2. حساب الجهد والتيار الكهربائي
+            // أقصى جهد 5.00V عند 100% رياح
+            const voltageVal = (windSpeed * 0.05);
+            const voltageStr = voltageVal.toFixed(2);
+            
+            // أقصى تيار 85.0mA عند 100% رياح
+            const currentVal = windSpeed > 0 ? (windSpeed * 0.85) : 0;
+            const currentStr = currentVal.toFixed(1);
+
+            // 3. تحديث قراءات أجهزة القياس DMM (شاشة العرض + SVG)
+            const dmmVoltage = document.getElementById('dmmVoltage');
+            const dmmCurrent = document.getElementById('dmmCurrent');
+            const svgVoltmeterText = document.getElementById('svgVoltmeterText');
+            const svgAmmeterText = document.getElementById('svgAmmeterText');
+
+            if (dmmVoltage) dmmVoltage.textContent = voltageStr;
+            if (dmmCurrent) dmmCurrent.textContent = currentStr;
+            if (svgVoltmeterText) svgVoltmeterText.textContent = voltageStr + ' V';
+            if (svgAmmeterText) svgAmmeterText.textContent = currentStr + ' mA';
+
+            // 4. تحريك ريش المروحة حسب السرعة
+            const svgFanGroup = document.getElementById('svgFanGroup');
+            if (svgFanGroup) {
+                if (windSpeed > 0) {
+                    const speedSec = Math.max(0.15, (3.2 - (windSpeed / 100) * 3.0)).toFixed(2);
+                    svgFanGroup.style.setProperty('--spin-speed', speedSec + 's');
+                    svgFanGroup.classList.add('spinning');
+                } else {
+                    svgFanGroup.classList.remove('spinning');
+                }
+            }
+
+            // 5. التحكم بإضاءة المصباح وشارة الحالة (جهد التشغيل = 2.0V فأكثر)
+            const svgBulbAura = document.getElementById('svgBulbAura');
+            const svgFilament = document.getElementById('svgFilament');
+            const bulbStatusBadge = document.getElementById('bulbStatusBadge');
+
+            const isLit = voltageVal >= 2.0;
+
+            if (svgBulbAura) {
+                if (isLit) {
+                    const glowOpacity = Math.min(1.0, 0.3 + (windSpeed / 100) * 0.7);
+                    svgBulbAura.style.opacity = glowOpacity;
+                    svgBulbAura.setAttribute('fill', '#facc15');
+                } else {
+                    svgBulbAura.style.opacity = '0';
+                }
+            }
+
+            if (svgFilament) {
+                svgFilament.setAttribute('stroke', isLit ? '#f59e0b' : '#64748b');
+            }
+
+            if (bulbStatusBadge) {
+                if (isLit) {
+                    bulbStatusBadge.textContent = 'المصباح: مُضاء 💡 (الجهد كافٍ)';
+                    bulbStatusBadge.className = 'p-1.5 rounded-lg bg-emerald-900/90 text-emerald-200 border border-emerald-700 text-center text-[11px] font-bold transition-all truncate';
+                } else if (windSpeed > 0) {
+                    bulbStatusBadge.textContent = 'المصباح: مطفأ (الجهد أقل من جهد العتبة) ⚠️';
+                    bulbStatusBadge.className = 'p-1.5 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-800 text-center text-[11px] font-bold transition-all truncate';
+                } else {
+                    bulbStatusBadge.textContent = 'المصباح: مطفأ ❌';
+                    bulbStatusBadge.className = 'p-1.5 rounded-lg bg-slate-800 text-slate-400 text-center text-[11px] font-bold transition-all truncate';
+                }
+            }
+
+            // 6. تحريك خطوط الرياح
+            const particles = document.querySelectorAll('.wind-particle');
+            particles.forEach((p) => {
+                if (windSpeed > 0) {
+                    const duration = Math.max(0.4, (2.2 - (windSpeed / 100) * 1.8)).toFixed(2);
+                    p.style.setProperty('--wind-duration', duration + 's');
+                    p.style.display = 'block';
+                } else {
+                    p.style.display = 'none';
+                }
+            });
+        }
+
+        // Web Audio API Sound Synthesizer (Click, Success, Error Effects)
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                const now = ctx.currentTime;
+                
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.1);
+                    osc.frequency.setValueAtTime(659.25, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(160, now + 0.12);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch(e) {
+                console.error("Audio synth error:", e);
+            }
+        }
+
+        function toggleVoiceAssistance() {
+            isVoiceEnabled = !isVoiceEnabled;
+            const btnText = document.getElementById('voiceText');
+            const btnIcon = document.getElementById('voiceIcon');
+            if (isVoiceEnabled) {
+                if (btnText) btnText.textContent = "الراوي الصوتي: مفعل";
+                if (btnIcon) btnIcon.className = "fa-solid fa-volume-high";
+                speakText("تم تفعيل الراوي الصوتي");
+            } else {
+                if (btnText) btnText.textContent = "الراوي الصوتي: معطل";
+                if (btnIcon) btnIcon.className = "fa-solid fa-volume-xmark";
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
+        }
+
+        function speakText(text) {
+            if (!isVoiceEnabled) return;
+            if ('speechSynthesis' in window) {
+                try {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'ar-SA';
+                    utterance.rate = 0.95;
+                    
+                    const voices = window.speechSynthesis.getVoices();
+                    const arVoice = voices.find(v => v.lang.startsWith('ar'));
+                    if (arVoice) utterance.voice = arVoice;
+                    
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) {
+                    console.error("Speech synth error:", e);
+                }
+            }
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        function toggleMotorDemoAnimation() {
+            playSound('click');
+            const coilGroup = document.getElementById('svgMotorCoilGroup');
+            const btn = document.getElementById('btnDemoMotor');
+            if (isMotorDemoSpinning) {
+                if (coilGroup) coilGroup.classList.remove('spinning');
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-play"></i> تشغيل الدوران';
+                isMotorDemoSpinning = false;
+            } else {
+                if (coilGroup) {
+                    coilGroup.style.setProperty('--spin-speed', '1.2s');
+                    coilGroup.classList.add('spinning');
+                }
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-pause"></i> إيقاف الدوران';
+                isMotorDemoSpinning = true;
+            }
+        }
+
+        function switchTab(tabId) {
+            playSound('click');
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.remove('hidden');
+            }
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-sky-600', 'text-sky-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+
+            const activeBtn = document.getElementById('tabBtn-' + tabId.replace('tab-', ''));
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-500');
+                activeBtn.classList.add('border-sky-600', 'text-sky-600');
+            }
+
+            if (tabId === 'tab-motor') {
+                speakText('تبويب تركيب المولد الكهربائي. تعرف هنا على أجزاء الماتور وكيف يتم تحويل الحركة إلى كهرباء عبر الحث الكهرومغناطيسي.');
+            } else if (tabId === 'tab-sim') {
+                speakText('المختبر التفاعلي. لوحة التحكم وأجهزة القياس موجودة في الشريط العلوي المدمج للتحكم والرؤية المباشرة.');
+            } else if (tabId === 'tab-quiz') {
+                speakText('قسم النتائج والتحدي. يمكنك هنا مراجعة جدول المحاولات وإجابة أسئلة الاختبار.');
+            } else if (tabId === 'tab-lesson') {
+                speakText('تبويب الشرح التفاعلي لطاقة الرياح.');
+            }
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            if (currentQIndex >= quizData.length) {
+                container.innerHTML = `
+                    <div class="text-center py-8 space-y-4">
+                        <div class="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <h4 class="text-2xl font-black text-slate-800">أبدعت! أكملت التحدي بنجاح!</h4>
+                        <p class="text-sm text-slate-600">درجتك النهائية: <span class="font-extrabold text-sky-600">${score}</span> من 300 نقطة</p>
+                        <button onclick="restartQuiz()" class="px-6 py-2.5 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all">
+                            إعادة اللعبة
+                        </button>
+                    </div>
+                `;
+                speakText(`أحسنت! أكملت الاختبار وحصلت على ${score} نقطة.`);
+                return;
+            }
+
+            const q = quizData[currentQIndex];
+            let optionsHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                optionsHTML += `
+                    <button onclick="submitQuizAnswer(${idx})" class="w-full text-right p-3.5 bg-slate-50 hover:bg-sky-50 hover:border-sky-300 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 transition-all flex items-center justify-between">
+                        <span>${opt}</span>
+                        <i class="fa-regular fa-circle text-slate-400"></i>
+                    </button>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <span class="text-xs font-bold text-sky-600 bg-sky-50 px-3 py-1 rounded-full">السؤال ${currentQIndex + 1} من ${quizData.length}</span>
+                    <h4 class="text-base sm:text-lg font-bold text-slate-800">${q.q}</h4>
+                    <div class="space-y-2 pt-2">
+                        ${optionsHTML}
+                    </div>
+                    <div id="quizFeedback" class="hidden p-3.5 rounded-xl bg-rose-100 text-rose-900 border border-rose-300 text-xs font-bold transition-all"></div>
+                </div>
+            `;
+            speakText(q.q);
+        }
+
+        function submitQuizAnswer(selectedIdx) {
+            const q = quizData[currentQIndex];
+            const feedbackElem = document.getElementById('quizFeedback');
+            if (selectedIdx === q.correct) {
+                playSound('success');
+                score += 100;
+                document.getElementById('quizScore').textContent = score + ' / 300';
+                currentQIndex++;
+                renderQuiz();
+            } else {
+                playSound('error');
+                speakText('إجابة غير صحيحة، حاول التركيز والأنتباه.');
+                if (feedbackElem) {
+                    feedbackElem.classList.remove('hidden');
+                    feedbackElem.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 ml-1"></i> إجابة غير صحيحة! ${q.explain}`;
+                }
+            }
+        }
+
+        function setPresetWind(val) {
+            playSound('click');
+            document.getElementById('windSlider').value = val;
+            updateSimulation();
+        }
+
+        function recordCurrentTrial() {
+            playSound('success');
+            trialsRecordedCount = (trialsRecordedCount % 3) + 1;
+            
+            const voltage = document.getElementById('dmmVoltage').textContent;
+            const current = document.getElementById('dmmCurrent').textContent;
+            
+            let speedText = 'ضعيفة (' + windSpeed + '%)';
+            if (windSpeed > 40 && windSpeed <= 70) speedText = 'متوسطة (' + windSpeed + '%)';
+            if (windSpeed > 70) speedText = 'قوية (' + windSpeed + '%)';
+
+            const isLit = parseFloat(voltage) >= 2.5;
+
+            // Fill row
+            document.getElementById(`t${trialsRecordedCount}_speed`).value = speedText;
+            document.getElementById(`t${trialsRecordedCount}_volt`).value = voltage + ' V';
+            document.getElementById(`t${trialsRecordedCount}_curr`).value = current + ' mA';
+
+            const statusBadge = document.getElementById(`t${trialsRecordedCount}_status`);
+            if (isLit) {
+                statusBadge.textContent = 'مُضاء 💡';
+                statusBadge.className = 'px-2.5 py-1 bg-amber-100 text-amber-800 rounded-md text-xs font-bold';
+            } else {
+                statusBadge.textContent = 'مطفأ ❌';
+                statusBadge.className = 'px-2.5 py-1 bg-rose-100 text-rose-800 rounded-md text-xs font-bold';
+            }
+
+            speakText(`تم تسجيل المحاولة رقم ${trialsRecordedCount} بالجدول: الجهد ${voltage} فولت، والتيار ${current} مللي أمبير.`);
+        }
+
+        function clearTrialsTable() {
+            playSound('click');
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`t${i}_speed`).value = '';
+                document.getElementById(`t${i}_volt`).value = '';
+                document.getElementById(`t${i}_curr`).value = '';
+                const st = document.getElementById(`t${i}_status`);
+                st.textContent = 'غير مسجل';
+                st.className = 'px-2.5 py-1 bg-slate-200 text-slate-600 rounded-md text-xs font-bold';
+            }
+            trialsRecordedCount = 0;
+            speakText('تم مسح الجدول');
+        }
+
+        function checkQuestionAnswer(buttonElem, isCorrect) {
+            const feedbackBox = document.getElementById('questionFeedback');
+            feedbackBox.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-900', 'bg-rose-100', 'text-rose-900');
+
+            if (isCorrect) {
+                playSound('success');
+                feedbackBox.classList.add('bg-emerald-100', 'text-emerald-900', 'border', 'border-emerald-300');
+                feedbackBox.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> إجابة صحيحة ورائعة! تحتاج الدارة إلى جهد أدنى (جهد التشغيل) لتغلب المصباح على مقاومتة وإضاءته.';
+                speakText('إجابة صحيحة ورائعة! تحتاج الدارة إلى جهد أدنى لتغلب المصباح على مقاومتة وإضاءته.');
+            } else {
+                playSound('error');
+                feedbackBox.classList.add('bg-rose-100', 'text-rose-900', 'border', 'border-rose-300');
+                feedbackBox.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-600"></i> إجابة غير دقيقة. فكّر في العلاقة بين سرعة الرياح والجهد المتولد.';
+                speakText('إجابة غير دقيقة. حاول مرة أخرى.');
+            }
+        }
+
+        const quizData = [
+            {
+                q: "1. ما هو نوع الطاقة المخزنة في الرياح والتي تحولها العنفة الهوائية إلى طاقة ميكانيكية؟",
+                options: ["طاقة حركية", "طاقة كيميائية", "طاقة نووية", "طاقة وضع"],
+                correct: 0,
+                explain: "الرياح عبارة عن هواء متحرك يمتلك طاقة حركية."
+            },
+            {
+                q: "2. عند قياس فرق الجهد الكهربائي بين طرفي المصباح باستخدام جهاز DMM، يوصل الجهاز على:",
+                options: ["التوالي", "التوازي", "التراكب", "العشوائي"],
+                correct: 1,
+                explain: "يوصل الفولتميتر دائماً على التوازي مع العنصر المراد قياس جهده."
+            },
+            {
+                q: "3. كيف تتغير قيمة التيار والجهد المتولد عند زيادة سرعة دوران المروحة؟",
+                options: ["تقل القراءات", "تبقى ثابتة", "تزداد القراءات", "تصبح صفراً"],
+                correct: 2,
+                explain: "تزداد الطاقة الحركية مما يؤدي لزيادة معدل قطع خطوط المجال المغناطيسي في المولد وزيادة الجهد والتيار."
+            }
+        ];
+
+        let currentQIndex = 0;
+
+        function restartQuiz() {
+            score = 0;
+            currentQIndex = 0;
+            document.getElementById('quizScore').textContent = '0 / 300';
+            renderQuiz();
+        }
+
+        window.onload = function() {
+            updateSimulation();
+            renderQuiz();
+            
+            // Speak welcome greeting
+            setTimeout(() => {
+                speakText("أهلاً بكم في الدرس التفاعلي لطاقة الرياح للصف التاسع، من تصميم الأستاذ فادي أبو الكباش.");
+            }, 800);
+        };
+    </script>
+</body>
+</html>
