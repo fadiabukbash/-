@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ورقة عمل: الطاقة النظيفة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f8f6;--card:#fff;--ink:#17302b;--mut:#5b716c;--line:#cfe0db;--acc:#0e7c6b;--sun:#f2a900;--wind:#2f80c9;--water:#1b5fa8;--ok:#1a8f4c;--okbg:#e2f5ea;--no:#c0392b;--nobg:#fbe7e4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1c19;--card:#182925;--ink:#e6f2ee;--mut:#9bb5ae;--line:#2c4540;--acc:#3ccab2;--okbg:#14382a;--nobg:#42201c;--ok:#5fd68f;--no:#ff8b7d}}
+:root[data-theme="dark"]{--bg:#0f1c19;--card:#182925;--ink:#e6f2ee;--mut:#9bb5ae;--line:#2c4540;--acc:#3ccab2;--okbg:#14382a;--nobg:#42201c;--ok:#5fd68f;--no:#ff8b7d}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Tajawal,Tahoma,Arial,sans-serif;line-height:1.8;font-size:17px}
+.wrap{max-width:720px;margin:0 auto;padding:16px 14px 90px}
+header{padding:18px 4px 6px}
+h1{margin:0;font-size:28px;font-weight:800}
+header p{margin:4px 0 12px;color:var(--mut)}
+.name{display:flex;gap:8px;flex-wrap:wrap}
+.name input{flex:1;min-width:130px}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;max-width:100%}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+section{background:var(--card);border:1.5px solid var(--line);border-radius:16px;margin:16px 0;overflow:hidden}
+section>h2{margin:0;padding:10px 16px;font-size:20px;font-weight:800;color:#fff}
+.s1>h2{background:var(--acc)}.s2>h2{background:var(--wind)}.s3>h2{background:#b97d00}.s4>h2{background:var(--water)}.s5>h2{background:#5a4a9c}
+.body{padding:6px 16px 14px}
+.q{padding:10px 0;border-bottom:1px dashed var(--line)}
+.q:last-child{border:0}
+.q b{font-weight:700}
+.opts{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer}
+.opt input{width:18px;height:18px;accent-color:var(--acc)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:430px;margin-top:6px}
+th,td{border:1.5px solid var(--line);padding:6px 8px;text-align:center}
+th{background:color-mix(in srgb,var(--acc) 14%,transparent)}
+td:first-child{text-align:right;font-weight:500}
+select{width:100%}
+textarea{width:100%;min-height:70px;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:8px;margin-top:6px}
+.hint{color:var(--mut);font-size:15px}
+.ok{background:var(--okbg)!important;border-color:var(--ok)!important}
+.no{background:var(--nobg)!important;border-color:var(--no)!important}
+.fb{font-size:15px;margin-top:4px;min-height:1px}
+.fb.g{color:var(--ok)}.fb.b{color:var(--no)}
+.bar{position:fixed;inset-inline:0;bottom:0;background:var(--card);border-top:1.5px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:5}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:9px 20px;cursor:pointer;background:var(--acc);color:#fff}
+button.sec{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+#score{font-weight:800;min-width:90px;text-align:center}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);height:10px;background:var(--line);border-radius:8px;overflow:hidden;z-index:4;margin:6px 0}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--sun),var(--acc));transition:width .4s}
+.opt{transition:transform .15s,background .2s}
+.opt:has(input:checked){background:color-mix(in srgb,var(--acc) 18%,transparent);border-color:var(--acc);animation:pop .3s}
+select.sel{border-color:var(--acc);animation:pop .3s}
+@keyframes pop{50%{transform:scale(1.04)}}
+@keyframes rise{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes fall{to{transform:translateY(115vh) rotate(720deg)}}
+@keyframes fl{50%{transform:translateY(-6px) rotate(10deg)}}
+@keyframes shake{25%{transform:translateX(6px)}75%{transform:translateX(-6px)}}
+.fl{display:inline-block;animation:fl 2.2s ease-in-out infinite}
+.shake{animation:shake .35s;border-color:var(--no)!important}
+.big{font-size:56px;font-weight:800;color:var(--acc);margin:0;animation:rise .6s}
+.conf{position:fixed;top:-20px;width:10px;height:14px;z-index:20;pointer-events:none;animation:fall linear forwards}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1><span class="fl">⚡</span> ورقة عمل: الطاقة النظيفة <button id="mt" class="sec" style="padding:2px 10px;font-size:15px" aria-label="الصوت">🔊</button></h1>
+<p>الوحدة الأولى · أجب نظريًا بناءً على ما لاحظته في الأنشطة العملية، ثم اضغط «إرسال الإجابات» (مرة واحدة فقط).</p>
+<div class="name"><input id="n1" placeholder="اسم الطالب" aria-label="اسم الطالب"><input id="n2" placeholder="الصف والشعبة" aria-label="الصف"></div>
+</header>
+<div class="prog"><i id="pb"></i></div>
+<div id="app"></div>
+</div>
+<div class="wrap" id="res" hidden><section class="s5"><h2>تم الإرسال 🎉</h2><div class="body">
+<p class="big" id="big"></p><p id="rmsg" style="font-size:20px;font-weight:700;margin:4px 0"></p>
+<p class="hint">يُفتح تطبيق البريد برسالة جاهزة إلى المعلم، اضغط «إرسال» فيه لتصل إجاباتك. إن لم يُفتح، انسخ النص وأرسله إلى: 852658145@hebron.edu.ps</p>
+<div class="btnrow"><button id="mail">فتح البريد</button><button id="cp" class="sec">نسخ الإجابات</button></div>
+<textarea id="out" style="min-height:150px" readonly></textarea></div></section></div>
+<div class="bar"><button id="snd">إرسال الإجابات</button><span id="score" aria-live="polite"></span></div>
+
+<script>
+const SEL=["اختر…"];
+// Each item: type mc | tf | sel(table rows) | open
+const S=[
+{c:"s1",t:"١) استخدامات الطاقة النظيفة",items:[
+ {k:"table",head:["الطاقة","قديمًا","حديثًا"],opts:[
+  ["طحن الحبوب","تجفيف الملابس بالشمس","تشغيل مضخات الرفع","توليد الكهرباء بالألواح","تسخين المياه بالسخان الشمسي","تحريك السفن الشراعية","تشغيل التوربينات الريحية","تحريك طواحين الماء","تشغيل التوربينات المائية في السدود"],
+  null,null],
+  rows:[["الشمس",0,0],["الرياح",0,0],["المياه",0,0]],
+  note:"اختر لكل خلية استخدامًا مناسبًا.",
+  ans:{"0-1":["تجفيف الملابس بالشمس","تسخين المياه بالسخان الشمسي"],"0-2":["توليد الكهرباء بالألواح","تسخين المياه بالسخان الشمسي"],"1-1":["تحريك السفن الشراعية","طحن الحبوب","تشغيل مضخات الرفع"],"1-2":["تشغيل التوربينات الريحية","توليد الكهرباء بالألواح"],"2-1":["تحريك طواحين الماء"],"2-2":["تشغيل التوربينات المائية في السدود"]}},
+ {k:"mc",q:"أي مما يلي يُعد مصدرًا للطاقة النظيفة؟",o:["الفحم","الرياح","البترول","الغاز المضغوط"],a:1},
+ {k:"mc",q:"لماذا بحث الإنسان عن مصادر طاقة بديلة للوقود الأحفوري؟",o:["لأنه رخيص جدًا","لأنه يتجدد باستمرار","لأنه مؤقت وقابل للنفاد ويلوث البيئة","لأنه لا يعطي طاقة"],a:2},
+ ]},
+{c:"s2",t:"٢) طاقة الرياح",items:[
+ {k:"mc",q:"في دائرة المروحة والمولد: عند زيادة سرعة دوران المروحة، فإن فرق الجهد وشدة التيار:",o:["يزدادان","يقلان","لا يتغيران","ينعدمان دائمًا"],a:0},
+ {k:"table",head:["القراءة","فرق الجهد","شدة التيار"],opts:[["أكبر","أقل","متوسطة"],null,null],
+  rows:[["نفخ هادئ (سرعة قليلة)",0,0],["نفخ قوي (سرعة كبيرة)",0,0]],note:"توقّع القراءة في كل محاولة (مقارنةً بالأخرى).",
+  ans:{"0-1":["أقل"],"0-2":["أقل"],"1-1":["أكبر"],"1-2":["أكبر"]},
+  optsAll:["أكبر","أقل"]},
+ {k:"mc",q:"سؤال النشاط: لماذا لا يعمل المصباح في بعض الأحيان؟",o:["لأن المروحة تدور ببطء فلا يتولد جهد كافٍ","لأن الهواء يُنتج طاقة حرارية فقط","لأن المصباح لا يحتاج كهرباء","لأن المولد يعمل بالماء فقط"],a:0},
+ {k:"tf",q:"المولد يحوّل الطاقة الحركية لدوران المروحة إلى طاقة كهربائية.",a:true},
+ {k:"tf",q:"جهاز DMM يُستخدم لقياس فرق الجهد وشدة التيار.",a:true}]},
+{c:"s3",t:"٣) الطاقة الشمسية",items:[
+ {k:"table",head:["الحالة","سرعة دوران المحرك","فرق الجهد","شدة التيار"],opts:[["أعلى ما يمكن","كبيرة","متوسطة","قليلة","صفر تقريبًا"],null,null],
+  rows:[["أشعة الشمس عمودية على الخلايا",0,0,0],["أشعة الشمس مائلة عن الخلايا",0,0,0],["جزء من الخلايا مغطى",0,0,0],["الخلايا مغطاة بالكامل",0,0,0]],
+  note:"اختر الوصف المتوقع لكل خلية.",
+  ans:{"0-1":["أعلى ما يمكن"],"0-2":["أعلى ما يمكن"],"0-3":["أعلى ما يمكن"],"1-1":["كبيرة","متوسطة"],"1-2":["كبيرة","متوسطة"],"1-3":["كبيرة","متوسطة"],"2-1":["قليلة","متوسطة"],"2-2":["قليلة","متوسطة"],"2-3":["قليلة","متوسطة"],"3-1":["صفر تقريبًا"],"3-2":["صفر تقريبًا"],"3-3":["صفر تقريبًا"]}},
+ {k:"mc",q:"سؤال النشاط: لماذا تختلف سرعة دوران المحرك في كل حالة؟",o:["لاختلاف كمية أشعة الشمس الواصلة إلى الخلايا","لاختلاف لون المحرك","لأن الخلايا تعمل بالهواء","لا يوجد سبب"],a:0},
+ {k:"mc",q:"أفضل وضع للخلايا الشمسية للحصول على أكبر طاقة:",o:["أن تكون الأشعة عمودية عليها","أن تكون في الظل","أن تُغطى جزئيًا","أن تكون الأشعة مائلة جدًا"],a:0},
+ {k:"tf",q:"تحوّل الخلايا الشمسية الطاقة الضوئية إلى طاقة كهربائية.",a:true}]},
+{c:"s4",t:"٤) طاقة المياه",items:[
+ {k:"mc",q:"عند زيادة قوة المياه الساقطة على التوربين المائي، فإن كمية الكهرباء المتولدة:",o:["تزداد","تقل","تنعدم","لا تتغير"],a:0},
+ {k:"mc",q:"التوربين المائي في النشاط شغّل:",o:["جرسًا كهربائيًا","مروحة","سيارة صغيرة","مدفأة"],a:0},
+ {k:"mc",q:"عند استبدال الجرس بمصباح ١٢ فولت، يتوقف عمل المصباح أو يضعف إذا كان:",o:["التيار المائي قويًا","التيار المائي ضعيفًا فلا يكفي الجهد","التوربين كبيرًا","الأسلاك سليمة"],a:1},
+ ]},
+{c:"s5",t:"٥) الخلاصة",items:[
+ {k:"tf",q:"الطاقة النظيفة تُنتج دون إحداث تأثير سلبي على البيئة.",a:true},
+ {k:"tf",q:"الطاقة النظيفة مصادر مستدامة وغير قابلة للنفاد.",a:true},
+ {k:"tf",q:"الوقود الأحفوري مصدر مستدام لا ينفد.",a:false},
+ {k:"mc",q:"أي مصدر مما يلي لا يعتمد على الوقود الأحفوري؟",o:["مولد يعمل بالبترول","محطة فحم","ألواح شمسية","موقد غاز"],a:2}]}
+];
+const app=document.getElementById('app');
+let H='';
+S.forEach((s,si)=>{
+ H+=`<section class="${s.c}"><h2>${s.t}</h2><div class="body">`;
+ s.items.forEach((it,ii)=>{
+  const id=`${si}_${ii}`;
+  H+=`<div class="q" id="q${id}" data-k="${it.k}">`;
+  if(it.k==="mc"){
+   H+=`<b>${it.q}</b><div class="opts">`+it.o.map((o,oi)=>`<label class="opt"><input type="radio" name="r${id}" value="${oi}">${o}</label>`).join('')+`</div>`;
+  }else if(it.k==="tf"){
+   H+=`<b>${it.q}</b><div class="opts" style="flex-direction:row"><label class="opt"><input type="radio" name="r${id}" value="1">صح</label><label class="opt"><input type="radio" name="r${id}" value="0">خطأ</label></div>`;
+  }else if(it.k==="open"){
+   H+=`<b>${it.q}</b><textarea placeholder="اكتب إجابتك هنا"></textarea><div class="hint">إجابة مفتوحة: يراجعها المعلم.</div>`;
+  }else if(it.k==="table"){
+   const nc=it.head.length;
+   H+=`<span class="hint">${it.note}</span><div class="tw"><table><tr>${it.head.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+   it.rows.forEach((r,ri)=>{
+    H+=`<tr><td>${r[0]}</td>`;
+    for(let c=1;c<nc;c++){
+     const list=it.optsAll||(si===0?it.opts[0]:(it.opts[0]));
+     H+=`<td><select data-r="${ri}" data-c="${c}"><option value="">اختر…</option>${list.map(o=>`<option>${o}</option>`).join('')}</select></td>`;
+    }
+    H+=`</tr>`;
+   });
+   H+=`</table></div>`;
+  }
+  H+=`<div class="fb"></div></div>`;
+ });
+ H+=`</div></section>`;
+});
+app.innerHTML=H;
+
+function grade(){let got=0,tot=0;
+ S.forEach((s,si)=>s.items.forEach((it,ii)=>{
+  const el=document.getElementById(`q${si}_${ii}`);
+  if(it.k==="mc"||it.k==="tf"){tot++;const v=el.querySelector('input:checked');const r=it.k==="mc"?String(it.a):(it.a?"1":"0");if(v&&v.value===r)got++;}
+  else if(it.k==="table"){el.querySelectorAll('select').forEach(sl=>{tot++;const ok=it.ans[`${sl.dataset.r}-${sl.dataset.c}`];if(sl.value&&ok.includes(sl.value))got++;});}
+ }));return {got,tot};}
+function collect(){const out=[];
+ S.forEach((s,si)=>s.items.forEach((it,ii)=>{
+  const el=document.getElementById(`q${si}_${ii}`);let a='—';
+  if(it.k==='mc'||it.k==='tf'){const v=el.querySelector('input:checked');if(v)a=v.parentElement.textContent.trim();}
+  else if(it.k==='open'){a=el.querySelector('textarea').value.trim()||'—';}
+  else{a=[...el.querySelectorAll('select')].map(x=>x.value||'—').join(' | ');}
+  out.push(`${si+1}.${ii+1}: ${a}`);}));return out.join('\n');}
+const $=id=>document.getElementById(id);
+const TO='852658145@hebron.edu.ps',KEY='ce_ws_v1';
+const AC=window.AudioContext||window.webkitAudioContext;let ac=null,mute=false;
+function tone(f,d=.12,t='sine',v=.07,dl=0){if(mute||!AC)return;try{ac=ac||new AC();const o=ac.createOscillator(),g=ac.createGain(),T=ac.currentTime+dl;o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,T);g.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(g);g.connect(ac.destination);o.start(T);o.stop(T+d);}catch(e){}}
+const pop=()=>tone(600+Math.random()*250,.09,'triangle');
+const fanfare=()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.28,'square',.05,i*.13));
+const soft=()=>[392,330,262].forEach((f,i)=>tone(f,.3,'sine',.07,i*.2));
+$('mt').onclick=()=>{mute=!mute;$('mt').textContent=mute?'🔇':'🔊';if(!mute)pop();};
+function progress(){let a=0,t=0;
+ S.forEach((s,si)=>s.items.forEach((it,ii)=>{const el=$(`q${si}_${ii}`);let r=null;
+  if(it.k==='mc'||it.k==='tf')r=!!el.querySelector('input:checked');
+  else if(it.k==='table')r=[...el.querySelectorAll('select')].every(x=>x.value);
+  if(r===null)return;t++;if(r)a++;}));
+ $('pb').style.width=(t?a/t*100:0)+'%';$('score').textContent=`${a} / ${t}`;return {a,t};}
+$('app').addEventListener('change',e=>{pop();if(e.target.tagName==='SELECT')e.target.classList.toggle('sel',!!e.target.value);progress();});
+function confetti(){const cs=['#f2a900','#0e7c6b','#2f80c9','#e8554e','#7a5cc8'];
+ for(let i=0;i<70;i++){const c=document.createElement('i');c.className='conf';c.style.cssText=`left:${Math.random()*100}vw;background:${cs[i%5]};animation-duration:${1.8+Math.random()*1.8}s;animation-delay:${Math.random()*.6}s`;document.body.appendChild(c);setTimeout(()=>c.remove(),4600);}}
+function openMail(r){const a=document.createElement('a');
+ a.href=`mailto:${TO}?subject=${encodeURIComponent('ورقة عمل الطاقة النظيفة - '+r.name+' - '+r.sc+'/20')}&body=${encodeURIComponent(r.text)}`;
+ a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove();}
+let cur=null;
+function finish(r,fresh){
+ if(r.sc==null)r.sc=Math.round(r.got/r.tot*200)/10;
+ cur=r;
+ document.querySelectorAll('.wrap input,.wrap select,.wrap textarea').forEach(x=>{if(x.id!=='out')x.disabled=true;});
+ document.querySelector('.bar').style.display='none';
+ $('res').hidden=false;$('out').value=r.text;
+ const p=r.got/r.tot*100;
+ $('rmsg').textContent=p>=90?'ممتاز! أنت بطل الطاقة النظيفة 🏆':p>=70?'جيد جدًا، أحسنت 👏':p>=50?'جيد، راجع الأنشطة لتتحسن 💪':'لا بأس، راجع الأنشطة وستتحسن 🌱';
+ if(fresh){let n=0;const st=Math.max(.5,r.sc/20);const iv=setInterval(()=>{n=Math.min(r.sc,n+st);$('big').textContent=(Math.round(n*10)/10)+' / 20';if(n>=r.sc){clearInterval(iv);p>=50?(fanfare(),confetti()):soft();setTimeout(()=>openMail(r),900);return;}pop();},120);}
+ else $('big').textContent=r.sc+' / 20';
+ $('res').scrollIntoView({behavior:'smooth'});
+}
+$('mail').onclick=()=>cur&&openMail(cur);
+$('cp').onclick=async()=>{const o=$('out');try{await navigator.clipboard.writeText(o.value);}catch(e){o.select();try{document.execCommand('copy');}catch(_){}}$('cp').textContent='تم النسخ ✓';pop();};
+$('snd').onclick=()=>{
+ const nm=$('n1').value.trim();
+ if(!nm){const i=$('n1');i.classList.add('shake');i.focus();setTimeout(()=>i.classList.remove('shake'),500);tone(200,.2,'sawtooth',.05);return;}
+ const pr=progress(),left=pr.t-pr.a;
+ if(!confirm((left?`بقي ${left} أسئلة بلا إجابة. `:'')+'بعد الإرسال لا يمكنك التعديل. هل تريد المتابعة؟'))return;
+ const g=grade(),cls=$('n2').value.trim();
+ const sc=Math.round(g.got/g.tot*200)/10;const r={name:nm,cls,got:g.got,tot:g.tot,sc};
+ r.text=`الاسم: ${nm}\nالصف: ${cls||'—'}\nالعلامة: ${sc} / 20 (${g.got} من ${g.tot} إجابة صحيحة)\n\n${collect()}`;
+ try{localStorage.setItem(KEY,JSON.stringify(r));}catch(e){}
+ finish(r,true);
+};
+(function(){let r=null;try{r=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+ progress();if(r&&r.text){$('n1').value=r.name;$('n2').value=r.cls||'';finish(r,false);}})();
+</script>
+</body>
+</html>
