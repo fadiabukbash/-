@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مغامرة الدائرة الكهربائية</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f7ff;--card:#fff;--tx:#1d2540;--pr:#5b4bdb;--ok:#18a058;--bad:#e5484d;--mut:#6b7494;--wire:#2a7fc1;--sl:#eef0ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12152a;--card:#1d2142;--tx:#eef0ff;--mut:#9aa3cf;--sl:#262b57;--wire:#5db0f0}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,"Segoe UI",Arial,sans-serif;line-height:1.7}
+header{background:linear-gradient(135deg,#5b4bdb,#e0449a);color:#fff;padding:12px 14px;text-align:center}
+h1{font-size:19px;margin:0}.stars{font-size:20px;letter-spacing:3px}
+nav{display:flex;gap:6px;padding:8px;overflow-x:auto}
+nav button{flex:1;min-width:64px;border:0;border-radius:12px;padding:8px 4px;background:var(--card);color:var(--tx);font:inherit;font-size:13px;box-shadow:0 1px 4px #0002}
+nav button.on{background:var(--pr);color:#fff}nav button:disabled{opacity:.45}
+.s{display:none;padding:10px 14px 30px;max-width:640px;margin:auto;animation:in .4s}.s.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(14px)}}
+.card{background:var(--card);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 2px 8px #0002}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.part{border:3px solid transparent;cursor:pointer;text-align:center;font:inherit;color:var(--tx);background:var(--card);border-radius:16px;padding:10px;box-shadow:0 2px 8px #0002;transition:.2s}
+.part:active{transform:scale(.94)}.part.sel{border-color:var(--pr);transform:scale(1.05)}.part.done{border-color:var(--ok)}
+.part svg{width:60px;height:70px}
+.btn{border:0;border-radius:14px;background:var(--pr);color:#fff;font:inherit;font-size:16px;padding:10px 18px;cursor:pointer;margin:4px}
+.btn.g{background:var(--ok)}
+svg text{font-family:inherit}
+#msg{min-height:30px;font-weight:bold;text-align:center}
+.shake{animation:sh .4s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pop{animation:pp .5s}@keyframes pp{50%{transform:scale(1.3)}}
+.bob{animation:bob 2s infinite}@keyframes bob{50%{transform:translateY(-5px)}}
+input[type=range]{width:100%;accent-color:var(--pr)}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border:1px solid var(--mut);padding:4px;text-align:center}
+.q button{display:block;width:100%;margin:5px 0;padding:10px;border-radius:12px;border:2px solid var(--mut);background:var(--sl);color:var(--tx);font:inherit}
+.q button.r{background:#18a05833;border-color:var(--ok)}.q button.w{background:#e5484d33;border-color:var(--bad)}
+input[type=text]{width:100%;padding:10px;border-radius:10px;border:2px solid var(--mut);font:inherit;background:var(--card);color:var(--tx)}
+@media print{header,nav,.btn,.noprint{display:none!important}.s{display:none}#s5{display:block}body{background:#fff;color:#000}}
+</style></head><body>
+<header><h1>⚡ مغامرة الدائرة الكهربائية ⚡</h1><div class="stars" id="stars">☆☆☆☆</div></header>
+<nav id="nav"></nav>
+
+<section class="s on" id="s0">
+<div class="card"><b>🔍 تعرّف على القطع</b><br>اضغط على كل قطعة لتسمع شرحها وتراها تتحرك! (<span id="cnt">0</span>/4)</div>
+<div class="grid" id="cards"></div>
+<div class="card" id="info" style="display:none"></div>
+<div style="text-align:center"><button class="btn g" id="n0" style="display:none" onclick="go(1)">يلا نركّب الدائرة ➡️</button></div>
+</section>
+
+<section class="s" id="s1">
+<div class="card">🧩 اختر قطعة من الأسفل، ثم اضغط على المكان المناسب لها في المخطط.</div>
+<div class="card" style="padding:4px"><svg id="bsvg" viewBox="0 0 320 300" width="100%"></svg></div>
+<div id="msg">اختر قطعة…</div>
+<div class="grid" id="tray"></div>
+<div style="text-align:center"><button class="btn g" id="n1" style="display:none" onclick="go(2)">يلا نجرّب ➡️</button></div>
+</section>
+
+<section class="s" id="s2">
+<div class="card" style="padding:4px"><svg id="esvg" viewBox="0 0 320 300" width="100%"></svg></div>
+<div class="card">🎚️ حرّك المقاومة المتغيرة: <b id="rv">0</b> Ω<br>
+<input type="range" id="rng" min="0" max="22000" step="50" value="11000">
+التيار: <b id="iv"></b> mA — السطوع: <b id="bv"></b><br>
+<label><input type="checkbox" id="fx" checked> المقاومة الثابتة موجودة</label>
+<div style="text-align:center"><button class="btn" onclick="rec()">📝 سجّل قراءة</button></div></div>
+<div class="card"><b>📋 جدول القراءات</b> (سجّل 3 قراءات على الأقل)
+<table><tr><th>المقاومة Ω</th><th>التيار mA</th><th>السطوع</th></tr><tbody id="rows"></tbody></table></div>
+<div style="text-align:center"><button class="btn g" id="n2" style="display:none" onclick="go(3)">الاستنتاج ➡️</button></div>
+</section>
+
+<section class="s" id="s3"><div class="card"><b>🧠 استنتج النتائج</b></div><div id="qs"></div>
+<div style="text-align:center"><button class="btn g" id="n3" style="display:none" onclick="go(4)">تقرير التوثيق ➡️</button></div></section>
+
+<section class="s" id="s4"><div class="card" id="s5">
+<h2 style="margin-top:0">📄 تقرير التوثيق</h2>
+الاسم: <input type="text" id="nm" placeholder="اكتب اسمك">
+<p><b>الهدف:</b> بناء دائرة كهربائية بسيطة ودراسة أثر المقاومة المتغيرة على إضاءة الصمام LED.</p>
+<p><b>القطع المستخدمة:</b> بطارية، مقاومة ثابتة 100Ω، مقاومة متغيرة 22kΩ، صمام LED.</p>
+<b>القراءات:</b><table id="rt"></table>
+<p><b>الاستنتاجات:</b></p><ul id="cl"></ul>
+<p class="noprint" style="text-align:center"><button class="btn" onclick="print()">🖨️ اطبع / احفظ PDF</button></p>
+</div></section>
+
+<script>
+const $=id=>document.getElementById(id);
+let AC;function snd(f,d=.15,t='sine',s=0){try{AC=AC||new(window.AudioContext||webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(.2,AC.currentTime+s);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+s+d);o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+s);o.stop(AC.currentTime+s+d)}catch(e){}}
+const ok=()=>{snd(523);snd(659,.15,'sine',.12);snd(784,.25,'sine',.24)},bad=()=>snd(150,.3,'sawtooth'),pop=()=>snd(700,.08,'square');
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ar';speechSynthesis.speak(u)}catch(e){}}
+const ICON={
+bat:'<line x1="0" y1="-28" x2="0" y2="-6"/><line x1="-18" y1="-6" x2="18" y2="-6" stroke-width="4"/><line x1="-10" y1="6" x2="10" y2="6" stroke-width="5"/><line x1="0" y1="6" x2="0" y2="28"/><text x="22" y="-8" fill="#e5484d" stroke="none" font-size="14">+</text><text x="14" y="20" fill="#2a7fc1" stroke="none" font-size="16">−</text>',
+fix:'<polyline fill="none" stroke="#e0449a" stroke-width="3" points="0,-28 0,-20 9,-15 -9,-5 9,5 -9,15 0,20 0,28"/>',
+var:'<polyline fill="none" stroke="#e0449a" stroke-width="3" points="0,-28 0,-20 9,-15 -9,-5 9,5 -9,15 0,20 0,28"/><line x1="-18" y1="20" x2="18" y2="-20" stroke="#111" stroke-width="2"/><polygon points="18,-20 8,-17 14,-10" fill="#111"/>',
+led:'<line x1="0" y1="-28" x2="0" y2="-12"/><polygon points="-12,-12 12,-12 0,10" fill="#2a7fc1" fill-opacity=".2"/><line x1="-12" y1="10" x2="12" y2="10" stroke-width="3"/><line x1="0" y1="10" x2="0" y2="28"/><g stroke="#e0449a"><line x1="14" y1="-2" x2="26" y2="-12"/><line x1="16" y1="6" x2="28" y2="-4"/></g><text x="-24" y="-14" fill="#e5484d" stroke="none" font-size="11">+</text>'};
+const P={
+bat:{n:'البطارية',t:'🔋 هي مصدر الطاقة الكهربائية. تدفع الشحنات الكهربائية لتتحرك في الدائرة. لها قطب موجب (+) وقطب سالب (−).',h:'مصدر الطاقة',x:50,y:150},
+fix:{n:'مقاومة ثابتة 100Ω',t:'〰️ قيمتها ثابتة لا تتغير: 100 أوم. تقلّل التيار وتحمي الصمام LED من التيار الزائد الذي قد يحرقه.',h:'تحمي الـLED',x:270,y:70},
+var:{n:'مقاومة متغيرة 22kΩ',t:'🎚️ نستطيع تغيير قيمتها بتحريك المزلاق (السهم) من صفر حتى 22 كيلو أوم، فنتحكم بمقدار التيار في الدائرة.',h:'تتحكم بالتيار',x:270,y:150},
+led:{n:'الصمام الثنائي LED',t:'💡 يضيء عند مرور تيار كهربائي فيه. يعمل في اتجاه واحد فقط: الطرف الموجب (+) يتصل بالقطب الموجب للبطارية.',h:'يُضيء',x:270,y:230}};
+const K=Object.keys(P);
+const sym=(k,x=0,y=0)=>`<g transform="translate(${x},${y})" fill="none" stroke="currentColor" stroke-width="2.5">${ICON[k]}</g>`;
+let stars=0,seen=new Set(),placed=new Set(),sel=null,reads=[],qd=0,maxS=0;
+function star(){stars++;$('stars').textContent='★'.repeat(stars)+'☆'.repeat(4-stars)}
+// nav
+const names=['القطع','التركيب','التجربة','الاستنتاج','التقرير'];
+$('nav').innerHTML=names.map((n,i)=>`<button onclick="go(${i})" id="nb${i}">${n}</button>`).join('');
+function go(i){if(i>maxS)return;document.querySelectorAll('.s').forEach((s,j)=>s.classList.toggle('on',j==i));names.forEach((_,j)=>{$('nb'+j).classList.toggle('on',j==i);$('nb'+j).disabled=j>maxS});if(i==4)report();scrollTo(0,0);pop()}
+function unlock(i){if(i>maxS){maxS=i;star()}go(i==maxS?maxS-1:0);}
+function open_(i){maxS=Math.max(maxS,i);names.forEach((_,j)=>$('nb'+j).disabled=j>maxS)}
+// s0
+$('cards').innerHTML=K.map(k=>`<button class="part" id="c${k}" onclick="learn('${k}')"><svg viewBox="-34 -34 68 68" style="color:var(--tx)">${sym(k)}</svg><div>${P[k].n}</div></button>`).join('');
+function learn(k){pop();say(P[k].t);const c=$('c'+k);c.classList.add('done','pop');setTimeout(()=>c.classList.remove('pop'),500);seen.add(k);$('cnt').textContent=seen.size;const i=$('info');i.style.display='block';i.innerHTML=`<b>${P[k].n}</b><br>${P[k].t}<br><button class="btn" onclick="say(P['${k}'].t)">🔊 اسمعني</button>`;i.classList.remove('bob');void i.offsetWidth;i.classList.add('bob');if(seen.size==4){$('n0').style.display='inline-block';if(maxS<1){star();open_(1);ok()}}}
+// s1
+function board(el,all){let h=`<rect x="50" y="30" width="220" height="240" rx="8" fill="none" stroke="var(--wire)" stroke-width="4"/>`;
+K.forEach(k=>{const p=P[k],on=all||placed.has(k),L=k=='bat';
+if(on)h+=`<rect x="${p.x-24}" y="${p.y-32}" width="48" height="64" fill="var(--card)"/>${sym(k,p.x,p.y)}`;
+else h+=`<rect id="sl${k}" x="${p.x-22}" y="${p.y-30}" width="44" height="60" rx="8" fill="var(--sl)" stroke="var(--pr)" stroke-dasharray="5" style="cursor:pointer" onclick="drop('${k}')"/><text x="${p.x}" y="${p.y+4}" text-anchor="middle" fill="var(--pr)" font-size="22" pointer-events="none">؟</text>`;
+h+=`<text x="${L?p.x+30:p.x-30}" y="${p.y+4}" text-anchor="${L?'start':'end'}" font-size="11" fill="var(--mut)">${p.h}</text>`});
+el.innerHTML=h+(all?el.dataset.extra||'':'')}
+$('tray').innerHTML=K.map(k=>`<button class="part" id="t${k}" onclick="pick('${k}')"><svg viewBox="-34 -34 68 68" style="color:var(--tx)">${sym(k)}</svg><div style="font-size:13px">${P[k].n}</div></button>`).join('');
+function pick(k){if(placed.has(k))return;sel=k;pop();K.forEach(j=>$('t'+j).classList.toggle('sel',j==k));$('msg').textContent='ضعها في المكان المناسب 👆'}
+function drop(k){if(!sel){$('msg').textContent='اختر قطعة أولاً 😉';return}
+if(sel==k){placed.add(k);ok();$('t'+k).style.opacity=.3;$('t'+k).classList.remove('sel');sel=null;board($('bsvg'));$('msg').style.color='var(--ok)';$('msg').textContent='👏 ممتاز! مكانها صحيح';
+if(placed.size==4){$('msg').textContent='🎉 اكتملت الدائرة! الكهرباء تسري…';$('n1').style.display='inline-block';[600,800,1000].forEach((f,i)=>snd(f,.2,'triangle',i*.15));open_(2);star()}}
+else{bad();$('msg').style.color='var(--bad)';$('msg').textContent='❌ ليس هنا! فكّر بوظيفة القطعة (اقرأ الكلمة بجانب المكان)';const s=$('sl'+k);s.classList.add('shake');setTimeout(()=>s.classList.remove('shake'),400)}}
+board($('bsvg'));
+// s2
+let fixed=true,R=11000,burn=false,ph=0;
+function calc(){const rt=(fixed?100:0)+R;const I=rt<62?1:2.5/rt;return{I,mA:I*1000,b:Math.min(1,I/.025)}}
+function buildExp(){board($('esvg'),true);const e=$('esvg');e.insertAdjacentHTML('beforeend','<g id="dots"></g><circle id="glow" cx="270" cy="230" r="34" fill="#ffd400" opacity="0"/><text id="boom" x="270" y="215" text-anchor="middle" font-size="40"></text>')}
+function upd(){R=+$('rng').value;fixed=$('fx').checked;const c=calc();burn=!fixed&&R<62.5;$('rv').textContent=R;
+$('iv').textContent=burn?'⚠️ كبير جداً':c.mA.toFixed(2);const lv=c.b>.7?'ساطع جداً 🌟':c.b>.25?'متوسط 🙂':c.b>.04?'خافت 🔅':'خافت جداً 🌑';$('bv').textContent=burn?'احترق!':lv;
+const g=$('glow');g.setAttribute('opacity',burn?0:Math.max(.05,Math.sqrt(c.b))*.9);g.setAttribute('r',20+c.b*20);
+$('boom').textContent=burn?'💥':'';if(burn&&!upd.b){bad();snd(90,.5,'sawtooth',.1)}upd.b=burn}
+$('rng').oninput=upd;$('fx').onchange=upd;
+function path(t){t=((t%920)+920)%920;if(t<220)return[50+t,30];t-=220;if(t<240)return[270,30+t];t-=240;if(t<220)return[270-t,270];t-=220;return[50,270-t]}
+function anim(){const d=$('dots');if(d&&$('s2').classList.contains('on')){const c=burn?0:calc().b;ph+=c*4+.3*(c>0);let h='';for(let i=0;i<16;i++){const[x,y]=path(ph+i*57.5);h+=`<circle cx="${x}" cy="${y}" r="4" fill="#ffb300" opacity="${burn?0:.4+c*.6}"/>`}d.innerHTML=h}requestAnimationFrame(anim)}
+buildExp();upd();anim();
+function rec(){const c=calc();if(burn){bad();return}pop();reads.push({R,I:c.mA.toFixed(2),b:$('bv').textContent});reads.sort((a,b)=>a.R-b.R);$('rows').innerHTML=reads.map(r=>`<tr><td>${r.R}</td><td>${r.I}</td><td>${r.b}</td></tr>`).join('');if(reads.length>=3&&maxS<3){ok();star();open_(3);$('n2').style.display='inline-block'}}
+// s3
+const Q=[['ماذا يحدث لسطوع الـLED عند زيادة قيمة المقاومة المتغيرة؟',['يزداد','يقل','لا يتغير'],1,'كلما زادت المقاومة قلّ التيار فيقل سطوع الـLED.'],
+['ما فائدة المقاومة الثابتة 100Ω؟',['تحمي الصمام من التيار الزائد','تزيد الجهد','تخزّن الطاقة'],0,'المقاومة الثابتة تحمي الصمام LED من الاحتراق.'],
+['ماذا يحدث لو عكسنا اتجاه الـLED؟',['يضيء أقوى','لا يضيء لأنه يعمل باتجاه واحد','ينفجر'],1,'الـLED يعمل باتجاه واحد فقط (الموجب مع الموجب).']];
+const got=[];
+$('qs').innerHTML=Q.map((q,i)=>`<div class="card q"><b>${i+1}) ${q[0]}</b>${q[1].map((o,j)=>`<button onclick="ans(${i},${j},this)">${o}</button>`).join('')}</div>`).join('');
+function ans(i,j,b){if(got[i])return;if(j==Q[i][2]){got[i]=1;b.classList.add('r');ok();qd++;if(qd==3){$('n3').style.display='inline-block';if(maxS<4){star();open_(4)}}}else{b.classList.add('w');bad()}}
+function report(){$('rt').innerHTML='<tr><th>المقاومة Ω</th><th>التيار mA</th><th>السطوع</th></tr>'+(reads.map(r=>`<tr><td>${r.R}</td><td>${r.I}</td><td>${r.b}</td></tr>`).join('')||'<tr><td colspan=3>لا توجد قراءات</td></tr>');$('cl').innerHTML=Q.map(q=>`<li>${q[3]}</li>`).join('')+'<li>العلاقة بين المقاومة والتيار علاقة عكسية.</li>'}
+open_(0);go(0);
+</script></body></html>
