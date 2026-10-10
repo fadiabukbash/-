@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>غرفة العمليات: إزالة حصى الكلى</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1f2e;--pn:#123246;--ink:#e9f3f1;--mut:#8fb3c0;--ac:#ffd36b;--ok:#5fd4a0;--bad:#ff7a7a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Cairo',Tahoma,Arial,sans-serif;line-height:1.7}
+.w{max-width:460px;margin:0 auto;padding:12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:17px;font-weight:900;margin:0}
+.mon{display:flex;align-items:center;gap:8px;background:#051019;border-radius:10px;padding:2px 10px;direction:ltr}
+.mon svg{width:90px;height:26px;overflow:hidden}
+.mon b{color:var(--ok);font-size:15px;min-width:36px}
+.mute{font-size:18px;background:#051019;border:0;border-radius:10px;padding:4px 9px;color:var(--ink);cursor:pointer}
+.prog{height:6px;background:#051019;border-radius:4px;margin:8px 0;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--ac);transition:width .5s}
+.sub{color:var(--mut);font-size:13px}
+#sc{width:100%;height:auto;display:block;background:radial-gradient(circle at 50% 35%,#1b4c66,#08141d 75%);border-radius:14px;touch-action:none;user-select:none}
+.pn{background:var(--pn);border-radius:14px;padding:12px 14px;margin-top:10px}
+.pn h2{margin:0;font-size:17px;font-weight:900;color:var(--ac)}
+.tool{font-size:13px;color:var(--mut)}
+#msg{min-height:24px;font-weight:700;color:var(--bad);font-size:14px}
+#msg.g{color:var(--ok)}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--ac)}
+.btn{font:inherit;font-weight:900;background:var(--ac);color:#201800;border:0;border-radius:10px;padding:10px 22px;margin-top:8px;cursor:pointer;font-size:16px}
+.info{background:#0b1f2e;border-radius:10px;padding:8px 12px;font-size:15px}
+.tg{fill:rgba(255,211,107,.12);stroke:#ffd36b;stroke-width:2;cursor:pointer;opacity:.45}
+.tg.now{opacity:1}.tg.ok{fill:rgba(95,212,160,.5);stroke:#5fd4a0;opacity:1;cursor:default}
+.lb{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:#000;stroke-width:3px}
+.an{fill:#b9d3de;font-size:11px;font-weight:700;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:#000;stroke-width:3px}
+.big{font-size:38px;font-weight:900;color:var(--ac);text-align:center;margin:0;letter-spacing:4px}
+.ctr{text-align:center}
+.cr{text-align:center;font-size:12px;color:var(--mut);margin-bottom:8px}.cr b{color:var(--ac)}
+.cf{text-align:center;margin:16px 0 8px;padding:12px;border-top:1px solid #2b5a72;font-size:14px}.cf b{color:var(--ac);display:block;font-size:16px}
+.foot{font-size:12px;color:var(--mut);text-align:center;margin:10px 0}
+#learn{margin-top:14px}
+#learn h3{font-size:18px;margin:0 0 8px;color:var(--ac)}
+details{background:var(--pn);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+summary{font-weight:900;cursor:pointer;font-size:16px}
+details ul{margin:6px 0 0;padding-right:20px}
+details li{margin-bottom:4px}
+@media (prefers-reduced-motion:no-preference){
+.now{animation:p 1s infinite}@keyframes p{50%{stroke-width:5}}
+.ecg{animation:e .85s linear infinite}@keyframes e{to{transform:translateX(-30px)}}}
+</style>
+</head>
+<body>
+<div class="w">
+ <div class="cr">تصميم الأستاذ <b>فادي أبو الكباش</b> | عسقلان EduTech</div>
+ <div class="top">
+  <h1>غرفة العمليات: حصى الكلى</h1>
+  <div class="mon" aria-label="شاشة المراقبة"><svg viewBox="0 0 90 26"><path class="ecg" fill="none" stroke="#5fd4a0" stroke-width="2" d="M0 13H8L11 4L15 22L18 13H30H38L41 4L45 22L48 13H60H68L71 4L75 22L78 13H90H98L101 4L105 22L108 13H120"/></svg><b>72</b></div>
+  <button class="mute" id="mu" aria-label="كتم الصوت">🔊</button>
+ </div>
+ <div class="prog"><i id="bar"></i></div>
+ <div class="sub" id="cnt"></div>
+
+ <svg id="sc" viewBox="0 0 360 430" role="img" aria-label="الجهاز البولي: الكلية والحالب والمثانة">
+  <path d="M85 30H275Q300 30 300 60V400Q300 425 275 425H85Q60 425 60 400V60Q60 30 85 30Z" fill="rgba(232,185,160,.12)" stroke="rgba(232,185,160,.35)" stroke-width="2"/>
+  <path d="M105 70C75 85 70 135 98 165C115 182 145 178 150 155C152 140 135 135 135 120C135 105 150 100 145 85C138 65 120 62 105 70Z" fill="#7d302d"/>
+  <path d="M255 70C285 85 290 135 262 165C245 182 215 178 210 155C208 140 225 135 225 120C225 105 210 100 215 85C222 65 240 62 255 70Z" fill="#b2433f"/>
+  <path d="M185 268L205 215L220 170L228 140" stroke="#e6a0a0" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M180 345V420" stroke="#e6a0a0" stroke-width="10" fill="none"/>
+  <circle cx="180" cy="305" r="40" fill="#e8a29a" stroke="#c4746c" stroke-width="3"/>
+  <text x="318" y="112" class="an">الكلية</text><text x="248" y="226" class="an">الحالب</text><text x="180" y="309" style="fill:#5a1e1a;font-size:12px;font-weight:900;text-anchor:middle">المثانة</text><text x="228" y="392" class="an">مجرى البول</text>
+  <g id="stone" opacity=".15"><polygon points="-12,-6 -4,-14 8,-12 14,-2 10,10 -4,14 -13,6" fill="#e8dcb0" stroke="#8a7a40" stroke-width="2" transform="translate(244 125)"/></g>
+  <g id="frag"></g>
+  <g id="perm"></g>
+  <g id="over"></g>
+ </svg>
+
+ <div class="pn">
+  <h2 id="T"></h2>
+  <div class="tool" id="tool"></div>
+  <div id="ins"></div>
+  <div id="msg" role="status"></div>
+  <div id="qz"></div>
+ </div>
+
+ <section id="learn" hidden>
+  <h3>بعد العملية: ثقافة صحية</h3>
+  <details open><summary>ما هي حصى الكلى؟</summary><ul>
+   <li>بلورات صلبة تتكون من أملاح ومعادن موجودة في البول، فتتجمع وتكبر ببطء.</li>
+   <li>قد تكون بحجم حبة رمل أو بحجم كرة صغيرة.</li>
+   <li>تتكون بسبب قلة شرب الماء، أو الإكثار من الملح، أو الوراثة، أو بعض الأمراض.</li>
+  </ul></details>
+  <details><summary>كيف نعرف أنها موجودة؟</summary><ul>
+   <li>ألم شديد في الجنب والظهر يأتي على شكل موجات.</li>
+   <li>غثيان أو قيء، وحرقة عند التبوّل، وأحيانًا دم في البول.</li>
+   <li>يؤكد الطبيب التشخيص بالموجات فوق الصوتية أو الأشعة.</li>
+  </ul></details>
+  <details><summary>ما طرق العلاج؟</summary><ul>
+   <li><b>الصغيرة:</b> شرب الماء وأدوية للألم، وكثير منها يخرج وحده.</li>
+   <li><b>التفتيت بالموجات الصدمية:</b> جهاز خارج الجسم يرسل موجات تكسر الحصاة دون أي جرح.</li>
+   <li><b>المنظار والليزر:</b> كما في اللعبة، وتناسب كثيرًا من الحالات.</li>
+   <li><b>جراحة صغيرة عبر الجلد:</b> للحصى الكبيرة جدًا، بفتحة صغيرة في الظهر.</li>
+  </ul></details>
+  <details><summary>ما التكنولوجيا المستخدمة؟</summary><ul>
+   <li>الموجات فوق الصوتية والأشعة لرؤية داخل الجسم.</li>
+   <li>الألياف الضوئية والكاميرات الصغيرة في المنظار.</li>
+   <li>الليزر الطبي لتكسير الحصاة بدقة.</li>
+   <li>الموجات الصدمية والشاشات التي تتابع العملية.</li>
+  </ul></details>
+  <details><summary>ما المخاطر؟</summary><ul>
+   <li>ألم وحرقة وقليل من الدم في البول أيامًا بعد العملية.</li>
+   <li>التهاب بسيط قد يحتاج إلى دواء.</li>
+   <li>بقاء قطع صغيرة تخرج لاحقًا مع البول.</li>
+   <li>نادرًا: إصابة في الحالب، أو مخاطر من التخدير.</li>
+   <li>قد تعود الحصى إذا لم يغيّر الشخص عاداته.</li>
+  </ul></details>
+  <details><summary>كيف نحمي كلانا؟</summary><ul>
+   <li>نشرب ماءً كافيًا في اليوم حتى يكون لون البول فاتحًا.</li>
+   <li>نقلل الملح والمشروبات الغازية.</li>
+   <li>لا نؤجل زيارة الطبيب عند الألم الشديد في الجنب.</li>
+  </ul></details>
+  <p class="foot">معلومات عامة للثقافة وليست نصيحة طبية. للاستشارة راجع الطبيب.</p>
+ </section>
+ <div class="cf">تصميم الأستاذ <b>فادي أبو الكباش</b>عسقلان EduTech</div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s);
+const svg=$('#sc'),over=$('#over'),msg=$('#msg'),qz=$('#qz');
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||over).appendChild(e);return e};
+const pt=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+/* ---------- الصوت ---------- */
+let ac,mg,muted=false,hb=null,room=null,lastS=0;
+const A=()=>{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();mg.connect(ac.destination)}if(ac.state=='suspended')ac.resume()};
+function tone(f,d,t,v,w=0,f2){if(muted||!ac)return;const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+w;o.type=t;o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(mg);o.start(n);o.stop(n+d+.05)}
+function noise(d,f,v){if(muted||!ac)return;const b=ac.createBuffer(1,ac.sampleRate*d,ac.sampleRate),x=b.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;const s=ac.createBufferSource(),fi=ac.createBiquadFilter(),g=ac.createGain();fi.type='bandpass';fi.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);s.buffer=b;s.connect(fi);fi.connect(g);g.connect(mg);s.start()}
+const sfx={tap:()=>tone(660,.1,'triangle',.18),bad:()=>tone(150,.3,'sawtooth',.12,0,90),win:()=>{tone(660,.15,'triangle',.15);tone(880,.25,'triangle',.15,.13)},
+ laser:()=>{tone(2200,.18,'sawtooth',.1,0,700);noise(.2,3000,.2)},pop:()=>{tone(500,.1,'sine',.2,0,200);noise(.06,1800,.1)}};
+function throttle(ms){const n=Date.now();if(n-lastS<ms)return false;lastS=n;return true}
+function beat(){tone(70,.16,'sine',.35);tone(55,.14,'sine',.3,.2);tone(1000,.07,'sine',.06)}
+function startAudio(){A();clearInterval(hb);clearInterval(room);beat();hb=setInterval(beat,850);room=setInterval(()=>noise(1.4,700,.035),4200)}
+$('#mu').onclick=()=>{muted=!muted;$('#mu').textContent=muted?'🔇':'🔊'};
+
+/* ---------- المسار ---------- */
+const P=[[180,418],[180,345],[181,300],[190,268],[205,215],[220,170],[228,140],[240,128]];
+const seg=Q=>{let t=0;for(let i=0;i<Q.length-1;i++)t+=Math.hypot(Q[i+1][0]-Q[i][0],Q[i+1][1]-Q[i][1]);return t};
+function near(Q,p){let b={d:1e9,l:0},acc=0;for(let i=0;i<Q.length-1;i++){const a=Q[i],c=Q[i+1],dx=c[0]-a[0],dy=c[1]-a[1],L=Math.hypot(dx,dy);let t=((p.x-a[0])*dx+(p.y-a[1])*dy)/(L*L);t=Math.max(0,Math.min(1,t));const d=Math.hypot(p.x-a[0]-t*dx,p.y-a[1]-t*dy);if(d<b.d)b={d,l:acc+t*L};acc+=L}return b}
+function upto(Q,l){const o=[Q[0]];let acc=0;for(let i=0;i<Q.length-1;i++){const a=Q[i],c=Q[i+1],L=Math.hypot(c[0]-a[0],c[1]-a[1]);if(acc+L<=l){o.push(c);acc+=L}else{const t=(l-acc)/L;o.push([a[0]+t*(c[0]-a[0]),a[1]+t*(c[1]-a[1])]);break}}return o}
+const str=Q=>Q.map(q=>q[0]+','+q[1]).join(' ');
+const ST={x:244,y:125},FR=[{x:232,y:118},{x:256,y:116},{x:238,y:138},{x:255,y:137}];
+
+const D=[
+{t:'١. أين الحصاة؟',tool:'الأداة: جهاز الموجات فوق الصوتية',k:'drag',prox:1,ins:'حرّك الجهاز على الجسم. كلما اقتربت من الحصاة صار الصوت أحدّ، وتظهر الحصاة أوضح.',
+ s:{x:48,y:385},t:ST,mk:'#9ad7ff',lab:'الجهاز',
+ fx(){$('#stone').setAttribute('opacity',1)},
+ info:'جهاز الموجات فوق الصوتية يرسل موجات لا نسمعها، وهي ترتد عن الأعضاء فتظهر صورة على الشاشة. هكذا يعرف الطبيب مكان الحصاة دون فتح الجسم.'},
+{t:'٢. إدخال المنظار',tool:'الأداة: منظار رفيع بكاميرا وضوء',k:'path',pts:P,ins:'اسحب المنظار من فتحة مجرى البول في الأسفل، وتابع داخل الأنبوب صعودًا حتى الكلية. ابقَ على الأنبوب.',
+ fx(){el('polyline',{id:'scp',points:str(P),fill:'none',stroke:'#c9d6df','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round'},$('#perm'))},
+ info:'المنظار أنبوب رفيع ومرن في رأسه كاميرا صغيرة وضوء. يدخل من الطريق الطبيعي للبول ويصل إلى الكلية، فلا حاجة إلى شق في الجسم.'},
+{t:'٣. تكسير الحصاة بالليزر',tool:'الأداة: ليزر طبي',k:'hit',n:6,ins:'المس الحصاة عدة مرات لتطلق عليها الليزر حتى تتكسر.',
+ fx(){$('#stone').setAttribute('opacity',0);FR.forEach(f=>el('circle',{cx:f.x,cy:f.y,r:6,fill:'#e8dcb0',stroke:'#8a7a40','stroke-width':2},$('#frag')))},
+ info:'الليزر ضوء قوي جدًا يُوجَّه عبر ليف زجاجي رفيع داخل المنظار، فيكسر الحصاة إلى قطع صغيرة دون أن يؤذي الكلية.'},
+{t:'٤. التقاط القطع',tool:'الأداة: سلة معدنية دقيقة',k:'taps',ins:'المس كل قطعة لالتقاطها بالسلة.',
+ p:FR.map(f=>({x:f.x,y:f.y,l:'',r:11})),tp:k=>{$('#frag').children[k].setAttribute('opacity',0);sfx.pop()},
+ fx(){$('#frag').innerHTML=''},
+ info:'تُلتقط القطع بسلة معدنية صغيرة تشبه شبكة دقيقة وتُسحب إلى الخارج. وما يتبقى من الفتات يخرج لاحقًا مع البول.'},
+{t:'٥. وضع الدعامة',tool:'الأداة: دعامة بلاستيكية رفيعة',k:'drag',ins:'اسحب الدعامة إلى الحالب (الأنبوب بين الكلية والمثانة).',
+ s:{x:310,y:385},t:{x:205,y:215},mk:'#5fd4a0',lab:'الدعامة',
+ fx(){el('polyline',{points:'228,140 220,170 205,215 190,268',fill:'none',stroke:'#5fd4a0','stroke-width':3,'stroke-dasharray':'4 3'},$('#perm'))},
+ info:'الدعامة أنبوب رفيع يُترك مؤقتًا في الحالب ليبقيه مفتوحًا، فينزل البول بسهولة بعد العملية بينما يلتئم المكان.'},
+{t:'٦. سحب المنظار',tool:'الأداة: المنظار',k:'path',pts:[...P].reverse(),ins:'اسحب المنظار بهدوء من الكلية إلى الخارج، وابقَ على الأنبوب.',
+ fx(){const s=$('#scp');if(s)s.remove()},
+ info:'يسحب الجرّاح المنظار بهدوء. هذه العملية بلا جرح كبير، وغالبًا يخرج المريض من المستشفى خلال يوم أو يومين.'}
+];
+let S,mode=null,drag=null,pl=null,prog=0,tot=0,hits=0;
+
+function say(t,g){msg.textContent=t;msg.className=g?'g':''}
+function err(t){S.e++;S.E++;say(t);sfx.bad()}
+function intro(){S={i:0,E:0,e:0,tap:0};mode='x';over.innerHTML='';$('#perm').innerHTML='';$('#frag').innerHTML='';$('#stone').setAttribute('opacity',.15);$('#stone').removeAttribute('transform');$('#learn').hidden=true;
+ $('#T').textContent='أنت الجرّاح اليوم!';$('#tool').textContent='';$('#cnt').textContent='';$('#bar').style.width='0';
+ $('#ins').hidden=false;$('#ins').textContent='ستزيل حصاة من الكلية دون أي شق في الجسم، بمساعدة التكنولوجيا. شغّل الصوت لتسمع غرفة العمليات.';say('');
+ qz.innerHTML='<button class="btn" id="go">ابدأ العملية</button>';$('#go').onclick=()=>{startAudio();load()}}
+function load(){
+ const d=D[S.i];S.e=0;S.tap=0;hits=0;mode=d.k;over.innerHTML='';qz.innerHTML='';
+ $('#T').textContent=d.t;$('#tool').textContent=d.tool;$('#ins').textContent=d.ins;$('#ins').hidden=false;say('');
+ $('#bar').style.width=(S.i/D.length*100)+'%';$('#cnt').textContent=`المرحلة ${S.i+1} من ${D.length}`;
+ if(d.k=='taps'){const cs=d.p.map((p,k)=>{const g=el('g',{});const c=el('circle',{cx:p.x,cy:p.y,r:p.r||17,class:'tg'+(k?'':' now')},g);
+  c.onpointerdown=()=>{if(k!=S.tap)return err('المس القطعة المضيئة أولًا.');
+   sfx.tap();if(d.tp)d.tp(k);c.setAttribute('class','tg ok');S.tap++;if(S.tap==d.p.length)done();else cs[S.tap].setAttribute('class','tg now')};return c})}
+ if(d.k=='path'){const Q=d.pts;tot=seg(Q);prog=0;el('polyline',{points:str(Q),fill:'none',stroke:'#ffd36b','stroke-dasharray':'5 6','stroke-width':2,opacity:.8});
+  el('circle',{cx:Q[0][0],cy:Q[0][1],r:13,class:'tg now'});pl=el('polyline',{fill:'none',stroke:'#fff','stroke-width':4,'stroke-linecap':'round','stroke-linejoin':'round'})}
+ if(d.k=='hit'){const c=el('circle',{cx:ST.x,cy:ST.y,r:24,class:'tg now'});c.onpointerdown=()=>{hits++;sfx.laser();
+   const b=el('line',{x1:228,y1:140,x2:ST.x,y2:ST.y,stroke:'#ff4d4d','stroke-width':3,'stroke-linecap':'round'});setTimeout(()=>b.remove(),140);
+   const s=1-hits/d.n*.45;$('#stone').setAttribute('transform',`translate(${ST.x} ${ST.y}) scale(${s}) translate(${-ST.x} ${-ST.y})`);
+   if(hits>=d.n)done()}}
+ if(d.k=='drag'){el('circle',{cx:d.t.x,cy:d.t.y,r:d.prox?20:16,class:'tg '+(d.prox?'':'now'),style:d.prox?'opacity:0;pointer-events:none':''});
+  drag={};const g=el('g',{style:'cursor:grab'});el('circle',{cx:d.s.x,cy:d.s.y,r:13,fill:d.mk,stroke:'#fff','stroke-width':2},g);
+  el('text',{x:d.s.x,y:d.s.y-19,class:'lb'},g).textContent=d.lab;drag.m=g.firstChild;drag.tx=g.lastChild;drag.on=false}
+}
+svg.addEventListener('pointerdown',e=>{const d=D[S.i],p=pt(e);
+ if(mode=='path'){const Q=d.pts;if(dist(p,{x:Q[0][0],y:Q[0][1]})<32){svg.setPointerCapture(e.pointerId);prog=0;mode='pathing'}}
+ else if(mode=='drag'&&e.target===drag.m){svg.setPointerCapture(e.pointerId);drag.on=true}});
+svg.addEventListener('pointermove',e=>{const d=D[S.i],p=pt(e);
+ if(mode=='pathing'){const n=near(d.pts,p);if(n.d>26){err('خرجت عن الأنبوب! ابدأ من جديد.');pl.setAttribute('points','');mode='path';return}
+  if(n.l>prog&&n.l<prog+60){prog=n.l;pl.setAttribute('points',str(upto(d.pts,prog)));if(throttle(80))tone(240+prog,.06,'sine',.05);if(prog>=tot-10){mode='x';done()}}}
+ if(mode=='drag'&&drag.on){drag.m.setAttribute('cx',p.x);drag.m.setAttribute('cy',p.y);drag.tx.setAttribute('x',p.x);drag.tx.setAttribute('y',p.y-19);
+  if(d.prox){const q=dist(p,d.t);$('#stone').setAttribute('opacity',.15+.85*Math.max(0,1-q/170));if(throttle(130))tone(250+Math.max(0,1-q/280)*1200,.07,'sine',.12);if(q<20){drag.on=false;mode='x';done()}}}});
+svg.addEventListener('pointerup',e=>{const d=D[S.i];
+ if(mode=='pathing'){err('توقفت قبل الوصول، ابدأ من جديد.');pl.setAttribute('points','');mode='path'}
+ if(mode=='drag'&&drag.on){drag.on=false;if(!d.prox&&dist(pt(e),d.t)<22){mode='x';done()}else{err(d.prox?'اقترب أكثر: الصوت الحاد يعني أنك قريب.':'ليس هنا، حاول مرة أخرى.');
+  if(!d.prox){drag.m.setAttribute('cx',d.s.x);drag.m.setAttribute('cy',d.s.y);drag.tx.setAttribute('x',d.s.x);drag.tx.setAttribute('y',d.s.y-19)}}}});
+
+function done(){const d=D[S.i];mode='x';if(d.fx)d.fx();over.innerHTML='';sfx.win();say('أحسنت!',1);$('#ins').hidden=true;
+ const last=S.i==D.length-1;
+ qz.innerHTML=`<div class="info">${d.info}</div><button class="btn" id="nx">${last?'إنهاء العملية':'التالي'}</button>`;
+ $('#nx').onclick=()=>{S.i++;S.i==D.length?finish():load()}}
+function finish(){$('#bar').style.width='100%';$('#cnt').textContent='اكتملت العملية';
+ const n=S.E<=3?3:S.E<=8?2:1,r=['تحتاج إلى تدريب أكثر','جرّاح واعد','جرّاح ماهر'][n-1];
+ $('#T').textContent='نجحت العملية!';$('#tool').textContent='';$('#ins').hidden=false;
+ $('#ins').innerHTML=`<p class="big" aria-label="${n} نجوم">${'★'.repeat(n)}${'☆'.repeat(3-n)}</p><p class="ctr" style="margin:0;font-weight:900">${r}</p><p class="ctr" style="color:var(--mut);margin:4px 0 0">عدد الأخطاء: ${S.E}</p>`;
+ say('');qz.innerHTML='<div class="ctr"><button class="btn" id="re">أعد العملية</button></div>';$('#re').onclick=intro;
+ $('#learn').hidden=false;$('#learn').scrollIntoView({behavior:'smooth'})}
+intro();
+</script>
+</body>
+</html>

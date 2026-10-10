@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>غرفة العمليات: جراحة القلب المفتوح</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c2527;--pn:#12383b;--ink:#e9f3f1;--mut:#8fb3b0;--ac:#ffd36b;--ok:#5fd4a0;--bad:#ff7a7a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Cairo',Tahoma,Arial,sans-serif;line-height:1.7}
+.w{max-width:460px;margin:0 auto;padding:12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:17px;font-weight:900;margin:0}
+.mon{display:flex;align-items:center;gap:8px;background:#06171a;border-radius:10px;padding:2px 10px;direction:ltr}
+.mon svg{width:90px;height:26px;overflow:hidden}
+.mon b{color:var(--ok);font-size:15px;min-width:36px}
+.mute{font-size:18px;background:#06171a;border:0;border-radius:10px;padding:4px 9px;color:var(--ink);cursor:pointer}
+.prog{height:6px;background:#06171a;border-radius:4px;margin:8px 0;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--ac);transition:width .5s}
+.sub{color:var(--mut);font-size:13px}
+#sc{width:100%;height:auto;display:block;background:radial-gradient(circle at 50% 35%,#1d5a5e,#0a1f21 75%);border-radius:14px;touch-action:none;user-select:none}
+.pn{background:var(--pn);border-radius:14px;padding:12px 14px;margin-top:10px}
+.pn h2{margin:0;font-size:17px;font-weight:900;color:var(--ac)}
+.tool{font-size:13px;color:var(--mut)}
+#msg{min-height:24px;font-weight:700;color:var(--bad);font-size:14px}
+#msg.g{color:var(--ok)}
+input[type=range]{width:100%;accent-color:var(--ac);height:34px}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--ac)}
+.btn{font:inherit;font-weight:900;background:var(--ac);color:#201800;border:0;border-radius:10px;padding:10px 22px;margin-top:8px;cursor:pointer;font-size:16px}
+.info{background:#0c2527;border-radius:10px;padding:8px 12px;font-size:15px}
+.tg{fill:rgba(255,211,107,.12);stroke:#ffd36b;stroke-width:2;cursor:pointer;opacity:.45}
+.tg.now{opacity:1}.tg.ok{fill:rgba(95,212,160,.5);stroke:#5fd4a0;opacity:1;cursor:default}
+.lb{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:#000;stroke-width:3px}
+.big{font-size:38px;font-weight:900;color:var(--ac);text-align:center;margin:0;letter-spacing:4px}
+.ctr{text-align:center}
+.cr{text-align:center;font-size:12px;color:var(--mut);margin-bottom:8px}.cr b{color:var(--ac)}
+.cf{text-align:center;margin:16px 0 8px;padding:12px;border-top:1px solid #2b6266;font-size:14px}.cf b{color:var(--ac);display:block;font-size:16px}
+.foot{font-size:12px;color:var(--mut);text-align:center;margin:10px 0}
+#learn{margin-top:14px}
+#learn h3{font-size:18px;margin:0 0 8px;color:var(--ac)}
+details{background:var(--pn);border-radius:12px;padding:10px 14px;margin-bottom:8px}
+summary{font-weight:900;cursor:pointer;font-size:16px}
+details ul{margin:6px 0 0;padding-right:20px}
+details li{margin-bottom:4px}
+@media (prefers-reduced-motion:no-preference){
+.now{animation:p 1s infinite}@keyframes p{50%{stroke-width:5}}
+.beat{animation:b .85s infinite ease-in-out;transform-box:fill-box;transform-origin:center}@keyframes b{50%{transform:scale(1.05)}}
+.ecg{animation:e .85s linear infinite}@keyframes e{to{transform:translateX(-30px)}}
+.hv{transition:transform .9s ease}}
+.stop{filter:saturate(.35) brightness(.85)}
+</style>
+</head>
+<body>
+<div class="w">
+ <div class="cr">تصميم الأستاذ <b>فادي أبو الكباش</b> | عسقلان EduTech</div>
+ <div class="top">
+  <h1>غرفة العمليات</h1>
+  <div class="mon" aria-label="شاشة المراقبة"><svg viewBox="0 0 90 26"><path id="eg" class="ecg" fill="none" stroke="#5fd4a0" stroke-width="2" d="M0 13H8L11 4L15 22L18 13H30H38L41 4L45 22L48 13H60H68L71 4L75 22L78 13H90H98L101 4L105 22L108 13H120"/><path id="ef" d="M0 13H90" stroke="#ff7a7a" stroke-width="2" display="none"/></svg><b id="bpm">72</b></div>
+  <button class="mute" id="mu" aria-label="كتم الصوت">🔊</button>
+ </div>
+ <div class="prog"><i id="bar"></i></div>
+ <div class="sub" id="cnt"></div>
+
+ <svg id="sc" viewBox="0 0 360 430" role="img" aria-label="مشهد العملية الجراحية">
+  <rect x="55" y="80" width="250" height="290" rx="40" fill="#3a1015"/>
+  <rect x="96" y="96" width="168" height="250" rx="20" fill="#4a1218"/>
+  <g id="heart" class="beat">
+   <path d="M180 290C120 250 110 200 130 180C150 160 175 170 180 190C185 170 210 160 230 180C250 200 240 250 180 290Z" fill="#c4414a"/>
+   <path d="M190 182C192 155 200 145 204 122" stroke="#d9666e" stroke-width="18" fill="none" stroke-linecap="round"/>
+   <path d="M186 176C192 215 192 250 182 282" stroke="#ffd36b" stroke-width="4" fill="none"/>
+   <rect x="183" y="208" width="14" height="9" rx="2" fill="#5a3a00"/>
+   <path d="M150 178C136 195 132 214 138 224C144 240 152 255 160 266" stroke="#ffd36b" stroke-width="4" fill="none"/>
+   <rect x="131" y="214" width="13" height="9" rx="2" fill="#5a3a00" transform="rotate(-20 137 218)"/>
+   <g id="perm"></g>
+  </g>
+  <g id="gl" class="hv"><path d="M180 92H105Q70 92 70 130V325Q70 362 105 362H180Z" fill="#e8b9a0"/><rect id="bl" x="164" y="98" width="16" height="258" fill="#efe6d2" stroke="#b3202a" stroke-width="2" opacity="0"/></g>
+  <g id="gr" class="hv"><path d="M180 92H255Q290 92 290 130V325Q290 362 255 362H180Z" fill="#e8b9a0"/><rect id="br" x="180" y="98" width="16" height="258" fill="#efe6d2" stroke="#b3202a" stroke-width="2" opacity="0"/></g>
+  <line id="cut" x1="180" y1="95" x2="180" y2="330" stroke="#7a1018" stroke-width="3" stroke-linecap="round" opacity="0"/>
+  <g id="over"></g>
+ </svg>
+
+ <div class="pn">
+  <h2 id="T"></h2>
+  <div class="tool" id="tool"></div>
+  <div id="ins"></div>
+  <input id="sl" type="range" min="0" max="100" value="0" hidden aria-label="فتحة الموسّع">
+  <div id="msg" role="status"></div>
+  <div id="qz"></div>
+ </div>
+
+ <section id="learn" hidden>
+  <h3>بعد العملية: ثقافة صحية</h3>
+  <details open><summary>لماذا تُجرى عمليات القلب المفتوح؟</summary><ul>
+   <li><b>انسداد الشرايين:</b> تتراكم الدهون داخل الشرايين التي تغذي القلب فيقل الدم الواصل إليه.</li>
+   <li><b>صمامات تالفة:</b> الصمام باب صغير ينظّم اتجاه الدم، وقد يضيق أو يتسرّب فيُصلَح أو يُستبدل.</li>
+   <li><b>عيوب خلقية:</b> يولد بعض الأطفال بثقب أو خلل في القلب يحتاج إصلاحًا.</li>
+   <li><b>أمراض الشريان الكبير (الأبهر) أو القلب المتعب جدًا:</b> قد يلزم ترقيع أو زراعة قلب.</li>
+  </ul></details>
+  <details><summary>ما التكنولوجيا التي تساعد الجرّاح؟</summary><ul>
+   <li>جهاز القلب والرئة الصناعي الذي يضخ الدم ويزوّده بالأكسجين.</li>
+   <li>شاشات المراقبة التي تتابع النبض والضغط والأكسجين لحظة بلحظة.</li>
+   <li>أجهزة التخدير التي تُبقي المريض نائمًا ولا يشعر بألم.</li>
+   <li>أدوات دقيقة كالمنشار الطبي والمشرط الكهربائي، وكاميرات ومناظير صغيرة.</li>
+   <li>الروبوت الجراحي والقسطرة في بعض الحالات، فيقل حجم الجرح ويقصر التعافي.</li>
+  </ul></details>
+  <details><summary>ما مخاطر هذه العمليات؟</summary><ul>
+   <li>نزيف يحتاج أحيانًا إلى نقل دم.</li>
+   <li>التهاب في الجرح أو العظمة.</li>
+   <li>جلطات قد تسبب سكتة دماغية، واضطراب في نبض القلب.</li>
+   <li>مشكلات في الكلى أو الرئتين، وأخطار مرتبطة بالتخدير.</li>
+   <li>ألم في الصدر وتعب وبطء في التعافي، وقد يتأثر المزاج وقتًا.</li>
+   <li>تزداد الأخطار مع تقدم العمر ووجود أمراض أخرى، ولذلك يقرّر الطبيب العملية فقط عند الحاجة الحقيقية.</li>
+  </ul></details>
+  <details><summary>كيف يتعافى المريض؟</summary><ul>
+   <li>يقضي أيامًا في المستشفى، وأول يوم أو يومين في العناية المركزة.</li>
+   <li>تلتئم عظمة الصدر في نحو شهرين، ويمنع الطبيب حمل الأشياء الثقيلة.</li>
+   <li>يعود المريض لنشاطه تدريجيًا بتمارين خفيفة وبرنامج تأهيل قلبي.</li>
+  </ul></details>
+  <details><summary>كيف نحمي قلوبنا؟</summary><ul>
+   <li>غذاء متوازن وقليل الدهون المشبعة والملح.</li>
+   <li>حركة ورياضة يوميًا.</li>
+   <li>الابتعاد عن التدخين.</li>
+   <li>فحص دوري، وعدم تجاهل ألم الصدر وضيق التنفس.</li>
+  </ul></details>
+  <p class="foot">معلومات عامة للثقافة وليست نصيحة طبية. للاستشارة راجع الطبيب.</p>
+ </section>
+ <div class="cf">تصميم الأستاذ <b>فادي أبو الكباش</b>عسقلان EduTech</div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s);
+const svg=$('#sc'),over=$('#over'),sl=$('#sl'),msg=$('#msg'),qz=$('#qz');
+const el=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||over).appendChild(e);return e};
+const pt=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+/* ---------- الصوت ---------- */
+let ac,mg,muted=false,hb=null,pump=null,fl=null,room=null,lastS=0;
+const A=()=>{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();mg=ac.createGain();mg.connect(ac.destination)}if(ac.state=='suspended')ac.resume()};
+function tone(f,d,t,v,w=0,f2){if(muted||!ac)return;const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+w;o.type=t;o.frequency.setValueAtTime(f,n);if(f2)o.frequency.exponentialRampToValueAtTime(f2,n+d);g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(v,n+.01);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(mg);o.start(n);o.stop(n+d+.05)}
+function noise(d,f,v){if(muted||!ac)return;const b=ac.createBuffer(1,ac.sampleRate*d,ac.sampleRate),x=b.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;const s=ac.createBufferSource(),fi=ac.createBiquadFilter(),g=ac.createGain();fi.type='bandpass';fi.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);s.buffer=b;s.connect(fi);fi.connect(g);g.connect(mg);s.start()}
+const sfx={tap:()=>tone(660,.1,'triangle',.18),bad:()=>tone(150,.3,'sawtooth',.12,0,90),win:()=>{tone(660,.15,'triangle',.15);tone(880,.25,'triangle',.15,.13)},
+ tick:()=>tone(300,.03,'square',.05),shock:()=>{noise(.35,3500,.35);tone(1800,.3,'sawtooth',.12,0,200)}};
+function scrape(k){const n=Date.now();if(n-lastS<70)return;lastS=n;if(k=='saw'){noise(.09,2200,.12);tone(130,.09,'sawtooth',.06)}else noise(.07,5000,.06)}
+function beat(){tone(70,.16,'sine',.5);tone(55,.14,'sine',.4,.2);tone(1000,.07,'sine',.07)}
+function heartState(on){$('#heart').classList.toggle('beat',on);$('#heart').classList.toggle('stop',!on);$('#eg').setAttribute('display',on?'':'none');$('#ef').setAttribute('display',on?'none':'');$('#bpm').textContent=on?72:0;$('#bpm').style.color=on?'':'#ff7a7a';
+ clearInterval(hb);clearInterval(pump);if(fl){try{fl.o.stop()}catch(e){}fl=null}
+ if(on){if(ac){beat();hb=setInterval(beat,850)}}
+ else if(ac){fl=startFlat();pump=setInterval(()=>noise(.6,350,.07),1100)}}
+function startFlat(){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=1000;g.gain.value=muted?0:.045;o.connect(g);g.connect(mg);o.start();return{o,g}}
+function ambient(){clearInterval(room);room=setInterval(()=>noise(1.4,700,.035),4200)}
+$('#mu').onclick=()=>{muted=!muted;$('#mu').textContent=muted?'🔇':'🔊';if(fl)fl.g.gain.value=muted?0:.045};
+
+/* ---------- المراحل ---------- */
+const setOpen=v=>{const o=v*.7;$('#gl').style.transform=`translateX(${-o}px)`;$('#gr').style.transform=`translateX(${o}px)`;if(v>2)$('#cut').setAttribute('opacity',0)};
+const D=[
+{t:'١. تعقيم الجلد',tool:'الأداة: مطهّر',k:'taps',ins:'المس النقاط بالترتيب، من منتصف الصدر إلى الخارج.',
+ p:[{x:180,y:215,l:'١'},{x:120,y:150,l:'٢'},{x:240,y:150,l:'٣'},{x:180,y:320,l:'٤'}],
+ info:'نعقّم الجلد لقتل الجراثيم، حتى لا يلتهب الجرح بعد العملية.'},
+{t:'٢. شق الجلد',tool:'الأداة: مشرط',k:'trace',snd:'knife',ins:'اسحب إصبعك على الخط من النقطة المضيئة إلى الأسفل، وابقَ في المنتصف.',s:{x:180,y:95},e:{x:180,y:330},col:'#7a1018',w:3,
+ fx(){const c=$('#cut');c.setAttribute('opacity',1);c.setAttribute('stroke-width',3);$('#bl').setAttribute('opacity',1);$('#br').setAttribute('opacity',1)},
+ info:'يشق الجرّاح الجلد في منتصف الصدر. المشرط الكهربائي يغلق الأوعية الصغيرة فيقل النزيف.'},
+{t:'٣. قص عظمة الصدر',tool:'الأداة: منشار طبي',k:'trace',snd:'saw',ins:'اسحب المنشار ببطء على طول العظمة دون أن تنحرف.',s:{x:180,y:100},e:{x:180,y:325},col:'#2a0a0d',w:6,
+ fx(){const c=$('#cut');c.setAttribute('stroke','#2a0a0d');c.setAttribute('stroke-width',6)},
+ info:'منشار دقيق يقسم عظمة الصدر إلى نصفين. المريض نائم تمامًا بفضل التخدير ولا يشعر بشيء.'},
+{t:'٤. فتح الصدر',tool:'الأداة: موسّع الصدر',k:'slider',ins:'حرّك الشريط لفتح الصدر حتى يظهر القلب، ثم اتركه عند فتحة مناسبة (ليست قليلة ولا كبيرة).',
+ info:'جهاز يشبه الرافعة يباعد النصفين برفق ليظهر القلب. الفتح الزائد قد يؤذي الأضلاع.'},
+{t:'٥. تشغيل جهاز القلب والرئة',tool:'الأداة: أنابيب وجهاز القلب والرئة',k:'taps',ins:'ركّب الأنبوبين بالترتيب: أولًا الشريان الكبير، ثم الأذين.',
+ p:[{x:203,y:130,l:'الشريان الكبير'},{x:158,y:205,l:'الأذين'}],
+ fx(){heartState(false)},
+ info:'الجهاز الصناعي يعمل مكان قلب المريض: يضخ الدم ويزوّده بالأكسجين. فيتوقف القلب مؤقتًا ليعمل الجرّاح بهدوء. إنه من أعظم إنجازات التكنولوجيا الطبية.'},
+{t:'٦. صنع طريق جديد للدم',tool:'الأداة: وعاء دموي من جسم المريض',k:'drag',ins:'اسحب الوعاء من الشريان الكبير إلى نقطة بعد الجزء المسدود (المربع البنّي) في الشريان الأصفر.',
+ s:{x:204,y:122},t:{x:182,y:252},line:1,mk:'#5fd4a0',lab:'الوعاء',
+ fx(){el('path',{d:'M204 122C240 150 240 235 182 252',stroke:'#5fd4a0',fill:'none','stroke-width':5,'stroke-linecap':'round'},$('#perm'))},
+ info:'الشريان المسدود يشبه أنبوب ماء مسدودًا. يصنع الجرّاح طريقًا بديلًا يسمى «تحويلة» ليصل الدم إلى عضلة القلب.'},
+{t:'٧. وضع الدعامة',tool:'الأداة: دعامة شبكية',k:'drag',ins:'اسحب الدعامة إلى الجزء الضيق (المربع البنّي) في الشريان الأصفر على يسار القلب.',
+ s:{x:300,y:395},t:{x:137,y:219},mk:'#cfd8dc',lab:'الدعامة',
+ fx(){el('rect',{x:128,y:212,width:18,height:12,rx:3,fill:'none',stroke:'#cfd8dc','stroke-width':2,'stroke-dasharray':'2 2',transform:'rotate(-20 137 218)'},$('#perm'))},
+ info:'الدعامة شبكة معدنية صغيرة تُنفخ ببالون فتبقي الشريان مفتوحًا. غالبًا توضع بأنبوب رفيع عبر الأوعية بدون فتح الصدر.'},
+{t:'٨. إعادة تشغيل القلب',tool:'الأداة: جهاز الصدمات الكهربائية',k:'taps',ins:'المس القلب لإعطاء صدمة خفيفة تعيد النبض.',
+ p:[{x:180,y:235,l:'صدمة'}],
+ fx(){sfx.shock();setTimeout(()=>heartState(true),500);setOpen(0);sl.value=0},
+ info:'نوقف الجهاز تدريجيًا، وقد نعطي صدمة كهربائية خفيفة لينتظم النبض. شاشة المراقبة تتابعه كل لحظة.'},
+{t:'٩. إغلاق الصدر',tool:'الأداة: أسلاك فولاذية',k:'taps',ins:'ثبّت عظمة الصدر: المس المواضع من الأعلى إلى الأسفل.',
+ p:[{x:180,y:125,l:'١'},{x:180,y:195,l:'٢'},{x:180,y:265,l:'٣'},{x:180,y:325,l:'٤'}],
+ fx(){const c=$('#cut');c.setAttribute('opacity',1);c.setAttribute('stroke-width',3);c.setAttribute('stroke','#7a1018')},
+ info:'تُغلق عظمة الصدر بأسلاك فولاذية رفيعة تبقى داخل الجسم، ثم تُخاط الطبقات وينتقل المريض للعناية المركزة.'}
+];
+let S,mode=null,drag=null,pts=[],pl=null;
+
+function intro(){S={i:0,E:0,e:0,tap:0};mode='x';over.innerHTML='';$('#perm').innerHTML='';heartState(true);setOpen(0);sl.value=0;sl.hidden=true;$('#learn').hidden=true;
+ ['bl','br','cut'].forEach(i=>$('#'+i).setAttribute('opacity',0));$('#cut').setAttribute('stroke','#7a1018');
+ $('#T').textContent='أنت الجرّاح اليوم!';$('#tool').textContent='';$('#cnt').textContent='';$('#bar').style.width='0';
+ $('#ins').hidden=false;$('#ins').textContent='ستجري عملية قلب مفتوح خطوة بخطوة، وتتعرف على التكنولوجيا التي تساعدك. شغّل الصوت لتسمع غرفة العمليات.';say('');
+ qz.innerHTML='<button class="btn" id="go">ابدأ العملية</button>';$('#go').onclick=()=>{A();ambient();heartState(true);load()}}
+function say(t,g){msg.textContent=t;msg.className=g?'g':''}
+function err(t){S.e++;S.E++;say(t);sfx.bad()}
+function load(){
+ const d=D[S.i];S.e=0;S.tap=0;mode=d.k;over.innerHTML='';qz.innerHTML='';
+ $('#T').textContent=d.t;$('#tool').textContent=d.tool;$('#ins').textContent=d.ins;$('#ins').hidden=false;say('');
+ $('#bar').style.width=(S.i/D.length*100)+'%';$('#cnt').textContent=`المرحلة ${S.i+1} من ${D.length}`;
+ sl.hidden=d.k!='slider';
+ if(d.k=='taps'){const cs=d.p.map((p,k)=>{const g=el('g',{});const c=el('circle',{cx:p.x,cy:p.y,r:17,class:'tg'+(k?'':' now')},g);
+  el('text',{x:p.x,y:p.y+(p.l.length>2?-24:4),class:'lb'},g).textContent=p.l;
+  c.onpointerdown=()=>{if(k!=S.tap)return err('الترتيب مهم: المس النقطة المضيئة أولًا.');
+   sfx.tap();c.setAttribute('class','tg ok');S.tap++;if(S.tap==d.p.length)done();else cs[S.tap].setAttribute('class','tg now')};return c})}
+ if(d.k=='trace'){el('line',{x1:d.s.x,y1:d.s.y,x2:d.e.x,y2:d.e.y,stroke:'#ffd36b','stroke-dasharray':'6 6','stroke-width':2,opacity:.7});
+  el('circle',{cx:d.s.x,cy:d.s.y,r:12,class:'tg now'});pl=el('polyline',{fill:'none',stroke:d.col,'stroke-width':d.w,'stroke-linecap':'round'})}
+ if(d.k=='drag'){el('circle',{cx:d.t.x,cy:d.t.y,r:16,class:'tg now'});
+  drag={ln:d.line?el('path',{fill:'none',stroke:d.mk,'stroke-width':4,'stroke-linecap':'round'}):null};
+  const g=el('g',{style:'cursor:grab'});el('circle',{cx:d.s.x,cy:d.s.y,r:12,fill:d.mk,stroke:'#fff','stroke-width':2},g);
+  el('text',{x:d.s.x,y:d.s.y-18,class:'lb'},g).textContent=d.lab;drag.m=g.firstChild;drag.tx=g.lastChild;drag.on=false}
+}
+svg.addEventListener('pointerdown',e=>{const d=D[S.i];if(mode=='trace'){if(dist(pt(e),d.s)<28){svg.setPointerCapture(e.pointerId);pts=[d.s];pl.setAttribute('points',d.s.x+','+d.s.y);mode='tracing'}}
+ else if(mode=='drag'&&e.target===drag.m){svg.setPointerCapture(e.pointerId);drag.on=true}});
+svg.addEventListener('pointermove',e=>{const d=D[S.i],p=pt(e);
+ if(mode=='tracing'){if(Math.abs(p.x-180)>22){err('انحرفت عن الخط! ابدأ من جديد.');pl.setAttribute('points','');mode='trace';return}
+  if(p.y>pts[pts.length-1].y){pts.push(p);scrape(d.snd);pl.setAttribute('points',pts.map(q=>q.x+','+q.y).join(' '));if(p.y>=d.e.y-8){mode='x';done()}}}
+ if(mode=='drag'&&drag.on){drag.m.setAttribute('cx',p.x);drag.m.setAttribute('cy',p.y);drag.tx.setAttribute('x',p.x);drag.tx.setAttribute('y',p.y-18);
+  if(drag.ln)drag.ln.setAttribute('d',`M${d.s.x} ${d.s.y}Q${p.x+30} ${p.y-40} ${p.x} ${p.y}`)}});
+svg.addEventListener('pointerup',e=>{const d=D[S.i];
+ if(mode=='tracing'){err('لم تكمل الشق، ابدأ من جديد.');pl.setAttribute('points','');mode='trace'}
+ if(mode=='drag'&&drag.on){drag.on=false;if(dist(pt(e),d.t)<22){mode='x';done()}else{err('ليس هنا، حاول مرة أخرى.');
+  drag.m.setAttribute('cx',d.s.x);drag.m.setAttribute('cy',d.s.y);drag.tx.setAttribute('x',d.s.x);drag.tx.setAttribute('y',d.s.y-18);if(drag.ln)drag.ln.setAttribute('d','')}}});
+let lastV=0;
+sl.addEventListener('input',()=>{const v=+sl.value;setOpen(v);if(Math.abs(v-lastV)>=8){lastV=v;sfx.tick()}});
+sl.addEventListener('change',()=>{const v=+sl.value;if(v>=75&&v<=92){sl.hidden=true;done()}else err(v<75?'الفتحة صغيرة ولا تكفي لرؤية القلب.':'الفتحة كبيرة جدًا وقد تؤذي الأضلاع، أرجع الشريط قليلًا.')});
+
+function done(){const d=D[S.i];mode='x';if(d.fx)d.fx();over.innerHTML='';sfx.win();say('أحسنت!',1);$('#ins').hidden=true;
+ const last=S.i==D.length-1;
+ qz.innerHTML=`<div class="info">${d.info}</div><button class="btn" id="nx">${last?'إنهاء العملية':'التالي'}</button>`;
+ $('#nx').onclick=()=>{S.i++;S.i==D.length?finish():load()}}
+function finish(){$('#bar').style.width='100%';$('#cnt').textContent='اكتملت العملية';
+ const n=S.E<=3?3:S.E<=8?2:1,r=['تحتاج إلى تدريب أكثر','جرّاح واعد','جرّاح ماهر'][n-1];
+ $('#T').textContent='نجحت العملية!';$('#tool').textContent='';$('#ins').hidden=false;
+ $('#ins').innerHTML=`<p class="big" aria-label="${n} نجوم">${'★'.repeat(n)}${'☆'.repeat(3-n)}</p><p class="ctr" style="margin:0;font-weight:900">${r}</p><p class="ctr" style="color:var(--mut);margin:4px 0 0">عدد الأخطاء: ${S.E}</p>`;
+ say('');qz.innerHTML='<div class="ctr"><button class="btn" id="re">أعد العملية</button></div>';$('#re').onclick=intro;
+ $('#learn').hidden=false;$('#learn').scrollIntoView({behavior:'smooth'})}
+intro();
+</script>
+</body>
+</html>
