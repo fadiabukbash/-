@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ملخص: التكنولوجيا في كل زمان – الصف الخامس</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f2f8ff;--card:#fff;--ink:#23324a;--mut:#5b6b85;--blue:#2f80d8;--yel:#ffc93c;--grn:#33a96b;--org:#f28b3c;--pnk:#e8527a;--soft:#dcebfb;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14202f;--card:#1f2f44;--ink:#eef4fb;--mut:#a9bad0;--soft:#2a4263;--blue:#6db3ff;--yel:#ffd45e;--grn:#55cf92;--org:#ffa665;--pnk:#ff86a5}}
+:root[data-theme="dark"]{--bg:#14202f;--card:#1f2f44;--ink:#eef4fb;--mut:#a9bad0;--soft:#2a4263;--blue:#6db3ff;--yel:#ffd45e;--grn:#55cf92;--org:#ffa665;--pnk:#ff86a5}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Cairo","Noto Naskh Arabic","Segoe UI",Tahoma,sans-serif;font-size:19px;line-height:2}
+.top{background:linear-gradient(135deg,#2f80d8,#5b5bd6);color:#fff;padding:14px 16px;text-align:center}
+.top b{font-size:15px;letter-spacing:.3px}.top div{font-size:13px;opacity:.9;line-height:1.6}
+.bar{height:8px;background:var(--soft)}.bar i{display:block;height:100%;width:0;background:var(--yel);transition:width .3s}
+main{max-width:640px;margin:auto;padding:14px 14px 110px}
+.pg{display:none}.pg.on{display:block;animation:in .3s}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+h1{font-size:30px;margin:10px 0;line-height:1.5}
+h2{font-size:24px;margin:6px 0 10px;color:var(--blue);line-height:1.5}
+.hero{text-align:center;background:var(--card);border-radius:22px;padding:22px 14px;border:3px solid var(--yel)}
+.hero .em{font-size:64px;line-height:1.2}
+.card{background:var(--card);border-radius:18px;padding:14px 16px;margin:12px 0;border-right:8px solid var(--blue);box-shadow:0 2px 0 var(--soft)}
+.card.g{border-color:var(--grn)}.card.o{border-color:var(--org)}.card.p{border-color:var(--pnk)}.card.y{border-color:var(--yel)}
+.card h3{margin:0;font-size:21px}
+.big{background:var(--yel);color:#3a2b00;border-radius:18px;padding:14px 16px;font-weight:800;font-size:21px;text-align:center;margin:12px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chips span{background:var(--soft);padding:2px 14px;border-radius:20px;font-size:17px;font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini{background:var(--card);border-radius:16px;padding:10px 8px;text-align:center;border:2px solid var(--soft);font-size:17px;line-height:1.7}
+.mini .e{font-size:40px;line-height:1.3;display:block}
+.cmp{background:var(--card);border-radius:18px;margin:12px 0;overflow:hidden;border:2px solid var(--soft)}
+.cmp h3{margin:0;padding:6px 14px;background:var(--blue);color:#fff;font-size:20px}
+@media (prefers-color-scheme:dark){.cmp h3{color:#14202f}}
+.cmp .row{display:grid;grid-template-columns:1fr 1fr}
+.cmp .row>div{padding:8px 10px;text-align:center;font-size:17px;line-height:1.7}
+.cmp .row>div:first-child{border-left:2px solid var(--soft)}
+.cmp .e{font-size:38px;display:block;line-height:1.3}
+.tag{display:inline-block;font-size:14px;padding:0 10px;border-radius:12px;background:var(--soft);margin:1px}
+.steps{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:6px 2px}
+.steps .mini{flex:0 0 130px}.ill{width:100%;height:auto;display:block;margin:0 auto 4px}.steps .ar{font-size:26px;color:var(--blue)}
+button{font-family:inherit}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:3px solid var(--soft);display:flex;justify-content:center;gap:12px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));z-index:9}
+.nav button{font-size:19px;font-weight:700;border:0;border-radius:16px;padding:8px 22px;background:var(--blue);color:#fff;cursor:pointer;min-width:120px}
+@media (prefers-color-scheme:dark){.nav button{color:#14202f}}
+.nav button.s{background:var(--soft);color:var(--ink)}
+.nav button:disabled{opacity:.4}
+.nav span{align-self:center;font-size:15px;color:var(--mut)}
+.q{background:var(--card);border-radius:18px;padding:12px 14px;margin:12px 0}
+.q p{margin:0 0 6px;font-weight:700}
+.opt{display:block;width:100%;text-align:right;font-size:18px;margin:6px 0;padding:8px 12px;border-radius:12px;border:2px solid var(--soft);background:var(--bg);color:var(--ink);cursor:pointer}
+.opt.ok{border-color:var(--grn);background:rgba(51,169,107,.2)}.opt.no{border-color:var(--pnk);background:rgba(232,82,122,.2)}
+.narr{background:var(--card);border-radius:18px;padding:12px 14px;margin:12px 0;border:3px dashed var(--blue)}.narr button{font-size:17px;font-weight:700;border:0;border-radius:14px;padding:4px 14px;margin:2px 0 2px 8px;background:var(--grn);color:#10281c;cursor:pointer}.narr button.b2{background:var(--soft);color:var(--ink)}.nt{display:none;font-size:21px;line-height:2.5;margin-top:8px}.nt.on{display:block}.nm{color:var(--pnk);font-size:15px;line-height:1.7}
+.foot{text-align:center;color:var(--mut);font-size:15px;margin-top:22px;line-height:1.8}.foot b{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="top"><b>🎓 عسقلان EduTech</b><div>تصميم الأستاذ: فادي أبو الكباش</div></div>
+<div class="bar"><i id="pr"></i></div>
+<main>
+
+<div class="pg on">
+<div class="hero"><div class="em">⚙️🌍🤖</div><h1>التكنولوجيا في كل زمان</h1><div style="color:var(--mut)">ملخص الدرس الأول · الصف الخامس</div></div>
+<div class="card"><h3>💡 فكرة الدرس</h3>التكنولوجيا ومنتجاتها من ميزات العصر الحديث، وهي ما يميّز الإنسان عن المخلوقات الأخرى. نجدها في معظم جوانب حياتنا.</div>
+<div class="card g"><h3>🔌 كيف بدأ التطور؟</h3>منذ اكتشاف الكهرباء في أواسط القرن الماضي توالى اختراع الأدوات والمنتجات التي سهّلت حياتنا ورفعت مستواها.</div>
+<div class="card o"><h3>🤔 فكّر</h3>كيف ستكون حياتنا اليوم دون استخدام الأدوات التكنولوجية؟</div>
+</div>
+
+<div class="pg">
+<h2>🏺 التكنولوجيا قديمًا</h2>
+<p>استخدم الإنسان منذ القدم أدوات بسيطة ليلبّي حاجاته اليومية:</p>
+<div class="grid">
+<div class="mini"><span class="e">🪓</span>الفأس الحجري في حراثة الأرض</div>
+<div class="mini"><span class="e">🍲</span>الصحون الفخارية لإعداد الطعام</div>
+<div class="mini"><span class="e">🏹</span>الرماح الخشبية للصيد والدفاع</div>
+<div class="mini"><span class="e">🍃</span>أوراق الأشجار وجلود الحيوانات كلباس</div>
+</div>
+<div class="card y" style="margin-top:14px"><h3>🐴 النقل قديمًا</h3>استخدم الإنسان الحيوانات في تنقلاته.</div>
+<h2>🚂 ثم تطوّرت الأدوات</h2>
+<div class="steps"><div class="mini"><span class="e">🐎</span>عربة تجرّها الخيول</div><span class="ar">◀</span><div class="mini"><span class="e">♨️</span>اكتشاف قوة بخار الماء</div><span class="ar">◀</span><div class="mini"><span class="e">🚂</span>الآلة البخارية والقطار</div><span class="ar">◀</span><div class="mini"><span class="e">🚗✈️</span>السيارات والطائرات والبواخر</div></div>
+</div>
+
+<div class="pg">
+<h2>📖 ما هي التكنولوجيا؟</h2>
+<div class="big">التكنولوجيا هي التطبيق العملي للمعرفة، لحل مشاكل تقنية يواجهها الإنسان في حياته.</div>
+<div class="card"><h3>🔑 كلمات مفتاحية</h3><div class="chips"><span>تلبية حاجات</span><span>تسهيل</span><span>حل مشكلات</span><span>معرفة</span><span>علوم</span><span>مهارة</span><span>تقنيات</span><span>الإنسان</span><span>تغيير وتعديل</span></div></div>
+<div class="card g"><h3>🍞 حاجات الإنسان</h3>الاختراعات ساعدت الإنسان على تلبية حاجاته من: <b>تنقّل، اتصالات، مأكل، ملبس، مسكن</b>، وحاجات أخرى تتطور مع الزمن.</div>
+<div class="card o"><h3>🤖 الأتمتة (Automation)</h3>هي استخدام الحاسوب في إنجاز المهام التي كانت تُنجز يدويًا، مثل تجميع قطع السيارات في المصنع، أو التحكم بالدفيئات الزراعية.</div>
+<div class="card p"><h3>🌍 ليست للحاسوب فقط!</h3>الزراعة وصناعة الدواء والبناء والتحكم الآلي والاتصالات، كلها <b>تكنولوجيا</b>.</div>
+</div>
+
+<div class="pg">
+<h2>⚖️ قديمًا وحديثًا</h2>
+<p style="margin:0">قارن بين السرعة والجهد:</p>
+<div class="cmp"><h3>🌾 الزراعة (حراثة الأرض)</h3><div class="row"><div><span class="e">🐂</span>قديمًا: محراث وثيران<br><span class="tag">بطيئة</span><span class="tag">جهد كبير</span></div><div><span class="e">🚜</span>حديثًا: جرّار<br><span class="tag">سريعة</span><span class="tag">جهد قليل</span></div></div></div>
+<div class="cmp"><h3>✈️ النقل بين البلدان</h3><div class="row"><div><span class="e">🐪</span>قديمًا: الجمال<br><span class="tag">بطيء</span><span class="tag">جهد كبير</span></div><div><span class="e">✈️</span>حديثًا: الطائرة<br><span class="tag">سريع</span><span class="tag">جهد قليل</span></div></div></div>
+<div class="cmp"><h3>📞 الاتصالات الهاتفية</h3><div class="row"><div><span class="e">☎️</span>قديمًا: هاتف بقرص<br><span class="tag">ثابت</span><span class="tag">محدود</span></div><div><span class="e">📱</span>حديثًا: هاتف ذكي<br><span class="tag">سريع</span><span class="tag">متنقل</span></div></div></div>
+<div class="cmp"><h3>🌡️ الطب (قياس الحرارة)</h3><div class="row"><div><span class="e">🌡️</span>قديمًا: ميزان زجاجي<br><span class="tag">أبطأ</span></div><div><span class="e">📟</span>حديثًا: ميزان رقمي<br><span class="tag">سريع</span><span class="tag">سهل</span></div></div></div>
+</div>
+
+<div class="pg">
+<h2>👑 حذاء الملك</h2>
+<div class="card p"><h3>❓ المشكلة</h3>ملك عاد من رحلة طويلة فوجد أن قدميه تورّمتا من المشي في الطرق الوعرة.</div>
+<div class="card o"><h3>👑 حلّ الملك</h3>أصدر مرسومًا بتغطية كل شوارع المدينة بالجلد!</div>
+<div class="card g"><h3>💡 حلّ المستشار</h3>قطعة جلد صغيرة توضع تحت قدمي الملك فقط. وهكذا ظهر <b>الحذاء</b>!</div>
+<div class="big">الحل الذكي أبسط وأوفر وأنفع 👍</div>
+<h2>👟 تطوّر الحذاء</h2>
+<div class="steps"><div class="mini"><span class="e">🥿</span>قديمًا: جلد حيوانات</div><span class="ar">◀</span><div class="mini"><span class="e">👟</span>القرن 21: حذاء حديث</div></div>
+<div class="card"><h3>🔬 على ماذا يعتمد التطور؟</h3>على المفاهيم والنظريات في <b>العلوم الطبيعية، والهندسة، والرياضيات</b>.</div>
+</div>
+
+<div class="pg">
+<h2>📈 تطوّر المنتجات عبر العصور</h2>
+<p style="margin:0">رسوم توضيحية لكل مرحلة، من الأقدم إلى الأحدث:</p>
+<div class="card"><h3>📞 الهاتف</h3><div class="steps"><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='28' y='66' width='44' height='9' rx='3' fill='#6b4a2b'/><rect x='47' y='24' width='6' height='42' fill='#3b2a1a'/><rect x='36' y='10' width='28' height='12' rx='5' fill='#3b2a1a'/><circle cx='50' cy='16' r='3' fill='#c9a24b'/><rect x='68' y='28' width='7' height='24' rx='3' fill='#3b2a1a' transform='rotate(12 71 40)'/><circle cx='50' cy='46' r='3' fill='#c9a24b'/></svg>أول هاتف في العالم</div><span class="ar">◀</span><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='10' y='32' width='80' height='40' rx='10' fill='#d9c7a0'/><rect x='14' y='14' width='72' height='13' rx='6' fill='#b23a3a'/><circle cx='50' cy='52' r='16' fill='#fff' stroke='#8a7a58' stroke-width='2'/><circle cx='50' cy='52' r='4' fill='#8a7a58'/><circle cx='50' cy='42' r='2' fill='#8a7a58'/><circle cx='59' cy='46' r='2' fill='#8a7a58'/><circle cx='59' cy='58' r='2' fill='#8a7a58'/><circle cx='50' cy='62' r='2' fill='#8a7a58'/><circle cx='41' cy='58' r='2' fill='#8a7a58'/><circle cx='41' cy='46' r='2' fill='#8a7a58'/></svg>تطوّر القرن الماضي</div><span class="ar">◀</span><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='32' y='3' width='36' height='74' rx='7' fill='#222'/><rect x='36' y='10' width='28' height='52' rx='2' fill='#6db3ff'/><rect x='39' y='14' width='8' height='8' rx='2' fill='#ffc93c'/><rect x='53' y='14' width='8' height='8' rx='2' fill='#33a96b'/><rect x='39' y='27' width='8' height='8' rx='2' fill='#e8527a'/><rect x='53' y='27' width='8' height='8' rx='2' fill='#fff'/><rect x='39' y='40' width='8' height='8' rx='2' fill='#f28b3c'/><rect x='53' y='40' width='8' height='8' rx='2' fill='#5b5bd6'/><circle cx='50' cy='70' r='3' fill='#555'/></svg>آخر تطور</div></div></div>
+<div class="card g"><h3>💻 الحاسوب</h3><div class="steps"><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='5' y='12' width='26' height='62' fill='#8d97a5'/><rect x='37' y='12' width='26' height='62' fill='#9aa5b3'/><rect x='69' y='12' width='26' height='62' fill='#8d97a5'/><circle cx='12' cy='22' r='2.5' fill='#ffc93c'/><circle cx='20' cy='22' r='2.5' fill='#e8527a'/><circle cx='44' cy='22' r='2.5' fill='#33a96b'/><circle cx='52' cy='22' r='2.5' fill='#ffc93c'/><circle cx='76' cy='22' r='2.5' fill='#e8527a'/><circle cx='84' cy='22' r='2.5' fill='#6db3ff'/><rect x='9' y='36' width='18' height='20' fill='#5b6b85'/><rect x='41' y='36' width='18' height='20' fill='#5b6b85'/><rect x='73' y='36' width='18' height='20' fill='#5b6b85'/></svg>أول حاسوب</div><span class="ar">◀</span><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='20' y='6' width='60' height='46' rx='5' fill='#e9dfc7'/><rect x='27' y='12' width='46' height='33' rx='3' fill='#1d3b2a'/><text x='31' y='26' font-size='9' fill='#7dff9a' font-family='monospace'>&gt;_ A</text><rect x='12' y='56' width='76' height='14' rx='4' fill='#d9cdb0'/><rect x='18' y='60' width='64' height='6' fill='#8a7a58'/></svg>تطوّر القرن الماضي</div><span class="ar">◀</span><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='20' y='8' width='60' height='42' rx='4' fill='#2b2f3a'/><rect x='24' y='12' width='52' height='34' rx='2' fill='#6db3ff'/><circle cx='50' cy='29' r='8' fill='#ffc93c'/><path d='M10 56 H90 L82 68 H18 Z' fill='#aab3c0'/><rect x='38' y='58' width='24' height='3' rx='1' fill='#7d8796'/></svg>آخر تطور</div></div></div>
+<div class="card o"><h3>🚑 مركبة الإسعاف</h3><div class="steps"><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='24' y='26' width='54' height='28' rx='4' fill='#6b6f78'/><rect x='30' y='32' width='42' height='6' fill='#3d4048'/><line x1='24' y1='40' x2='6' y2='34' stroke='#3b2a1a' stroke-width='4' stroke-linecap='round'/><circle cx='50' cy='62' r='12' fill='none' stroke='#222' stroke-width='4'/><circle cx='50' cy='62' r='2' fill='#222'/><rect x='56' y='20' width='14' height='6' fill='#c9ced6'/></svg>أول مركبة (عربة)</div><span class="ar">◀</span><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='6' y='22' width='70' height='40' rx='5' fill='#f1f1f1' stroke='#999' stroke-width='2'/><path d='M76 32 H92 L96 46 V62 H76 Z' fill='#e0e0e0' stroke='#999' stroke-width='2'/><rect x='28' y='30' width='20' height='24' fill='#c62828'/><rect x='34' y='24' width='8' height='36' fill='#c62828'/><circle cx='24' cy='64' r='9' fill='#222'/><circle cx='84' cy='64' r='9' fill='#222'/></svg>تطوّر القرن الماضي</div><span class="ar">◀</span><div class="mini"><svg class='ill' viewBox='0 0 100 80'><rect x='6' y='20' width='64' height='42' rx='6' fill='#fff' stroke='#999' stroke-width='2'/><path d='M70 30 H88 L96 44 V62 H70 Z' fill='#fff' stroke='#999' stroke-width='2'/><rect x='6' y='44' width='64' height='6' fill='#e8527a'/><rect x='24' y='12' width='10' height='8' rx='2' fill='#e8527a'/><rect x='36' y='12' width='10' height='8' rx='2' fill='#2f80d8'/><rect x='30' y='26' width='20' height='6' fill='#e8527a'/><rect x='37' y='22' width='6' height='14' fill='#e8527a'/><rect x='76' y='34' width='10' height='8' fill='#9fd0ff'/><circle cx='24' cy='64' r='9' fill='#222'/><circle cx='80' cy='64' r='9' fill='#222'/></svg>آخر تطور</div></div></div>
+</div>
+
+<div class="pg">
+<h2>🏆 اختبر نفسك</h2>
+<div id="qz"></div><div class="big" id="sc" style="display:none"></div>
+<div class="card y"><h3>⭐ الخلاصة</h3>التكنولوجيا تطبيق المعرفة لحل مشكلات الإنسان وتلبية حاجاته. بدأت بأدوات بسيطة وتطوّرت عبر الزمن، وتسهّل حياتنا في الزراعة والنقل والاتصالات والطب.</div>
+<div class="foot"><b>عسقلان EduTech</b><br>تصميم الأستاذ فادي أبو الكباش<br>© 2026 جميع الحقوق محفوظة</div>
+</div>
+</main>
+<div class="nav"><button id="nx">التالي ▶</button><span id="pn"></span><button class="s" id="pv">◀ السابق</button></div>
+<script>
+var pgs=document.querySelectorAll('.pg'),i=0;
+function show(n){try{speechSynthesis.cancel()}catch(e){}i=n;pgs.forEach(function(p,k){p.classList.toggle('on',k===n)});document.getElementById('pn').textContent=(n+1)+' / '+pgs.length;document.getElementById('pr').style.width=((n+1)/pgs.length*100)+'%';document.getElementById('pv').disabled=n===0;document.getElementById('nx').disabled=n===pgs.length-1;window.scrollTo(0,0)}
+document.getElementById('nx').onclick=function(){show(Math.min(i+1,pgs.length-1))};
+document.getElementById('pv').onclick=function(){show(Math.max(i-1,0))};
+var NR=['مَرْحَبًا بِكُمْ فِي دَرْسِ: التِّكْنُولُوجْيَا فِي كُلِّ زَمَانٍ. التِّكْنُولُوجْيَا وَمُنْتَجَاتُهَا مِنْ مَيِّزَاتِ الْعَصْرِ الْحَدِيثِ، وَهِيَ مِنْ أَهَمِّ مَا يُمَيِّزُ الْإِنْسَانَ عَنِ الْمَخْلُوقَاتِ الْأُخْرَى. نَجِدُهَا فِي مُعْظَمِ جَوَانِبِ حَيَاتِنَا. وَمُنْذُ اكْتِشَافِ الْكَهْرَبَاءِ فِي أَوَاسِطِ الْقَرْنِ الْمَاضِي، تَوَالَى اخْتِرَاعُ الْأَدَوَاتِ وَالْمُنْتَجَاتِ الَّتِي سَهَّلَتْ حَيَاتَنَا وَرَفَعَتْ مُسْتَوَاهَا. فَكِّرْ مَعِي: كَيْفَ سَتَكُونُ حَيَاتُنَا الْيَوْمَ دُونَ اسْتِخْدَامِ الْأَدَوَاتِ التِّكْنُولُوجْيَّةِ؟',
+'اسْتَخْدَمَ الْإِنْسَانُ مُنْذُ الْقِدَمِ أَدَوَاتٍ بَسِيطَةً لِيُلَبِّيَ حَاجَاتِهِ الْيَوْمِيَّةَ. فَاسْتَخْدَمَ الْفَأْسَ الْحَجَرِيَّ فِي حِرَاثَةِ الْأَرْضِ، وَالصُّحُونَ الْفَخَّارِيَّةَ فِي إِعْدَادِ طَعَامِهِ. وَصَنَعَ الرِّمَاحَ الْخَشَبِيَّةَ لِلصَّيْدِ وَلِلدِّفَاعِ عَنْ نَفْسِهِ. وَاسْتَخْدَمَ أَوْرَاقَ الْأَشْجَارِ وَجُلُودَ الْحَيَوَانَاتِ لِبَاسًا يَقِيهِ حَرَّ الصَّيْفِ وَبَرْدَ الشِّتَاءِ، وَاسْتَخْدَمَ الْحَيَوَانَاتِ فِي تَنَقُّلَاتِهِ. ثُمَّ طَوَّرَ الْإِنْسَانُ هَذِهِ الْأَدَوَاتِ، فَصَنَعَ الْعَرَبَةَ الَّتِي تَجُرُّهَا الْخُيُولُ. وَبَعْدَ اكْتِشَافِ قُدْرَةِ ضَغْطِ بُخَارِ الْمَاءِ، صَنَعَ الْآلَةَ الْبُخَارِيَّةَ وَالْقِطَارَ الَّذِي يَعْمَلُ عَلَى الْفَحْمِ الْحَجَرِيِّ. وَمَعَ تَقَدُّمِ الْوَقْتِ، صَنَعَ السَّيَّارَاتِ وَالطَّائِرَاتِ وَالْبَوَاخِرَ.',
+'مَا هِيَ التِّكْنُولُوجْيَا؟ التِّكْنُولُوجْيَا هِيَ التَّطْبِيقُ الْعَمَلِيُّ لِلْمَعْرِفَةِ، لِحَلِّ مَشَاكِلَ تِقْنِيَّةٍ يُوَاجِهُهَا الْإِنْسَانُ فِي حَيَاتِهِ. وَمِنْ كَلِمَاتِهَا الْمِفْتَاحِيَّةِ: تَلْبِيَةُ الْحَاجَاتِ، وَالتَّسْهِيلُ، وَحَلُّ الْمُشْكِلَاتِ، وَالْمَعْرِفَةُ، وَالْعُلُومُ، وَالْمَهَارَةُ. وَقَدْ سَاعَدَتِ الْاِخْتِرَاعَاتُ الْإِنْسَانَ عَلَى تَلْبِيَةِ حَاجَاتِهِ مِنْ تَنَقُّلٍ وَاتِّصَالَاتٍ وَمَأْكَلٍ وَمَلْبَسٍ وَمَسْكَنٍ. وَالْأَتْمَتَةُ هِيَ اسْتِخْدَامُ الْحَاسُوبِ فِي إِنْجَازِ الْمَهَامِّ الَّتِي كَانَتْ تُنْجَزُ يَدَوِيًّا، مِثْلُ تَجْمِيعِ قِطَعِ السَّيَّارَاتِ فِي الْمَصْنَعِ، أَوِ التَّحَكُّمِ فِي الدَّفِيئَاتِ الزِّرَاعِيَّةِ. وَتَذَكَّرْ أَنَّ التِّكْنُولُوجْيَا لَيْسَتْ لِلْحَاسُوبِ فَقَطْ، فَالزِّرَاعَةُ وَصِنَاعَةُ الدَّوَاءِ وَالْبِنَاءُ وَالْاِتِّصَالَاتُ كُلُّهَا تِكْنُولُوجْيَا.',
+'لِنُقَارِنْ بَيْنَ الْقَدِيمِ وَالْحَدِيثِ مِنْ حَيْثُ السُّرْعَةُ وَالْجُهْدُ. فِي الزِّرَاعَةِ، كَانَ الْمُزَارِعُ قَدِيمًا يَحْرُثُ الْأَرْضَ بِمِحْرَاثٍ تَجُرُّهُ الثِّيرَانُ، فَيَكُونُ الْعَمَلُ بَطِيئًا وَالْجُهْدُ كَبِيرًا. أَمَّا الْيَوْمَ فَيَسْتَخْدِمُ الْجَرَّارَ، فَيُنْجِزُ الْعَمَلَ بِسُرْعَةٍ وَجُهْدٍ أَقَلَّ. وَفِي النَّقْلِ، كَانَ النَّاسُ يَسْتَخْدِمُونَ الْجِمَالَ فِي رِحْلَاتٍ طَوِيلَةٍ، أَمَّا الْيَوْمَ فَتَنْقُلُنَا الطَّائِرَةُ بِسُرْعَةٍ وَرَاحَةٍ. وَالْهَاتِفُ الْقَدِيمُ كَانَ ثَابِتًا فِي مَكَانِهِ، أَمَّا الْهَاتِفُ الذَّكِيُّ فَنَحْمِلُهُ مَعَنَا أَيْنَمَا ذَهَبْنَا. وَفِي الطِّبِّ، مِيزَانُ الْحَرَارَةِ الزُّجَاجِيُّ يَحْتَاجُ وَقْتًا أَطْوَلَ، أَمَّا الرَّقْمِيُّ فَيُعْطِينَا النَّتِيجَةَ بِسُرْعَةٍ وَسُهُولَةٍ.',
+'حِكَايَةُ حِذَاءِ الْمَلِكِ. يُحْكَى أَنَّ مَلِكًا أَرَادَ الْقِيَامَ بِرِحْلَةٍ بَرِّيَّةٍ طَوِيلَةٍ، وَعِنْدَ عَوْدَتِهِ وَجَدَ أَنَّ قَدَمَيْهِ قَدْ تَوَرَّمَتَا بِسَبَبِ الْمَشْيِ فِي الطُّرُقِ الْوَعِرَةِ. فَأَصْدَرَ مَرْسُومًا يَقْضِي بِتَغْطِيَةِ كُلِّ شَوَارِعِ الْمَدِينَةِ بِالْجِلْدِ. لَكِنَّ أَحَدَ مُسْتَشَارِيهِ أَشَارَ عَلَيْهِ بِرَأْيٍ آخَرَ، وَهُوَ أَنْ يَصْنَعَ قِطْعَةَ جِلْدٍ صَغِيرَةً وَيَضَعَهَا تَحْتَ قَدَمَيْهِ فَقَطْ. وَهَكَذَا ظَهَرَ الْحِذَاءُ. ثُمَّ تَطَوَّرَ الْحِذَاءُ حَتَّى أَصْبَحَ عَلَى شَكْلِهِ الْحَالِيِّ، وَهَذَا التَّطَوُّرُ يَعْتَمِدُ عَلَى الْعُلُومِ الطَّبِيعِيَّةِ وَالْهَنْدَسَةِ وَالرِّيَاضِيَّاتِ.',
+'تَطَوُّرُ الْمُنْتَجَاتِ عَبْرَ الْعُصُورِ. تَأَمَّلِ الرُّسُومَ مِنَ الْأَقْدَمِ إِلَى الْأَحْدَثِ. بَدَأَ الْهَاتِفُ بِجِهَازٍ كَبِيرٍ ثَقِيلٍ، ثُمَّ صَارَ هَاتِفًا بِقُرْصٍ دَوَّارٍ، وَأَصْبَحَ الْيَوْمَ هَاتِفًا ذَكِيًّا نَحْمِلُهُ فِي جُيُوبِنَا. وَبَدَأَ الْحَاسُوبُ بِأَجْهِزَةٍ ضَخْمَةٍ تَمْلَأُ غُرْفَةً كَامِلَةً، ثُمَّ صَارَ حَاسُوبًا بِشَاشَةٍ وَلَوْحَةِ مَفَاتِيحَ، وَأَصْبَحَ الْيَوْمَ حَاسُوبًا مَحْمُولًا خَفِيفًا. وَكَانَتْ أَوَّلُ مَرْكَبَةِ إِسْعَافٍ عَرَبَةً تُدْفَعُ بِالْيَدِ، ثُمَّ سَيَّارَةً قَدِيمَةً، وَأَصْبَحَتِ الْيَوْمَ سَيَّارَةً مُجَهَّزَةً بِأَحْدَثِ الْأَجْهِزَةِ.',
+'اخْتَبِرْ نَفْسَكَ بِالْإِجَابَةِ عَنِ الْأَسْئِلَةِ الْآتِيَةِ. وَالْآنَ خُلَاصَةُ الدَّرْسِ: التِّكْنُولُوجْيَا هِيَ تَطْبِيقُ الْمَعْرِفَةِ لِحَلِّ مَشْكِلَاتِ الْإِنْسَانِ وَتَلْبِيَةِ حَاجَاتِهِ. بَدَأَتْ بِأَدَوَاتٍ بَسِيطَةٍ وَتَطَوَّرَتْ عَبْرَ الزَّمَنِ، وَهِيَ تُسَهِّلُ حَيَاتَنَا فِي الزِّرَاعَةِ وَالنَّقْلِ وَالْاِتِّصَالَاتِ وَالطِّبِّ. أَحْسَنْتَ، وَإِلَى لِقَاءٍ جَدِيدٍ.'];
+function arv(){var v=speechSynthesis.getVoices();for(var k=0;k<v.length;k++)if(/^ar/i.test(v[k].lang))return v[k];return null}
+try{speechSynthesis.getVoices()}catch(e){}
+pgs.forEach(function(p,k){var d=document.createElement('div');d.className='narr';d.innerHTML="<button class='pl'>🔊 استمع للشرح</button><button class='b2 st'>⏹ إيقاف</button><button class='b2 tx'>📖 اعرض النص المشكَّل</button><div class='nt'></div><div class='nm'></div>";var nt=d.querySelector('.nt'),nm=d.querySelector('.nm');nt.textContent=NR[k];
+d.querySelector('.tx').onclick=function(){nt.classList.toggle('on')};
+d.querySelector('.st').onclick=function(){try{speechSynthesis.cancel()}catch(e){}};
+d.querySelector('.pl').onclick=function(){nm.textContent='';if(!window.speechSynthesis){nm.textContent='هذا المتصفح لا يدعم القراءة الصوتية.';return}speechSynthesis.cancel();var v=arv();if(!v)nm.textContent='لم أجد صوتًا عربيًا في جهازك، فعّل صوتًا عربيًا من إعدادات تحويل النص إلى كلام.';NR[k].split('. ').forEach(function(s,j,a){var u=new SpeechSynthesisUtterance(j<a.length-1?s+'.':s);u.lang='ar-SA';if(v)u.voice=v;u.rate=.85;speechSynthesis.speak(u)})};
+p.firstElementChild.after(d)});
+show(0);
+var Q=[['ما التكنولوجيا؟',['التطبيق العملي للمعرفة لحل مشكلات الإنسان','الحاسوب فقط','الألعاب'],0],['أي أداة استخدمها الإنسان قديمًا للحراثة؟',['الجرّار','الفأس الحجري','الطائرة'],1],['ما المقصود بالأتمتة؟',['استخدام الحاسوب في إنجاز مهام كانت تُنجز يدويًا','الرسم باليد','الطبخ'],0],['ماذا اقترح مستشار الملك لحل المشكلة؟',['تغطية الشوارع بالجلد','قطعة جلد صغيرة تحت القدمين','عدم المشي أبدًا'],1]],sc=0,ans=0,qz=document.getElementById('qz');
+Q.forEach(function(q,qi){var d=document.createElement('div');d.className='q';d.innerHTML='<p>'+(qi+1)+') '+q[0]+'</p>';var done=false;q[1].forEach(function(o,k){var b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=function(){if(done)return;done=true;ans++;if(k===q[2]){b.classList.add('ok');sc++}else{b.classList.add('no');d.querySelectorAll('.opt')[q[2]].classList.add('ok')}if(ans===Q.length){var s=document.getElementById('sc');s.style.display='block';s.textContent=sc===Q.length?'🎉 ممتاز! علامة كاملة':'نتيجتك: '+sc+' من '+Q.length+' 👏'}};d.appendChild(b)});qz.appendChild(d)});
+</script>
+</body>
+</html>
