@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>غسيل الكلى – الكلية الاصطناعية</title>
+<style>
+:root{--bg:#f7f3fa;--card:#fff;--ink:#2b1d38;--mut:#6d5c7c;--pri:#6b2a94;--soft:#e6d6f0;--ok:#2e8b57;--bad:#c0392b;--urea:#8a5a1f;--blood:#c62828;--dial:#dff1fb;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1424;--card:#2a2036;--ink:#f1e8f7;--mut:#b9a6c9;--pri:#c392e6;--soft:#43305a;--dial:#173246;--urea:#d9a24e}}
+:root[data-theme="dark"]{--bg:#1b1424;--card:#2a2036;--ink:#f1e8f7;--mut:#b9a6c9;--pri:#c392e6;--soft:#43305a;--dial:#173246;--urea:#d9a24e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Geeza Pro","Segoe UI",Tahoma,sans-serif;line-height:1.9;font-size:17px}
+header{background:var(--pri);color:#fff;padding:18px 16px 12px}
+@media (prefers-color-scheme:dark){header{color:#1b1424}}
+h1{margin:0;font-size:22px}header p{margin:2px 0 0;font-size:14px;opacity:.9}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{flex:0 0 auto;border:2px solid var(--soft);background:var(--card);color:var(--ink);padding:6px 14px;border-radius:20px;font:inherit;font-size:15px;cursor:pointer}
+nav button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+@media (prefers-color-scheme:dark){nav button.on{color:#1b1424}}
+main{padding:0 12px 40px;max-width:640px;margin:auto}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border-radius:14px;padding:14px 16px;margin:10px 0;border-right:5px solid var(--pri)}
+.card h3{margin:0 0 4px;color:var(--pri)}
+button.act{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:9px 16px;font:inherit;cursor:pointer}
+@media (prefers-color-scheme:dark){button.act{color:#1b1424}}
+button.act.sec{background:var(--soft);color:var(--ink)}
+canvas{width:100%;max-width:100%;border-radius:12px;background:var(--card);touch-action:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.meter{height:16px;background:var(--soft);border-radius:8px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--urea);width:100%;transition:width .3s}
+.opt{display:block;width:100%;text-align:right;margin:6px 0;padding:10px 12px;border-radius:10px;border:2px solid var(--soft);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.opt.right{border-color:var(--ok);background:rgba(46,139,87,.18)}.opt.wrong{border-color:var(--bad);background:rgba(192,57,43,.18)}
+.step{display:block;width:100%;text-align:right;margin:5px 0;padding:9px 12px;border-radius:10px;border:2px dashed var(--soft);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.step.done{border:2px solid var(--ok);background:rgba(46,139,87,.18)}
+.tl{border-right:3px solid var(--soft);padding-right:12px;margin-right:6px}
+.tl div{margin:8px 0}.tl b{color:var(--pri)}
+label.ck{display:block;padding:3px 0}
+.msg{min-height:28px;font-weight:bold}
+</style>
+</head>
+<body>
+<header><div style="font-size:15px;font-weight:bold;letter-spacing:.3px">🎓 عسقلان EduTech</div><h1>غسيل الكلى (الكلية الاصطناعية)</h1><p>تكنولوجيا – الصف السابع · درس تفاعلي</p><p>تصميم الأستاذ: فادي أبو الكباش</p></header>
+<nav id="nav">
+<button data-t="t1" class="on">1 الفكرة</button><button data-t="t2">2 المحاكاة</button><button data-t="t3">3 ابنِ الجهاز</button><button data-t="t4">4 اختبر نفسك</button><button data-t="t5">5 ناقش</button>
+<button id="snd" title="الصوت">🔊</button>
+</nav>
+<main>
+
+<section id="t1" class="on">
+<div class="card"><h3>لماذا نحتاج الغسيل؟</h3>
+<p>الكلى تنقّي الدم من الفضلات مثل <b>البولينا</b> والأملاح الناتجة عن الأيض الغذائي. عند <b>الفشل الكلوي</b> تتراكم هذه الفضلات في الجسم، فيجب علاج يقوم بعمل الكلى.</p>
+<button class="act" onclick="speak('الفشل الكلوي يعني أن الكلى لا تستطيع تنقية الدم من الفضلات. فتتراكم البولينا والأملاح، ونحتاج إلى علاج بديل.')">🔊 اسمع الشرح</button></div>
+<div class="card"><h3>خط زمني: اضغط على السنة</h3>
+<div class="tl" id="tl"></div><div class="msg" id="tlmsg"></div></div>
+<div class="card"><h3>الخيارات العلاجية</h3>
+<p><b>1. الغسيل الكلوي:</b> جهاز ينقّي الدم، وتستمر الجلسة من 4 إلى 6 ساعات، وتتكرر ثلاث مرات أسبوعيًا أو أكثر بإشراف أطباء وممرضين.</p>
+<p><b>2. زراعة كلية:</b> أفضل طريقة إذا سمحت حالة المريض، لكن البحث عن متبرع مناسب قد يطول.</p></div>
+<button class="act" onclick="go('t2')">انتقل إلى المحاكاة ◀</button>
+</section>
+
+<section id="t2">
+<div class="card"><h3>محاكاة الكلية الاصطناعية</h3>
+<p style="margin:0">دم المريض (أعلى) يمر بجانب غشاء شبه منفذ. جزيئات <b style="color:var(--urea)">البولينا</b> الصغيرة تعبر الغشاء إلى سائل الغسيل، وكريات الدم الحمراء الكبيرة تبقى. اضغط «ابدأ».</p></div>
+<canvas id="cv" width="360" height="480"></canvas>
+<div class="row"><button class="act" id="go">▶ ابدأ الغسيل</button><button class="act sec" id="rs">إعادة</button></div>
+<div class="row"><label for="spd">سرعة المضخة:</label><input type="range" id="spd" min="1" max="5" value="2"></div>
+<div class="row"><label for="mem">حجم مسام الغشاء:</label><select id="mem"><option value="1">مناسب (يمرّر البولينا فقط)</option><option value="0">مسدود (لا يمرّر شيئًا)</option><option value="2">واسع جدًا (يمرّر الكريات أيضًا)</option></select></div>
+<div class="card"><h3>كيف يعمل الجهاز؟ اضغط على كل جزء</h3><div id="parts"></div><div class="msg" id="pm"></div></div>
+<div class="card">البولينا في الدم: <b id="pc">100%</b> · الوقت: <b id="tm">0</b> ساعة
+<div class="meter"><i id="mt"></i></div><div class="msg" id="sm"></div></div>
+</section>
+
+<section id="t3">
+<div class="card"><h3>نشاط (1:1:4): محاكاة الكلية الاصطناعية</h3>
+<p><b>المواد والأدوات:</b> (اضغط لتحديد ما جهّزته)</p>
+<div id="mat"></div></div>
+<div class="card"><h3>رتّب خطوات العمل</h3>
+<p style="margin:0">اضغط الخطوات بالترتيب الصحيح.</p><div id="steps"></div><div class="msg" id="stm"></div>
+<button class="act sec" onclick="initSteps()">إعادة</button></div>
+</section>
+
+<section id="t4">
+<div class="card"><h3>اختبر نفسك</h3><div id="qz"></div><div class="msg" id="qs"></div></div>
+</section>
+
+<section id="t5">
+<div class="card"><h3>أسئلة النقاش</h3>
+<p>1. ما مصير مرضى الفشل الكلوي لو لم تكن هناك تكنولوجيا الكلية الاصطناعية؟</p>
+<p>2. ما أهم أجزاء الكلية الاصطناعية؟</p>
+<p>3. ما الكلية النقالة؟</p>
+<p>4. أ) ما أهم مشاكل استخدام الكلية الاصطناعية؟ ب) اقترح طرقًا لحل هذه المشاكل.</p></div>
+<div class="card"><h3>هل تعرف أحدًا زُرعت له كلية؟</h3><p>تحدث مع زملائك ومعلمك عمّا عاناه قبل الزراعة، وكيف أصبح وضعه الصحي بعدها.</p></div>
+<div class="card"><h3>ملخص</h3><p>الفشل الكلوي ← تراكم الفضلات ← الغسيل بالدايلزة (انتشار عبر غشاء شبه منفذ) أو زراعة كلية.</p></div>
+</section>
+</main><footer style="text-align:center;padding:16px 12px 28px;color:var(--mut);font-size:14px;border-top:2px solid var(--soft)"><b style="color:var(--pri)">عسقلان EduTech</b><br>تصميم الأستاذ فادي أبو الكباش<br>جميع الحقوق محفوظة © 2026</footer>
+<script>
+var on=true,AC=null;
+function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
+function tone(f,d,t,v){if(!on)return;var c=ac();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||.08;g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}
+function good(){tone(660,.15);setTimeout(function(){tone(880,.25)},130)}
+function bad(){tone(180,.35,'sawtooth',.06)}
+function speak(t){if(!on||!window.speechSynthesis)return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='ar-SA';speechSynthesis.speak(u)}catch(e){}}
+document.getElementById('snd').onclick=function(){on=!on;this.textContent=on?'🔊':'🔇';if(!on&&window.speechSynthesis)speechSynthesis.cancel()};
+function go(id){document.querySelectorAll('section').forEach(function(s){s.classList.toggle('on',s.id===id)});document.querySelectorAll('nav button[data-t]').forEach(function(b){b.classList.toggle('on',b.dataset.t===id)});window.scrollTo(0,0);tone(520,.08)}
+document.querySelectorAll('nav button[data-t]').forEach(function(b){b.onclick=function(){go(b.dataset.t)}});
+
+// timeline
+var ev=[['1869م','العالم الاسكتلندي توماس جراهام توصّل إلى فكرة الانتشار الغشائي لفصل المكونات الذائبة في محلول حول غشاء شبه منفذ كالسلوفان.'],['1944م','العالم الهولندي ويليام كولف استخلص البولينا من دم مرضى الفشل الكلوي عبر أنابيب من السلوفان داخل جهاز فيه محاليل خاصة، ثم أعاد الدم إلى المريض (الدايلزة).'],['1945م','تعاون كولف مع إحدى الشركات الأمريكية للدايلزة لتصنيع جهاز الكلية الصناعية وتطويره.']];
+var tl=document.getElementById('tl');ev.forEach(function(e){var d=document.createElement('div');d.innerHTML='<button class="act sec"><b>'+e[0]+'</b></button>';d.firstChild.onclick=function(){document.getElementById('tlmsg').textContent=e[1];tone(440,.12);speak(e[1])};tl.appendChild(d)});
+
+// simulation
+var cv=document.getElementById('cv'),x=cv.getContext('2d'),W=360,H=480,run=false,P=[],removed=0,N0=36,hrs=0,last=0,tk=0;
+var BT=210,BB=280,MY=295,DT=310,DB=380;
+function cs(n){return getComputedStyle(document.documentElement).getPropertyValue(n)}
+function reset(){P=[];removed=0;hrs=0;run=false;document.getElementById('go').textContent='▶ ابدأ الغسيل';
+for(var i=0;i<N0;i++)P.push({t:'u',x:20+Math.random()*320,y:BT+8+Math.random()*(BB-BT-16),vx:0,vy:(Math.random()-.5)*.6,z:0});
+for(var j=0;j<10;j++)P.push({t:'c',x:20+Math.random()*320,y:BT+14+Math.random()*(BB-BT-28),vx:0,vy:(Math.random()-.5)*.3,z:0});
+upd();draw()}
+function upd(){var b=P.filter(function(p){return p.t==='u'&&p.z===0}).length,pc=Math.round(b/N0*100);
+document.getElementById('pc').textContent=pc+'%';document.getElementById('mt').style.width=pc+'%';document.getElementById('tm').textContent=hrs.toFixed(1);
+var m=document.getElementById('sm');m.textContent=document.getElementById('mem').value==='0'&&hrs>2?'الغشاء مسدود: لا تخرج البولينا!':document.getElementById('mem').value==='2'&&P.filter(function(p){return p.t==='c'&&p.z===1}).length?'خطر! كريات الدم تخرج مع الفضلات.':pc<=30?'ممتاز! أصبح الدم نظيفًا تقريبًا ✔':''}
+function step(dt){var sp=+document.getElementById('spd').value,mem=document.getElementById('mem').value;rot+=dt*sp*6;hrs+=dt*sp*0.12;if(hrs>6)hrs=6;
+P.forEach(function(p){var top=p.z===0,y1=top?BT:DT,y2=top?BB:DB,r=p.t==='c'?9:4;
+p.x+=(top?1:-1)*sp*(p.t==='c'?40:34)*dt*(.7+Math.random()*.6);p.y+=p.vy*sp*20*dt;p.vy+=(Math.random()-.5)*.3;
+if(p.y<y1+r){p.y=y1+r;p.vy=Math.abs(p.vy)}
+var lim=y2-r;
+if(top&&p.y>lim){var pass=(p.t==='u'&&mem==='1')||(mem==='2'&&Math.random()<.3);if(pass&&Math.random()<.016*sp+.006){p.z=1;p.y=DT+8;p.vy=0;removed++;if(p.t==='u'&&tk<1){tk=3;tone(900,.05,'sine',.04)}}else{p.y=lim;p.vy=-Math.abs(p.vy)}}
+if(!top&&p.y>lim){p.y=lim;p.vy=-Math.abs(p.vy)}
+if(top&&p.x>345)p.x=15;
+if(!top&&p.x<5){p.x=-100;p.gone=1}});
+P=P.filter(function(p){return !(p.gone&&p.t==='u')});
+P.forEach(function(p){if(p.gone){p.gone=0;p.z=1;p.x=355}});
+if(tk>0)tk--;
+}
+var rot=0;
+function tube(pts,col){x.lineJoin='round';x.beginPath();pts.forEach(function(p,i){i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1])});x.strokeStyle=col;x.lineWidth=7;x.stroke();x.strokeStyle='rgba(255,255,255,.7)';x.lineWidth=2;x.setLineDash([5,9]);x.lineDashOffset=-rot*6;x.stroke();x.setLineDash([]);x.lineDashOffset=0}
+function circ(){var ink=cs('--ink'),pri=cs('--pri');
+tube([[140,45],[14,45],[14,BT+35],[0,BT+35]],'#8e1b1b');
+tube([[360,BT+35],[346,BT+35],[346,45],[220,45]],'#e57373');
+x.fillStyle=cs('--card');x.strokeStyle=pri;x.lineWidth=3;x.beginPath();x.roundRect(140,22,80,46,10);x.fill();x.stroke();
+x.fillStyle=ink;x.font='14px sans-serif';x.textAlign='center';x.fillText('المريض',180,50);
+x.beginPath();x.arc(70,45,17,0,7);x.fillStyle=cs('--card');x.fill();x.stroke();
+x.beginPath();x.moveTo(70,45);x.lineTo(70+14*Math.cos(rot),45+14*Math.sin(rot));x.moveTo(70,45);x.lineTo(70-14*Math.cos(rot),45-14*Math.sin(rot));x.stroke();
+x.fillStyle=ink;x.font='12px sans-serif';x.fillText('مضخة الدم',70,78);x.fillText('① الدم يُسحب',70,96);
+x.fillStyle=cs('--card');x.strokeStyle=pri;x.beginPath();x.roundRect(292,32,28,26,5);x.fill();x.stroke();x.fillStyle=ink;x.fillText('مصيدة الهواء',306,78);x.fillText('④ يعود نظيفًا',290,96);
+x.fillText('② الفلتر (الدايلزر)',180,BT-10);x.fillText('جهاز الديلزة',180,140);x.setLineDash([4,4]);x.strokeStyle=pri;x.lineWidth=1.5;x.strokeRect(2,BT-26,356,DB-BT+60);x.setLineDash([])}
+function draw(){x.clearRect(0,0,W,H);var ink=cs('--ink'),pri=cs('--pri');
+x.fillStyle='rgba(198,40,40,.12)';x.fillRect(0,BT,W,BB-BT);x.fillStyle=cs('--dial');x.fillRect(0,DT,W,DB-DT);
+x.strokeStyle=pri;x.lineWidth=3;x.strokeRect(0,BT,W,BB-BT);x.strokeRect(0,DT,W,DB-DT);
+x.setLineDash([6,5]);x.lineWidth=2;x.beginPath();x.moveTo(0,MY);x.lineTo(W,MY);x.stroke();x.setLineDash([]);
+x.fillStyle=ink;x.font='13px sans-serif';x.textAlign='center';
+circ();x.fillStyle=ink;x.font='13px sans-serif';x.textAlign='center';x.fillText('غشاء شبه منفذ',180,MY+4);x.fillText('③ سائل الغسيل (يسير عكس اتجاه الدم)',180,DB+18);x.fillText('سائل جديد يدخل',300,DB+38);x.fillText('سائل مستعمل يخرج',70,DB+38);
+
+P.forEach(function(p){if(p.x<-20)return;x.beginPath();if(p.t==='c'){x.fillStyle='#c62828';x.arc(p.x,p.y,9,0,7);x.fill();x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.arc(p.x,p.y,3,0,7);x.fill()}else{x.fillStyle=cs('--urea');x.arc(p.x,p.y,4,0,7);x.fill()}});
+x.textAlign='right';x.font='12px sans-serif';x.fillStyle='#c62828';x.fillText('● كرية دم حمراء',350,DB+75);x.fillStyle=cs('--urea');x.fillText('● بولينا',350,DB+95);
+}
+function loop(t){if(run){var dt=Math.min(.05,(t-last)/1000);step(dt);upd();if(hrs>=6){run=false;document.getElementById('go').textContent='▶ ابدأ الغسيل';good()}}last=t;draw();requestAnimationFrame(loop)}
+document.getElementById('go').onclick=function(){ac();run=!run;this.textContent=run?'⏸ إيقاف':'▶ ابدأ الغسيل';tone(300,.1,'square',.04);if(run)speak('بدأ الغسيل. شاهد البولينا تعبر الغشاء.')};
+document.getElementById('rs').onclick=function(){reset();tone(400,.1)};
+document.getElementById('mem').onchange=function(){reset()};
+setInterval(function(){if(run)tone(120,.08,'triangle',.05)},700);
+reset();requestAnimationFrame(loop);
+
+var parts=[['① مضخة الدم','تسحب الدم من ذراع المريض عبر أنبوب، وتدفعه بسرعة محسوبة إلى الفلتر.'],['② الفلتر (الدايلزر)','فيه غشاء شبه منفذ. تعبر البولينا والأملاح الصغيرة من الدم إلى سائل الغسيل بالانتشار، وتبقى كريات الدم.'],['③ سائل الغسيل','محلول خاص يجري بعكس اتجاه الدم ليلتقط الفضلات باستمرار، ثم يخرج مستعملًا.'],['④ مصيدة الهواء والعودة','تمنع وصول فقاعات الهواء إلى الجسم، ثم يعود الدم النظيف إلى المريض.']];
+var pd=document.getElementById('parts');parts.forEach(function(p){var b=document.createElement('button');b.className='opt';b.textContent=p[0];b.onclick=function(){document.getElementById('pm').textContent=p[1];tone(500,.1);speak(p[1])};pd.appendChild(b)});
+// materials
+var mats=['فلتر ماء أو غشاء شبه منفذ كالسلوفان','ماء مخلوط بشوائب وتربة','قارورتا ماء','أنابيب مجوفة','مضخة صغيرة'];
+var mt=document.getElementById('mat');mats.forEach(function(m){var l=document.createElement('label');l.className='ck';l.innerHTML='<input type="checkbox"> '+m;l.firstChild.onchange=function(){tone(this.checked?600:400,.08)};mt.appendChild(l)});
+var steps=['جهّز المواد والأدوات','صل الأنبوب الأول بالمضخة وبقارورة الماء المتسخ (الدم)','أدخل الأنبوب في الفلتر (الغشاء) لتمرير الماء عبره','صل مخرج الفلتر بالقارورة الثانية','شغّل المضخة وراقب الماء','دوّن ملاحظاتك: ماذا بقي في الفلتر؟'];
+var nxt=0;
+function initSteps(){nxt=0;document.getElementById('stm').textContent='';var s=document.getElementById('steps');s.innerHTML='';
+steps.map(function(t,i){return{t:t,i:i}}).sort(function(){return Math.random()-.5}).forEach(function(o){var b=document.createElement('button');b.className='step';b.textContent=o.t;b.onclick=function(){if(b.classList.contains('done'))return;if(o.i===nxt){b.classList.add('done');b.textContent=(nxt+1)+'. '+o.t;nxt++;good();if(nxt===steps.length){document.getElementById('stm').textContent='أحسنت! رتبت الخطوات كلها 🎉'}}else{bad();document.getElementById('stm').textContent='ليست هذه الخطوة التالية، فكّر وحاول مجددًا.'}};s.appendChild(b)})}
+initSteps();
+
+// quiz
+var Q=[['ما سبب حاجة المريض إلى غسيل الكلى؟',['تراكم الفضلات مثل البولينا في الدم','نقص الأكسجين','ارتفاع الحرارة'],0],
+['من العالم الذي استخلص البولينا من دم المرضى عام 1944م؟',['توماس جراهام','ويليام كولف','ألبرت أينشتاين'],1],
+['ما نوع الغشاء المستخدم في الكلية الاصطناعية؟',['غشاء غير منفذ','غشاء شبه منفذ','غشاء معدني'],1],
+['كم تستمر جلسة الغسيل الكلوي تقريبًا؟',['من 4 إلى 6 ساعات','10 دقائق','يومين'],0],
+['ما أفضل طريقة لعلاج الفشل الكلوي إذا سمحت حالة المريض؟',['زراعة كلية','الراحة فقط','المضادات الحيوية'],0]];
+var qi=0,sc=0,qd=document.getElementById('qz');
+function showQ(){var qs=document.getElementById('qs');qs.textContent='';if(qi>=Q.length){qd.innerHTML='<h3>نتيجتك: '+sc+' من '+Q.length+'</h3><button class="act" id="rq">أعد الاختبار</button>';document.getElementById('rq').onclick=function(){qi=0;sc=0;showQ()};if(sc>=4)good();return}
+var q=Q[qi];qd.innerHTML='<p><b>'+(qi+1)+'/'+Q.length+' – '+q[0]+'</b></p>';var done=false;
+q[1].forEach(function(o,i){var b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=function(){if(done)return;done=true;if(i===q[2]){b.classList.add('right');sc++;good();qs.textContent='إجابة صحيحة!'}else{b.classList.add('wrong');qd.querySelectorAll('.opt')[q[2]].classList.add('right');bad();qs.textContent='الإجابة الصحيحة موضّحة بالأخضر.'}setTimeout(function(){qi++;showQ()},1500)};qd.appendChild(b)})}
+showQ();
+</script>
+</body>
+</html>
