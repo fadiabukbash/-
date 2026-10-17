@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>تطبيقات الطاقة النظيفة | درس تفاعلي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef6f3;--card:#fff;--tx:#12302b;--mut:#4d6b65;--bd:#cfe3dd;--ac:#1f8a7d;--hd:#0f3d3a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1917;--card:#152623;--tx:#e6f3ef;--mut:#a4c2bb;--bd:#264640;--ac:#4cc9b8;--hd:#07201e}}
+:root[data-theme="dark"]{--bg:#0d1917;--card:#152623;--tx:#e6f3ef;--mut:#a4c2bb;--bd:#264640;--ac:#4cc9b8;--hd:#07201e}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Tajawal,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.9;font-size:17px}
+header{background:var(--hd);color:#fff;padding:22px 16px 18px;text-align:center}
+header h1{margin:0 0 4px;font-size:clamp(24px,5vw,38px);font-weight:800}
+header p{margin:0;opacity:.85}
+.top{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.pill{background:#ffffff22;border-radius:30px;padding:2px 14px;font-weight:700}
+button{font:inherit;cursor:pointer;color:inherit}
+.snd{background:#ffffff22;border:1px solid #fff6;color:#fff;border-radius:30px;padding:2px 14px}
+nav{display:flex;gap:8px;overflow-x:auto;padding:12px;max-width:1000px;margin:auto}
+nav button{flex:1 0 auto;background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:6px 16px;font-weight:700;white-space:nowrap}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#sub{padding-top:0}#sub button{border-radius:30px;font-size:15px;border-style:dashed}#sub button.on{border-style:solid}
+main{max-width:1000px;margin:auto;padding:0 12px 20px}
+.intro{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 16px;margin-bottom:12px;color:var(--mut)}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px 18px;margin-bottom:14px}
+h2{margin:6px 0 10px;font-size:26px}h3{margin:0 0 6px;font-size:20px;color:var(--ac)}
+ul,ol{margin:0;padding-inline-start:22px}li{margin-bottom:4px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:4px 14px;font-weight:700}
+.btn.o{background:transparent;color:var(--ac);border:2px solid var(--ac)}
+.sc{width:100%;height:auto;border-radius:12px;display:block;border:1px solid var(--bd)}
+.pt{opacity:.12;transition:opacity .5s}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{border:2px dashed var(--ac);background:transparent;border-radius:10px;padding:2px 12px;font-weight:700}
+.chip.on{background:var(--ac);color:#fff;border-style:solid}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctl input{flex:1 1 180px;accent-color:var(--ac);direction:ltr}
+.val{min-width:90px;font-weight:800;color:var(--ac)}
+.gauge{height:18px;border-radius:10px;background:var(--bd);overflow:hidden;margin:8px 0}
+.gauge i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f4b400,#2e9e5b);transition:width .2s}
+.st{font-weight:700;min-height:3.4em}
+.ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.ex div{background:var(--bg);border-radius:12px;padding:8px 12px}
+.q button{display:block;width:100%;text-align:start;background:var(--bg);border:2px solid var(--bd);border-radius:10px;padding:4px 12px;margin:6px 0}
+.q button.ok{border-color:#2e9e5b;background:#2e9e5b33}.q button.no{border-color:#d64545;background:#d6454533}
+#md{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+#md.on{display:flex}
+#mb{background:var(--card);border-radius:18px;padding:20px;max-width:520px;width:100%;text-align:center;max-height:92vh;overflow:auto}
+#mi{font-size:64px;display:inline-block;animation:sp 3s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes pu{50%{transform:scale(1.25)}}
+#mi.pu{animation:pu 1.2s ease-in-out infinite}
+#mn{font-size:44px;font-weight:800;color:var(--ac)}
+footer{background:var(--hd);color:#fff;text-align:center;padding:16px;font-weight:700}
+footer small{display:block;opacity:.8;font-weight:400}
+@media (prefers-reduced-motion:reduce){#mi{animation:none}}
+</style></head><body>
+<header>
+<h1>⚡ تطبيقات الطاقة النظيفة</h1>
+<p>الوحدة الأولى: الطاقة النظيفة — الدرس الأول</p>
+<div class="top"><span class="pill" id="score">⭐ 0 / 6</span><button class="snd" id="sb">🔇 تشغيل الصوت</button></div>
+</header>
+<nav id="nav"></nav>
+<main>
+<div class="intro">🎯 <b>أهداف الدرس:</b> تتعرّف أشكال الطاقة النظيفة، وتركّب نموذج كل تطبيق بنفسك، وتغيّر الظروف لترى النتائج، وتطّلع على تجارب عالمية. ابدأ باختيار تطبيق من الأعلى.</div>
+<div id="app"></div>
+</main>
+<footer>عسقلان EduTech<small>تصميم الأستاذ فادي أبو الكباش</small></footer>
+<div id="md"><div id="mb"><div id="mi"></div><h3 id="mt"></h3><div id="mn"></div><p id="mx"></p>
+<button class="btn" id="ms">🗣️ استمع</button> <button class="btn o" id="mc">إغلاق</button></div></div>
+<script>
+const g=(s,r=document)=>r.querySelector(s);
+const M=[
+{ic:'🌬️',n:'طاقة الرياح',spd:300,
+parts:['البرج','الغرفة والمولّد','الشفرات','المصباح'],
+sl:{l:'سرعة الرياح',u:'م/ث',min:0,max:30,v:8},
+sum:['تُعدّ طاقة الرياح من أقدم مصادر الطاقة التي استخدمها الإنسان؛ فقد استُخدمت في طحن الحبوب وتسيير السفن الشراعية وضخّ المياه.','في وقتنا الحاضر تُولَّد الكهرباء بالعنفات الهوائية، إذ تتحوّل الطاقة الحركية للرياح إلى حركة دورانية للمراوح.','يتصل عمود المراوح بمولّد ينتج الطاقة الكهربائية، ويُتحكَّم بسرعة الدوران بالفرامل عند اشتداد الرياح، أو تُوقَف العنفة عند حدوث العواصف.','يُشترط وجود مناطق تهبّ فيها الرياح بسرعة معتدلة خلال العام.'],
+how:['تدفع الرياح الشفرات فتدور.','يدير دوران الشفرات عمودًا متصلًا بالمولّد.','يحوّل المولّد الحركة الدورانية إلى طاقة كهربائية.','تنتقل الكهرباء عبر الأسلاك إلى البيوت والمصانع.','<b>من الصعوبات:</b> تغيّر سرعة الرياح، وكلفة الإنشاء، والحاجة إلى مساحات واسعة، والضجيج.'],
+ex:['🌾 طواحين الهواء القديمة لطحن الحبوب.','🌊 مزارع الرياح على السواحل وفي السهول المفتوحة.','🚰 ضخّ المياه لريّ المزروعات.','🚢 السفن الشراعية.'],
+gl:{ic:'🌬️',t:'الدنمارك: دولة تعيش على الرياح',n:33,pre:'أكثر من ',suf:'٪ من الكهرباء',tx:'تُعدّ الدنمارك من أكثر دول العالم استخدامًا لطاقة الرياح، فهي تولّد أكثر من ثلث احتياجاتها من الكهرباء بواسطة الرياح، وتنتشر فيها مزارع العنفات على اليابسة وفي البحر.'},
+q:{q:'ما أنسب حالة لعمل العنفة الهوائية؟',o:['غياب الرياح تمامًا','رياح معتدلة مستمرة','عاصفة شديدة'],a:1},
+calc:v=>v<3?{p:0,n:v/40,s:'الرياح ضعيفة جدًا، فلا تكفي لإدارة المولّد.'}:v>25?{p:0,n:.9,s:'⚠️ عاصفة! تُوقَف العنفة بالفرامل لحمايتها.'}:{p:Math.min(1,Math.pow(v/12,3)),n:v/30,s:v>=12?'✅ أفضل أداء: تعمل العنفة بأقصى قدرتها.':'تدور الشفرات وتزداد الكهرباء بزيادة سرعة الرياح.'},
+svg:`<rect width="400" height="250" fill="#bfe6f5"/><g class="cl" fill="#fff" opacity=".85"><ellipse cx="60" cy="40" rx="30" ry="12"/><ellipse cx="90" cy="46" rx="26" ry="10"/></g><rect y="215" width="400" height="35" fill="#6bb36b"/>
+<polygon class="pt" data-i="0" points="182,215 198,215 194,92 186,92" fill="#eee" stroke="#999"/>
+<rect class="pt" data-i="1" x="178" y="82" width="34" height="14" rx="6" fill="#ddd" stroke="#888"/>
+<g class="pt" data-i="2"><g class="rot" data-x="180" data-y="89"><g fill="#fff" stroke="#888"><path d="M0 0L-5-64L5-64Z"/><path d="M0 0L-5-64L5-64Z" transform="rotate(120)"/><path d="M0 0L-5-64L5-64Z" transform="rotate(240)"/></g><circle r="6" fill="#d33"/></g></g>
+<g class="pt" data-i="3"><path d="M190 215V232H320V196" stroke="#c0392b" fill="none" stroke-width="3"/><rect x="314" y="184" width="12" height="12" fill="#777"/><circle class="bulb" cx="320" cy="170" r="16" fill="#ffd54a"/></g>`,
+ex2(r,p,t,v){g('.cl',r).setAttribute('transform','translate('+((t/1000*v*8)%460-60)+' 0)')}},
+{ic:'☀️',n:'الطاقة الشمسية',spd:0,
+parts:['اللوح الشمسي','المحرك','العجلات'],
+sl:{l:'شدة أشعة الشمس',u:'٪',min:0,max:100,v:70},
+sum:['الشمس هي المصدر الأساسي للطاقة على سطح الأرض، وتنشأ منها أشكال الحياة المختلفة، فهي تمدّ الأرض بالحرارة والضوء.','استفاد الإنسان من الطاقة الشمسية قديمًا في تدفئة المنازل وتجفيف الحبوب واستخراج الملح من مياه البحر.','يمكن توليد الكهرباء بالخلايا الشمسية التي تحوّل الطاقة الضوئية إلى كهربائية، وتعمل بكفاءة عالية في المناطق المشمسة لفترات طويلة على مدار العام.','ويُستفاد منها كذلك في تسخين المياه، وفي المقطّر الشمسي للحصول على مياه صالحة للشرب.'],
+how:['تسقط أشعة الشمس على الخلايا الشمسية في اللوح.','تتحرّك الإلكترونات داخل الخلايا فينشأ تيار كهربائي.','يصل التيار إلى المحرك فتدور العجلات وتتحرك السيارة.','<b>المقطّر الشمسي:</b> تسخّن الشمس ماء البحر فيتبخّر، ثم يتكاثف البخار على الزجاج ويُجمع ماءً عذبًا، ويبقى الملح في الحوض.','<b>للتفكير:</b> ما الاستخدامات الحالية للطاقة الشمسية في الزراعة وتوليد الكهرباء وتسخين المياه؟'],
+ex:['🏠 سخّانات المياه الشمسية على أسطح البيوت.','🚗 السيارة الشمسية الصغيرة (نشاط الكتاب).','💧 المقطّر الشمسي لتحلية المياه.','🌾 تجفيف الحبوب والثمار.'],
+gl:{ic:'☀️',t:'مجمّع «نور» للطاقة الشمسية في المغرب',n:580,pre:'نحو ',suf:' ميغاواط',tx:'يقع مجمّع نور ورزازات في أطراف الصحراء المغربية، ويُعدّ من أكبر محطات الطاقة الشمسية المركّزة في العالم. وفي ألمانيا تخطط الدولة لرفع نسبة استخدام الطاقة الشمسية إلى ١٠٠٪ بحلول عام ٢٠٥٠.'},
+q:{q:'ماذا تحوّل الخلايا الشمسية؟',o:['الطاقة الضوئية إلى كهربائية','الطاقة الصوتية إلى حرارية','الطاقة الكيميائية إلى ضوئية'],a:0},
+calc:v=>({p:v/100,n:0,s:v<20?'☁️ غيوم كثيفة: الكهرباء قليلة والسيارة شبه متوقفة.':v<60?'⛅ إشعاع متوسط: تسير السيارة بسرعة معتدلة.':'☀️ شمس ساطعة: تُنتج الخلايا أكبر قدر من الكهرباء.'}),
+svg:`<rect width="400" height="250" fill="#a9dcf5"/><g class="sun"><g class="ray" stroke="#ffb300" stroke-width="4"><path d="M60 8V22M60 78V92M18 50H32M88 50H102M30 20L40 30M80 70L90 80M90 20L80 30M30 80L40 70"/></g><circle cx="60" cy="50" r="22" fill="#ffc107"/></g>
+<g class="cl" fill="#9aa7ad"><ellipse cx="90" cy="48" rx="60" ry="22"/><ellipse cx="150" cy="58" rx="50" ry="18"/></g>
+<rect y="205" width="400" height="45" fill="#555"/><path d="M0 228H400" stroke="#fff" stroke-dasharray="14 12" stroke-width="3"/>
+<g class="car"><rect x="0" y="-32" width="110" height="24" rx="7" fill="#ffd400"/>
+<polygon class="pt" data-i="0" points="14,-32 98,-32 90,-46 22,-46" fill="#1d3f8a" stroke="#9cf"/>
+<rect class="pt" data-i="1" x="42" y="-24" width="24" height="12" fill="#888" stroke="#444"/>
+<g class="pt" data-i="2"><circle cx="24" cy="-8" r="11" fill="#222"/><circle cx="88" cy="-8" r="11" fill="#222"/><circle cx="24" cy="-8" r="4" fill="#ccc"/><circle cx="88" cy="-8" r="4" fill="#ccc"/></g></g>`,
+ex2(r,p,t,v,dt,all,m){m.x=((m.x||0)+(all?p*130*dt:0))%520;g('.car',r).setAttribute('transform','translate('+(m.x-120)+' 232)');g('.cl',r).style.opacity=(1-v/100)*.95;g('.ray',r).style.opacity=.3+v/150;g('.sun',r).style.transform='scale('+(.8+v/250)+')';g('.sun',r).style.transformOrigin='60px 50px'}},
+{ic:'💧',n:'طاقة المياه',spd:420,
+parts:['جسم السد','التوربين','المولّد والمصباح'],
+sl:{l:'فتح بوابة السد',u:'٪',min:0,max:100,v:50},
+sum:['تمتلك المياه طاقة يمكن الاستفادة منها بشكل كبير في مجالات عدة، مثل التنقّل بالسفن، واستخدام النواعير في طحن الحبوب وضخّ المياه لريّ المزروعات.','تُستغلّ حاليًا بشكل واسع في توليد الكهرباء باستخدام السدود المائية، وبظاهرتي المدّ والجزر في المناطق القريبة من المسطحات المائية.','يتجمّع الماء خلف السد في مكان مرتفع، وعند فتح البوابة يندفع عبر أنبوب فيدير التوربين المتصل بالمولّد.'],
+how:['يُحجز الماء خلف السد فتختزن طاقة وضع كبيرة.','تُفتح البوابة فيندفع الماء وتتحوّل طاقته إلى طاقة حركية.','يدير الماء المندفع التوربين.','يحوّل المولّد دوران التوربين إلى كهرباء.','<b>المدّ والجزر:</b> عند ارتفاع الماء يدخل عبر التوربينات وعند انخفاضه يعود فيديرها كذلك.','<b>من التحديات:</b> كلفة بناء السدود العالية، وتأثيرها في البيئة والكائنات الحية، وتغيّر منسوب المياه بين الفصول.'],
+ex:['🎡 النواعير القديمة (مثل نواعير حماة).','🏗️ السدود المائية لتوليد الكهرباء.','🌊 محطات المدّ والجزر على السواحل.','⛲ نافورة تعمل بطاقة المياه (نشاط الكتاب).'],
+gl:{ic:'🏗️',t:'سد الممرات الثلاثة في الصين',n:22.5,pre:'نحو ',suf:' غيغاواط',tx:'يُعتبر سد الممرات الثلاثة في الصين من أكبر محطات توليد الطاقة الكهربائية بالمياه في العالم، ويقع على نهر يانغتسي، وتُدير مياهه عشرات التوربينات الضخمة.'},
+q:{q:'ما الذي يدير التوربين في السد؟',o:['الماء المتدفق','الرمل','الضوء'],a:0},
+calc:v=>({p:v/100,n:.1+v/130,s:v<15?'البوابة شبه مغلقة: يتدفق ماء قليل فتضعف الكهرباء.':v<70?'يتدفق الماء ويدير التوربين، وتزداد الكهرباء بزيادة الفتح.':'💦 تدفّق قوي: يدور التوربين بأقصى سرعة.'}),
+svg:`<rect width="400" height="250" fill="#cfeaf7"/><rect y="215" width="400" height="35" fill="#7a9a65"/><path d="M0 85H152V215H0Z" fill="#3b8fd9" opacity=".9"/><path d="M0 85Q20 78 40 85T80 85T120 85T152 85" stroke="#fff" fill="none" stroke-width="3"/>
+<g class="pt" data-i="0"><polygon points="150,66 190,66 210,215 150,215" fill="#9aa0a6" stroke="#666"/><rect class="gate" x="168" y="166" width="30" height="26" fill="#2c2c2c"/></g>
+<g class="pt" data-i="1"><rect x="196" y="170" width="62" height="14" fill="#3b8fd9"/><g class="rot" data-x="272" data-y="177"><circle r="17" fill="#e5e5e5" stroke="#777"/><path d="M-17 0H17M0-17V17M-12-12L12 12M12-12L-12 12" stroke="#555" stroke-width="3"/></g><path class="fl" d="M286 186Q320 214 400 218" stroke="#5aa9e6" stroke-width="7" fill="none" stroke-dasharray="12 9"/></g>
+<g class="pt" data-i="2"><rect x="296" y="130" width="30" height="45" fill="#c9a227" stroke="#7a6212"/><path d="M326 150H360V132" stroke="#c0392b" fill="none" stroke-width="3"/><circle class="bulb" cx="360" cy="118" r="15" fill="#ffd54a"/></g>`,
+ex2(r,p,t,v,dt,all){g('.gate',r).setAttribute('height',26*(1-v/100));g('.fl',r).style.strokeDashoffset=-(t/25*p)%21}},
+{ic:'🌋',n:'حرارة باطن الأرض',spd:380,
+parts:['بئر الحفر','أنبوب البخار','المحطة والمولّد'],
+sl:{l:'حرارة الصخور',u:'°م',min:100,max:300,v:200},
+sum:['بالإضافة إلى أشكال الطاقة السابقة، هناك شكل آخر استفاد منه الإنسان، هو طاقة حرارة باطن الأرض، وتُعرف بالطاقة الجوفية.','يُستفاد من البخار الناتج عن الينابيع الحارة في توليد الكهرباء، ومن أشهر الدول التي استخدمتها أيسلندا.','تسخّن الصخور الحارة في باطن الأرض المياه الجوفية فتتحوّل إلى بخار شديد الحرارة يندفع عبر بئر إلى السطح.'],
+how:['تُحفر بئر عميقة حتى تصل إلى صخور حارة أو مياه جوفية ساخنة.','يرتفع البخار عبر البئر بضغط كبير.','يدير البخار توربين المحطة المتصل بالمولّد فتنتج الكهرباء.','يتكاثف البخار ويُعاد ضخّ الماء إلى باطن الأرض ليسخن من جديد.','<b>استخدامات أخرى:</b> تدفئة المباني والبيوت الزجاجية، وتسخين المياه، وتجفيف الأسماك والمحاصيل، والاستجمام في الينابيع الدافئة.'],
+ex:['🇮🇸 أيسلندا: كهرباء وتدفئة من الينابيع الحارة.','♨️ ينابيع الاستشفاء الحارة.','🏘️ تدفئة المنازل والمدن.','🌱 تدفئة البيوت الزجاجية للزراعة.'],
+gl:{ic:'🌋',t:'أيسلندا: جزيرة النار والجليد',n:90,pre:'نحو ',suf:'٪ من البيوت',tx:'تقع أيسلندا فوق منطقة نشطة جيولوجيًا، فتستفيد من ينابيعها الحارة في توليد الكهرباء وتدفئة نحو تسعين بالمئة من بيوتها، وهي من أبرز الأمثلة العالمية على الطاقة الجوفية.'},
+q:{q:'ما الذي يدير التوربين في محطة الطاقة الجوفية؟',o:['الرياح','البخار الناتج عن الحرارة الجوفية','أشعة الشمس'],a:1},
+calc:v=>{const p=(v-100)/200;return {p,n:.2+p*.7,s:v<150?'حرارة منخفضة: بخار قليل وكهرباء ضعيفة.':v<230?'بخار جيّد يدير التوربين بسرعة معتدلة.':'🔥 حرارة عالية: بخار كثيف وكهرباء وفيرة.'}},
+svg:`<rect width="400" height="250" fill="#b9e1f4"/><rect y="100" width="400" height="150" fill="#8d6e63"/><rect y="215" width="400" height="35" fill="#e64a19"/><ellipse cx="105" cy="218" rx="70" ry="22" fill="#ff7043"/><path d="M0 100H400" stroke="#6bb36b" stroke-width="8"/>
+<rect class="pt" data-i="0" x="100" y="96" width="10" height="126" fill="#444"/>
+<g class="pt" data-i="1"><path d="M105 96V78H250" stroke="#999" stroke-width="8" fill="none"/></g>
+<g class="stm"></g>
+<g class="pt" data-i="2"><rect x="250" y="52" width="76" height="48" fill="#cfd8dc" stroke="#78909c"/><g class="rot" data-x="288" data-y="76"><circle r="15" fill="#eee" stroke="#777"/><path d="M-15 0H15M0-15V15" stroke="#555" stroke-width="3"/></g><path d="M326 90H360V62" stroke="#c0392b" fill="none" stroke-width="3"/><circle class="bulb" cx="360" cy="48" r="14" fill="#ffd54a"/></g>`,
+ex2(r,p,t,v,dt,all,m){const s=g('.stm',r);if(!s.firstChild)for(let i=0;i<9;i++)s.insertAdjacentHTML('beforeend','<circle r="5" fill="#fff"/>');[...s.children].forEach((c,i)=>{const u=((t/2600*(.4+p*1.4)+i/9)%1);let x=105,y=215-u*2*119;if(u>.5){y=78;x=105+(u-.5)*2*145}c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('opacity',(all?.3:0)+p*.7*(all?1:0));c.setAttribute('r',3+p*5)})}}
+];
+/* ===== تحديث: رافعة الرياح، المقطّر الشمسي، نافورة المياه ===== */
+const RT='<g fill="#fff" stroke="#888"><path d="M0 0L-5-64L5-64Z"/><path d="M0 0L-5-64L5-64Z" transform="rotate(120)"/><path d="M0 0L-5-64L5-64Z" transform="rotate(240)"/></g><circle r="6" fill="#d33"/>';
+Object.assign(M[0],{fq:500,parts:['البرج','الغرفة والمولّد','الشفرات','الرافعة والحمولة'],
+svg:`<rect width="400" height="250" fill="#bfe6f5"/><g class="cl" fill="#fff" opacity=".85"><ellipse cx="60" cy="40" rx="30" ry="12"/><ellipse cx="90" cy="46" rx="26" ry="10"/></g><rect y="215" width="400" height="35" fill="#6bb36b"/>
+<polygon class="pt" data-i="0" points="162,215 178,215 174,92 166,92" fill="#eee" stroke="#999"/>
+<rect class="pt" data-i="1" x="158" y="82" width="34" height="14" rx="6" fill="#ddd" stroke="#888"/>
+<g class="pt" data-i="2"><g class="rot" data-x="160" data-y="89">${RT}</g></g>
+<g class="pt" data-i="3"><path d="M170 215V232H315V215" stroke="#c0392b" fill="none" stroke-width="3"/><rect x="290" y="205" width="50" height="10" fill="#607d8b"/><rect x="310" y="96" width="8" height="109" fill="#f9a825"/><rect x="250" y="88" width="90" height="8" fill="#f9a825"/><rect x="250" y="76" width="22" height="14" fill="#78909c" stroke="#455a64"/><line class="rp" x1="260" y1="96" x2="260" y2="195" stroke="#444" stroke-width="2"/><g class="ld"><rect x="248" y="195" width="24" height="18" fill="#8d6e63" stroke="#4e342e"/></g></g>
+<text class="cnt" x="392" y="243" text-anchor="end" font-size="14" fill="#fff"></text>`,
+calc:v=>v<3?{p:0,n:v/40,s:'الرياح ضعيفة جدًا، فلا تدور الشفرات بما يكفي لرفع الحمولة.'}:v>25?{p:0,n:.9,s:'⚠️ عاصفة! تُوقَف العنفة بالفرامل لحمايتها فتتوقف الرافعة.'}:{p:Math.min(1,Math.pow(v/12,3)),n:v/30,s:v>=12?'✅ أفضل أداء: يدور المحرك بسرعة فتصعد الحمولة بأسرع ما يمكن.':'يدور محرك الرافعة فيلفّ الحبل وترتفع الحمولة ببطء.'},
+ex2(r,p,t,v,dt,all,m){g('.cl',r).setAttribute('transform','translate('+((t/1000*v*8)%460-60)+' 0)');if(m.hold>0){m.hold-=dt;if(m.hold<=0)m.h=0}else{m.h=(m.h||0)+p*45*dt;if(m.h>=85){m.h=85;m.hold=1.2;m.lc=(m.lc||0)+1}}g('.ld',r).setAttribute('transform','translate(0 '+(-(m.h||0))+')');g('.rp',r).setAttribute('y2',195-(m.h||0));g('.cnt',r).textContent='مرات الرفع: '+(m.lc||0)}});
+M[0].how[3]='تنتقل الكهرباء عبر الأسلاك إلى محرك الرافعة فيلفّ الحبل ويرفع الحمولة إلى الأعلى.';
+M[0].sum.push('يمكن استخدام الكهرباء المولَّدة في تشغيل رافعة كهربائية ترفع الأحمال، كما في نشاط الكتاب.');
+M[0].ex.unshift('🏗️ رافعة كهربائية تعمل بطاقة الرياح (نشاط الكتاب).');
+M[1].ic='🚗';M[1].n='السيارة الشمسية';M[1].fq=0;M[1].how.splice(3,1);
+const still={ic:'💧',n:'المقطّر الشمسي',spd:0,fq:2500,w:0,
+parts:['الحوض والماء المالح','الغطاء الزجاجي','قناة جمع الماء'],
+sl:{l:'شدة أشعة الشمس',u:'٪',min:0,max:100,v:75},
+sum:['المقطّر الشمسي جهاز يستفيد من حرارة الشمس للحصول على ماء صالح للشرب من ماء البحر، وللتخلّص من الملح.','تسخّن أشعة الشمس الماء المالح في الحوض الأسود فيتبخّر، ويبقى الملح في الحوض.','يلامس البخار الغطاء الزجاجي الأبرد فيتكاثف قطراتٍ من الماء العذب.','تنزلق القطرات على الزجاج المائل وتسقط في القناة، وتُجمع هناك.','وتُعدّ تحلية مياه البحر مهمة للمناطق الساحلية التي تعاني من نقص مياه الشرب، ومنها غزة.'],
+how:['يوضع ماء البحر في حوض مطلي باللون الأسود لأنه يمتصّ الحرارة جيدًا.','تدخل أشعة الشمس عبر الغطاء الزجاجي فيسخن الماء ويتبخّر.','يرتفع البخار ويلامس الزجاج الأبرد فيتكاثف قطراتٍ.','تنزلق القطرات على الزجاج المائل وتسقط في القناة.','يبقى الملح في الحوض، ويُجمع الماء العذب للشرب.','<b>للبحث:</b> ما الطرق المستخدمة لتحلية مياه البحر في غزة؟'],
+ex:['🌊 تحلية ماء البحر للشرب.','🧂 استخراج الملح من الماء المالح.','🏜️ المناطق النائية التي لا تصلها شبكة مياه.','🧪 تنقية الماء الملوّث.'],
+gl:{ic:'💧',t:'أحد أقدم المقطّرات الشمسية الكبيرة في تشيلي',n:1872,pre:'عام ',suf:' م',tx:'أُنشئ في صحراء تشيلي عام ١٨٧٢ مقطّر شمسي كبير لتوفير مياه الشرب لعمّال أحد المناجم، وظلّ يعمل نحو أربعين عامًا، وهو من أقدم الأمثلة العالمية على هذه الفكرة.'},
+q:{q:'ماذا يحدث لبخار الماء عند ملامسته الزجاج الأبرد؟',o:['يتكاثف ماءً عذبًا','يتحوّل إلى ملح','يختفي تمامًا'],a:0},
+calc:v=>({p:v/100,n:v/450,s:(v<20?'☁️ إشعاع ضعيف: يتبخّر ماء قليل جدًا. ':v<60?'⛅ إشعاع متوسط: تحلية بطيئة. ':'☀️ شمس قوية: يتبخّر الماء ويتكاثف بسرعة. ')+'الماء العذب المجمّع: '+Math.round(still.w)+' مل'}),
+svg:`<rect width="400" height="250" fill="#aee0f7"/><g class="sun"><g class="ray" stroke="#ffb300" stroke-width="4"><path d="M40 6V18M40 70V82M-4 44H10M70 44H84"/></g><circle cx="40" cy="44" r="18" fill="#ffc107"/></g>
+<g class="ry" stroke="#ffb300" stroke-width="3" fill="none"><path d="M130 30L155 80M200 20V70M270 30L245 80"/></g>
+<rect x="30" y="226" width="340" height="24" fill="#8d8d8d"/><text x="200" y="243" text-anchor="middle" font-size="12" fill="#fff">عازل</text>
+<g class="pt" data-i="0"><rect x="50" y="144" width="10" height="82" fill="#cfd8dc"/><rect x="340" y="144" width="10" height="82" fill="#cfd8dc"/><rect x="60" y="196" width="280" height="30" fill="#222"/><rect x="64" y="184" width="272" height="14" fill="#2f6fb5"/><text x="200" y="216" text-anchor="middle" font-size="12" fill="#fff">ماء مالح</text></g>
+<polygon class="pt" data-i="1" points="50,144 200,84 350,144" fill="#d7f1ff" fill-opacity=".45" stroke="#4aa3c7" stroke-width="3"/>
+<g class="pt" data-i="2"><rect x="60" y="170" width="44" height="10" fill="#e3f2fd" stroke="#78909c"/><rect x="296" y="170" width="44" height="10" fill="#e3f2fd" stroke="#78909c"/><rect class="fw" x="60" y="172" width="0" height="8" fill="#1e88e5"/><rect class="fw2" x="340" y="172" width="0" height="8" fill="#1e88e5"/></g><g class="vp"></g>`,
+ex2(r,p,t,v,dt,all){const q=all?p:0;still.w+=q*dt*12;const wd=Math.min(44,still.w*.6);g('.fw',r).setAttribute('width',wd);g('.fw2',r).setAttribute('x',340-wd);g('.fw2',r).setAttribute('width',wd);g('.ray',r).style.opacity=.3+v/150;g('.ry',r).style.opacity=v/100;const s=g('.vp',r);if(!s.firstChild){for(let i=0;i<8;i++)s.insertAdjacentHTML('beforeend','<circle r="3" fill="#fff"/>');for(let i=0;i<6;i++)s.insertAdjacentHTML('beforeend','<circle r="3" fill="#4fc3f7"/>')}[...s.children].forEach((c,i)=>{let x,y;if(i<8){const u=((t/2600*(.3+q*1.2)+i/8)%1);x=90+i*30;const ry=x<200?144-(x-50)*.4:144-(350-x)*.4;y=182-u*(182-ry-6)}else{const k=i-8,u=((t/4200*(.3+q*1.2)+(k%3)/3)%1);x=k<3?200-135*u:200+135*u;y=90+54*u}c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('opacity',q>0?(i<8?.8:1):0)})}};
+M.splice(2,0,still);
+Object.assign(M[3],{ic:'⛲',n:'نافورة تعمل بطاقة المياه',fq:1100,
+parts:['حوض الماء','المضخة والأنابيب','التوربين المائي (الناعورة)','المولّد والأسلاك'],
+sl:{l:'قدرة المضخة',u:'٪',min:0,max:100,v:50},
+how:['تدفع المضخة الماء في أنبوبين: أحدهما إلى فوهة النافورة، والآخر إلى التوربين المائي.','يسقط الماء على ريش الناعورة فتدور.','يدير دوران الناعورة المولّد فتنتج كهرباء.','تعود الكهرباء إلى المضخة لتواصل ضخّ الماء.','<b>ملاحظة:</b> لا تعمل النافورة إلى الأبد دون دفعة أولية؛ لأن جزءًا من الطاقة يضيع بالاحتكاك والحرارة.','<b>في السدود:</b> يندفع الماء المحجوز من مكان مرتفع فيدير التوربين والمولّد.'],
+q:{q:'ما الذي يدير التوربين المائي (الناعورة) في النافورة؟',o:['الماء المتساقط من المضخة','الرمل','الضوء'],a:0},
+calc:v=>({p:v/100,n:.1+v/130,s:v<15?'المضخة ضعيفة: ارتفاع النافورة قليل ولا تدور الناعورة جيدًا.':v<70?'ترتفع النافورة وتدور الناعورة فتولّد كهرباء تعيد تشغيل المضخة.':'💦 نافورة عالية وناعورة سريعة: كهرباء وفيرة.'}),
+svg:`<rect width="400" height="250" fill="#dff1fa"/><rect y="225" width="400" height="25" fill="#7a9a65"/>
+<rect class="pt" data-i="0" x="60" y="178" width="280" height="47" fill="#3b8fd9" stroke="#556" stroke-width="4"/>
+<g class="pt" data-i="1"><rect x="150" y="195" width="40" height="22" rx="4" fill="#3b4a6b"/><rect x="167" y="168" width="6" height="28" fill="#78909c"/><path d="M190 205H250V72H276" stroke="#78909c" stroke-width="6" fill="none"/></g>
+<g class="pt" data-i="2"><line x1="290" y1="115" x2="290" y2="178" stroke="#8d6e63" stroke-width="5"/><g class="rot" data-x="290" data-y="115"><circle r="32" fill="none" stroke="#8d6e63" stroke-width="4"/><path d="M-32 0H32M0-32V32M-22-22L22 22M22-22L-22 22" stroke="#8d6e63" stroke-width="3"/><g fill="#c8a064"><circle cx="32" cy="0" r="5"/><circle cx="-32" cy="0" r="5"/><circle cx="0" cy="32" r="5"/><circle cx="0" cy="-32" r="5"/></g></g><path class="fl" d="M278 74Q286 80 285 88" stroke="#7cc4ff" stroke-width="5" fill="none" stroke-dasharray="6 5"/></g>
+<g class="pt" data-i="3"><line x1="322" y1="115" x2="330" y2="115" stroke="#555" stroke-width="4"/><rect x="330" y="103" width="26" height="24" fill="#78909c" stroke="#455a64"/><path d="M343 127V235H170V217" stroke="#c0392b" fill="none" stroke-width="3"/><line x1="343" y1="103" x2="343" y2="96" stroke="#555" stroke-width="2"/><circle class="bulb" cx="343" cy="88" r="9" fill="#ffd54a"/></g><g class="jt"></g>`,
+ex2(r,p,t,v,dt,all){const s=g('.jt',r);if(!s.firstChild)for(let i=0;i<12;i++)s.insertAdjacentHTML('beforeend','<circle r="3.5" fill="#7cc4ff"/>');const H=15+p*75;[...s.children].forEach((c,i)=>{const u=((t/1700*(.5+p)+i/12)%1);c.setAttribute('cx',170+(u*2-1)*(14+p*26));c.setAttribute('cy',168-4*H*u*(1-u));c.setAttribute('opacity',p>.02?1:0)});const f=g('.fl',r);f.style.strokeDashoffset=-(t/20*p)%11;f.style.opacity=all?p:0}});
+M[4].fq=3200;
+const tide=v=>Math.cos(2*Math.PI*(v-12)/12.42);
+const tidal={ic:'🌊',n:'طاقة المدّ والجزر',spd:300,fq:800,lb:tide(9),
+parts:['الحاجز (السد) عبر الخليج','التوربين ثنائي الاتجاه','المولّد والمصباح'],
+sl:{l:'ساعات اليوم',u:'ساعة',min:0,max:24,v:9},
+sum:['المدّ والجزر هو ارتفاع مستوى سطح البحر وانخفاضه بشكل منتظم، مدّتين وجزرتين تقريبًا كل يوم.','سببه الرئيس قوة جذب القمر لمياه البحار والمحيطات، وللشمس تأثير أقل لأنها أبعد بكثير.','ينتفخ الماء في الجهة المواجهة للقمر وفي الجهة المقابلة لها من الأرض فيحدث المدّ، وينخفض الماء في المناطق الواقعة بينهما فيحدث الجزر.','ولأن الأرض تدور حول نفسها، يمرّ كل شاطئ بمدّين وجزرين، وتتكرر الدورة كل ١٢ ساعة و٢٥ دقيقة تقريبًا.','نستفيد منها في توليد الكهرباء ببناء حاجز (سد) عبر خليج أو مصبّ نهر، وتوضع فيه توربينات يدفعها الماء الداخل والخارج.'],
+how:['حرّك شريط الساعات وراقب القمر: حين يكون في أعلى نقطة يرتفع الماء (مدّ)، وحين يبتعد ينخفض (جزر).','عند المدّ يندفع ماء البحر عبر الحاجز إلى الخليج فيدير التوربين.','عند الجزر ينخفض البحر فيعود ماء الخليج إلى البحر ويدير التوربين مرة أخرى؛ ولهذا يسمى التوربين ثنائي الاتجاه.','يحوّل المولّد دوران التوربين إلى كهرباء.','<b>لاحظ:</b> تقل الكهرباء قرب ذروة المدّ أو الجزر لأن الماء يهدأ، وتزداد عندما يكبر الفرق بين مستوى البحر ومستوى الخليج.','<b>المدّ الأعظم:</b> يكون المدّ أعلى ما يمكن عندما يصطف القمر والشمس والأرض على خط واحد تقريبًا.','<b>التحديات:</b> كلفة الإنشاء العالية، وتأثر الحياة البحرية، وصلاحية مواقع محدودة فقط.','<b>للتفكير:</b> فرق المدّ والجزر في البحر المتوسط صغير جدًا (عشرات السنتيمترات)، فهل تناسب هذه الطريقة شاطئ فلسطين؟'],
+ex:['⚡ كهرباء متجددة ونظيفة بلا دخان ولا غازات ضارة.','🔮 مواعيد المدّ والجزر معروفة بدقة قبل سنوات، فالكهرباء منها أكثر انتظامًا من الرياح والشمس.','⚓ دخول السفن إلى الموانئ الضحلة وخروجها عند المدّ.','🐚 جمع المحار والأسماك من الشواطئ عند الجزر.'],
+gl:{ic:'🌊',t:'محطة لا رانس في فرنسا',n:240,pre:'نحو ',suf:' ميغاواط',tx:'تقع محطة لا رانس عند مصبّ نهر في فرنسا، وافتُتحت عام ١٩٦٦، وهي من أقدم محطات المدّ والجزر في العالم. تعمل توربيناتها في الاتجاهين، ويولّد الماء الداخل والخارج كهرباء تقارب ٢٤٠ ميغاواط.'},
+q:{q:'ما السبب الرئيس لحدوث المدّ والجزر؟',o:['قوة جذب القمر لمياه البحار','الرياح الشديدة فقط','حرارة باطن الأرض'],a:0},
+calc:v=>{const L=tide(v),d=L-tidal.lb,p=Math.min(1,Math.abs(d)*2.2);return {p,n:.25+p*.4,s:(d>.03?'المدّ: يرتفع البحر ويندفع الماء إلى الخليج فيدير التوربين.':d<-.03?'الجزر: ينخفض البحر ويعود ماء الخليج إلى البحر فيدير التوربين.':'سكون قرب ذروة المدّ أو الجزر: الماء هادئ وتقل الكهرباء.')+' (مستوى البحر: '+(L>.5?'مرتفع':L<-.5?'منخفض':'متوسط')+')'}},
+svg:`<rect width="400" height="250" fill="#c8e3f4"/><circle class="moon" cx="200" cy="30" r="13" fill="#f3efd2" stroke="#b9b27a"/>
+<rect class="sea" x="0" y="150" width="170" height="100" fill="#2f86d6"/><rect class="lag" x="230" y="150" width="170" height="100" fill="#4aa0e6"/><rect x="170" y="168" width="60" height="36" fill="#2f86d6"/>
+<g class="pt" data-i="0"><rect x="170" y="105" width="60" height="63" fill="#9aa0a6" stroke="#666"/><rect x="170" y="204" width="60" height="46" fill="#9aa0a6" stroke="#666"/></g>
+<g class="pt" data-i="1"><path class="fl" d="M172 186H228" stroke="#bfe3ff" stroke-width="3" stroke-dasharray="8 6"/><g class="rot" data-x="200" data-y="186"><circle r="15" fill="#e5e5e5" stroke="#777"/><path d="M-15 0H15M0-15V15" stroke="#555" stroke-width="3"/></g></g>
+<g class="pt" data-i="2"><rect x="185" y="82" width="30" height="23" fill="#c9a227" stroke="#7a6212"/><path d="M215 92H260V82" stroke="#c0392b" fill="none" stroke-width="3"/><circle class="bulb" cx="260" cy="70" r="13" fill="#ffd54a"/></g>
+<text x="85" y="242" text-anchor="middle" font-size="13" fill="#fff">البحر</text><text x="315" y="242" text-anchor="middle" font-size="13" fill="#fff">الخليج</text>`,
+ex2(r,p,t,v,dt,all){const L=tide(v);if(all)tidal.lb+=(L-tidal.lb)*Math.min(1,dt*1.4);else tidal.lb=L;const y1=150-28*L,y2=150-28*tidal.lb,a=g('.sea',r),b=g('.lag',r);a.setAttribute('y',y1);a.setAttribute('height',250-y1);b.setAttribute('y',y2);b.setAttribute('height',250-y2);const mo=g('.moon',r);mo.setAttribute('cx',380-(v/24)*360);mo.setAttribute('cy',62-38*Math.sin(Math.PI*v/24));g('.fl',r).style.strokeDashoffset=-(t/20*p*(L>tidal.lb?1:-1))%14}};
+M.push(tidal);
+const app=g('#app'),nav=g('#nav');let cur=0,score=0,AC,nz,flt,ng,og,osc,soundOn=false;
+M.forEach((m,i)=>{m.b=new Set();m.v=m.sl.v;m.a=0;
+
+app.insertAdjacentHTML('beforeend',`<section id="s${i}"><h2>${m.ic} ${m.n}</h2>
+<div class="card"><h3>📘 ملخص الدرس</h3><ul>${m.sum.map(x=>'<li>'+x+'</li>').join('')}</ul><p><button class="btn spk">🗣️ استمع إلى الشرح</button></p></div>
+<div class="card"><h3>🔧 ركّب النموذج ثم جرّب</h3><svg class="sc" viewBox="0 0 400 250" role="img" aria-label="مشهد تفاعلي">${m.svg}</svg>
+<div class="chips">${m.parts.map((p,j)=>`<button class="chip" data-j="${j}">${p}</button>`).join('')}<button class="btn all">ركّب الكل</button><button class="btn o rst">فكّك</button></div>
+<div class="ctl"><label>${m.sl.l}:</label><input type="range" min="${m.sl.min}" max="${m.sl.max}" value="${m.sl.v}"><span class="val"></span></div>
+<div class="gauge"><i></i></div><div class="st"></div></div>
+<div class="card"><h3>⚙️ كيف يعمل؟</h3><ol>${m.how.map(x=>'<li>'+x+'</li>').join('')}</ol></div>
+<div class="card"><h3>🌍 أمثلة من الواقع</h3><div class="ex">${m.ex.map(x=>'<div>'+x+'</div>').join('')}</div></div>
+<div class="card"><h3>🎬 تجربة عالمية</h3><p>${m.gl.t}</p><button class="btn gb">شاهد التجربة بالصوت والحركة</button></div>
+<div class="card q"><h3>❓ اختبر نفسك</h3><b>${m.q.q}</b>${m.q.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}<div class="fb"></div></div></section>`)});
+const PAL=[['🔬','العالم الفلسطيني منير نايفة','ذكر الكتاب دوره في تطوير الطاقة الشمسية باستخدام تكنولوجيا النانو. تقوم أبحاثه على جسيمات نانوية دقيقة من السيليكون تساعد الخلايا الشمسية على الاستفادة من الضوء بشكل أفضل.'],['🏠','سخّانات المياه الشمسية','تنتشر على أسطح البيوت الفلسطينية، وهي تجربة شعبية ناجحة توفّر الكهرباء والوقود اللازمين لتسخين مياه الاستحمام والاستعمال.'],['🏥','الألواح الشمسية في غزة','مع انقطاع الكهرباء المتكرر، لجأ كثير من الأسر والمدارس والمستشفيات في غزة إلى الألواح الشمسية لتشغيل الإنارة والأجهزة الضرورية.'],['💧','تحلية المياه','تعاني غزة من نقص مياه الشرب الصالحة، ويمكن للمقطّر الشمسي الذي ركّبتَه أن يكون فكرة بسيطة لتوفير جزء من الحاجة. ابحث عن الطرق المستخدمة لتحلية مياه البحر هناك.'],['🌬️','طاقة الرياح في فلسطين','سؤال للبحث: ما المناطق المناسبة؟ تتجه الأنظار إلى المرتفعات الجبلية والسهل الساحلي، لكن القرار يحتاج إلى قياس سرعة الرياح على مدار عام كامل.'],['🌊','المدّ والجزر والبحر المتوسط','فرق المدّ والجزر في البحر المتوسط صغير جدًا، لذلك لا تناسب هذه الطاقة شواطئنا كثيرًا، بينما تُعدّ الشمس أغنى مصادر الطاقة عندنا؛ فعدد الأيام المشمسة نحو ٣٠٠ يوم في السنة تقريبًا.']];
+const CH=[['🏖️ منطقة ساحلية','تناسبها الألواح الشمسية على الأسطح، وقد تناسبها الرياح إن أثبتت القياسات ذلك؛ أما المدّ والجزر فضعيف في البحر المتوسط.'],['⛰️ منطقة جبلية','تناسبها الرياح على القمم المفتوحة المرتفعة، والطاقة الشمسية على الأسطح والأراضي المكشوفة.'],['🌴 الأغوار (وادي الأردن)','شمس قوية جدًا وحرارة عالية: مناسبة لسخّانات المياه والمجفّفات الشمسية للمحاصيل والخلايا الشمسية، مع ملاحظة أن الحرارة الشديدة تقلل كفاءة الخلايا قليلًا.'],['🏙️ مدينة مزدحمة','أسطح البيوت فرصة لتركيب الخلايا وسخّانات المياه الشمسية، ويحتاج الأمر إلى تعاون الجيران وتنظيم الاستخدام.']];
+const PI='فلسطين غنية بالشمس، ولأهلها تجارب ومبادرات في الاستفادة من الطاقة النظيفة. تعرّف عليها، ثم فكّر في مشروع لمدرستك أو حيّك.';
+app.insertAdjacentHTML('beforeend',`<section id="s6"><h2>🇵🇸 تجارب فلسطينية في الطاقة النظيفة</h2><div class="card"><p>${PI}</p><button class="btn" data-say="1">🗣️ استمع</button></div><div class="card"><h3>📚 تجارب ومبادرات</h3><div class="ex">${PAL.map(x=>`<div><b>${x[0]} ${x[1]}</b><br>${x[2]}</div>`).join('')}</div></div><div class="card"><h3>🧭 أي طاقة تناسب بيئتك؟</h3><div class="chips">${CH.map((c,k)=>`<button class="chip" data-k="${k}">${c[0]}</button>`).join('')}</div><div class="st pf">اختر بيئتك لتعرف الاقتراح.</div></div><div class="card"><h3>🎯 مشروعك</h3><p>اختر فكرة لمدرستك أو حيّك (سخّان شمسي، ألواح لإنارة الصف، مقطّر شمسي صغير، رافعة أو نافورة نموذجية)، ثم اكتب تقريرًا قصيرًا يشرح كيف تعمل وما فائدتها، وسلّمه لمعلمك.</p></div></section>`);
+g('#s6').onclick=e=>{const t=e.target;if(t.dataset.say)say(PI);else if(t.classList.contains('chip')){t.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c==t));g('.pf').textContent=CH[+t.dataset.k][1];beep(600)}};
+const G=[{n:'🌬️ طاقة الرياح',m:[0]},{n:'☀️ الطاقة الشمسية',m:[1,2]},{n:'💧 طاقة المياه',m:[3,5]},{n:'🌋 طاقة حرارة باطن الأرض',m:[4]},{n:'🇵🇸 تجارب فلسطينية في الطاقة النظيفة',m:[6]}];
+const SUB=['🏗️ رافعة تعمل بطاقة الرياح','🚗 السيارة الشمسية','🧂 المقطّر الشمسي','⛲ نافورة تعمل بطاقة المياه','♨️ محطة الطاقة الجوفية','🌊 محطة المدّ والجزر','📚 تجارب ومبادرات'];
+nav.innerHTML=G.map((x,k)=>`<button data-k="${k}">${x.n}</button>`).join('');
+nav.insertAdjacentHTML('afterend','<nav id="sub" aria-label="التطبيقات"></nav>');const sub=g('#sub');
+function show(i){cur=i;const k=G.findIndex(x=>x.m.includes(i));[...nav.children].forEach((b,j)=>b.classList.toggle('on',j==k));sub.innerHTML='<span style="align-self:center;font-weight:700">التطبيقات:</span>'+G[k].m.map(j=>`<button data-i="${j}" class="${j==i?'on':''}">${SUB[j]}</button>`).join('');[...app.children].forEach((s,j)=>s.classList.toggle('on',j==i))}
+nav.onclick=e=>{const b=e.target.closest('button');if(b)show(G[+b.dataset.k].m[0])};
+sub.onclick=e=>{const b=e.target.closest('button');if(b)show(+b.dataset.i)};
+function audio(){if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();const b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;nz=AC.createBufferSource();nz.buffer=b;nz.loop=true;flt=AC.createBiquadFilter();flt.type='bandpass';ng=AC.createGain();ng.gain.value=0;nz.connect(flt);flt.connect(ng);ng.connect(AC.destination);nz.start();osc=AC.createOscillator();osc.type='sine';og=AC.createGain();og.gain.value=0;osc.connect(og);og.connect(AC.destination);osc.start()}
+function beep(f,d=.15){if(!soundOn||!AC)return;const o=AC.createOscillator(),x=AC.createGain();o.frequency.value=f;x.gain.value=.12;o.connect(x);x.connect(AC.destination);o.start();x.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.stop(AC.currentTime+d)}
+g('#sb').onclick=()=>{audio();AC.resume();soundOn=!soundOn;g('#sb').textContent=soundOn?'🔊 إيقاف الصوت':'🔇 تشغيل الصوت';if(!soundOn){ng.gain.value=0;og.gain.value=0}else beep(660)};
+function say(t){if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ar-SA';u.rate=.9;speechSynthesis.speak(u)}
+M.forEach((m,i)=>{const r=g('#s'+i);
+r.onclick=e=>{const t=e.target;
+if(t.classList.contains('chip')){const j=+t.dataset.j;m.b.has(j)?m.b.delete(j):m.b.add(j);beep(520+j*120)}
+else if(t.classList.contains('all')){m.parts.forEach((_,j)=>m.b.add(j));beep(880)}
+else if(t.classList.contains('rst')){m.b.clear();beep(300)}
+else if(t.classList.contains('spk'))say(m.sum.join(' '))
+else if(t.classList.contains('gb'))openG(m)
+else if(t.closest('.q')&&t.dataset.j!==undefined){const ok=+t.dataset.j==m.q.a;t.classList.add(ok?'ok':'no');g('.fb',r).textContent=ok?'🎉 إجابة صحيحة، أحسنت!':'حاول مرة أخرى، فأنت قريب من الإجابة.';beep(ok?880:200,.3);if(ok&&!m.done){m.done=1;score++;g('#score').textContent='⭐ '+score+' / '+M.length}}
+[...r.querySelectorAll('.chip')].forEach((c,j)=>c.classList.toggle('on',m.b.has(j)))};
+g('input',r).oninput=e=>m.v=+e.target.value});
+function openG(m){const x=m.gl;g('#mi').textContent=x.ic;g('#mi').className=m.n=='طاقة الرياح'||m.n=='طاقة المياه'?'':'pu';g('#mt').textContent=x.t;g('#mx').textContent=x.tx;g('#md').classList.add('on');const n=g('#mn'),t0=performance.now();(function f(t){const k=Math.min(1,(t-t0)/1800);n.textContent=x.pre+(x.n*k).toFixed(x.n%1?1:0)+x.suf;if(k<1)requestAnimationFrame(f)})(t0);g('#ms').onclick=()=>say(x.t+'. '+x.tx);beep(740,.4);if(soundOn)say(x.t+'. '+x.tx)}
+g('#mc').onclick=()=>{g('#md').classList.remove('on');speechSynthesis&&speechSynthesis.cancel()};
+let last=performance.now();
+function tick(t){const dt=Math.min(.05,(t-last)/1000);last=t;if(!M[cur]){if(AC&&ng){ng.gain.value=0;og.gain.value=0}requestAnimationFrame(tick);return}const m=M[cur],r=g('#s'+cur),all=m.b.size==m.parts.length,c=m.calc(m.v),p=all?c.p:0;
+r.querySelectorAll('.pt').forEach(e=>e.style.opacity=m.b.has(+e.dataset.i)?1:'');
+m.a=(m.a+p*m.spd*dt)%360;r.querySelectorAll('.rot').forEach(e=>e.setAttribute('transform','translate('+e.dataset.x+' '+e.dataset.y+') rotate('+m.a+')'));
+const bl=g('.bulb',r);if(bl){bl.style.opacity=.15+.85*p;bl.style.filter=p>.05?'drop-shadow(0 0 '+(p*14)+'px #ffd54a)':'none'}
+m.ex2&&m.ex2(r,p,t,m.v,dt,all,m);
+g('.val',r).textContent=m.v+' '+m.sl.u;g('.gauge i',r).style.width=(p*100)+'%';
+g('.st',r).textContent=all?'⚡ القدرة الناتجة: '+Math.round(p*100)+'٪ — '+c.s:'👆 اضغط على أجزاء النموذج لتركيبها جميعًا، ثم غيّر الشريط وراقب النتيجة.';
+if(AC&&soundOn){const tc=AC.currentTime;flt.frequency.setTargetAtTime(m.fq||800,tc,.1);ng.gain.setTargetAtTime(!m.fq?0:(all?c.n:c.n*.3)*.25,tc,.1);osc.frequency.setTargetAtTime(110+p*90,tc,.1);og.gain.setTargetAtTime(p*.04,tc,.1)}
+requestAnimationFrame(tick)}
+show(0);requestAnimationFrame(tick);
+</script></body></html>
