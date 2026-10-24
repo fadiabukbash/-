@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>تكنولوجيا الاتصال – الصف الخامس</title>
+<style>
+:root{--bg:#f3f8ff;--card:#fff;--tx:#17324d;--mut:#5b7189;--pri:#1976d2;--acc:#ffb300;--ok:#2e9e5b;--bad:#d9433f;--bd:#cfe0f3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1a28;--card:#18283b;--tx:#e8f1fb;--mut:#9ab0c7;--pri:#5aa9f0;--bd:#2b4560}}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif;line-height:1.8;font-size:17px}
+header{background:linear-gradient(135deg,#1976d2,#26a69a);color:#fff;padding:12px 14px;text-align:center}
+header h1{margin:0;font-size:20px}
+#prog{display:flex;gap:5px;justify-content:center;margin-top:8px}
+#prog i{width:26px;height:6px;border-radius:4px;background:#ffffff55}
+#prog i.on{background:#ffd54f}
+main{max-width:720px;margin:auto;padding:14px}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:18px;padding:16px;margin-bottom:12px;animation:pop .4s}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+h2{margin:0 0 8px;color:var(--pri);font-size:21px}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:8px 14px;background:var(--pri);color:#fff}
+button.alt{background:var(--card);color:var(--tx);border:2px solid var(--bd)}
+button.sel{background:var(--acc);color:#222;border-color:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.say{background:var(--ok)}
+.big{font-size:56px;text-align:center}
+.stage{position:relative;height:150px;border-radius:14px;background:linear-gradient(#bfe3ff,#e6f6ff 70%,#9be0a6 70%);overflow:hidden;margin:10px 0}
+[data-theme=dark] .stage{filter:brightness(.85)}
+.stage .h{position:absolute;bottom:16px;font-size:44px}
+.pk{position:absolute;font-size:30px;top:50px;inset-inline-start:12%;transition:inset-inline-start var(--t,2s) linear}
+.flow{display:flex;align-items:center;justify-content:space-between;gap:4px;text-align:center;font-size:14px}
+.node{border:3px dashed var(--pri);border-radius:50%;width:84px;height:84px;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:30px}
+.node small{font-size:13px}
+.track{flex:1;height:6px;background:var(--bd);border-radius:4px;position:relative;margin:0 4px}
+.track span{position:absolute;top:-16px;font-size:26px;inset-inline-start:0;transition:inset-inline-start var(--t,2s) ease-in-out}
+.info{background:#fff8e1;color:#4a3b00;border-radius:12px;padding:10px;margin-top:8px;min-height:48px}
+.bar{height:14px;background:var(--bd);border-radius:8px;overflow:hidden;margin:2px 0 8px}
+.bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,#26a69a,#1976d2);transition:width .8s}
+.opt{display:block;width:100%;text-align:start;margin:6px 0}
+.opt.right{background:var(--ok);color:#fff}.opt.wrong{background:var(--bad);color:#fff}
+.nav{display:flex;justify-content:space-between;gap:8px}
+footer{text-align:center;padding:14px 10px 20px;color:var(--mut);font-size:14px;border-top:2px solid var(--bd);margin-top:10px}
+footer b{color:var(--pri)}
+.shake{animation:sh .3s}@keyframes sh{25%{transform:translateX(8px)}75%{transform:translateX(-8px)}}.lane{position:relative;height:58px;border-bottom:3px dashed var(--bd)}.lane button{position:absolute;top:4px;inset-inline-start:0;font-size:14px;padding:4px 10px}.flame{animation:fl .6s infinite alternate}@keyframes fl{to{transform:scale(1.25) rotate(6deg)}}
+</style>
+</head>
+<body>
+<header><h1>📡 تكنولوجيا الاتصال – الصف الخامس</h1><div id="prog"></div><div id="pts" style="margin-top:4px;font-size:16px">⭐ 0 نقطة</div></header>
+<main>
+<div id="scr"></div>
+<div class="nav"><button class="alt" id="prev">▶ السابق</button><button class="say" id="snd">🔊 استمع للشرح</button><button id="next">التالي ◀</button></div>
+</main>
+<footer>تصميم الأستاذ <b>فادي أبو الكباش</b><br>عسقلان <b>EduTech</b></footer>
+<script>
+const $=s=>document.querySelector(s);
+const mediums={
+ fire:{n:'إشارات النار والدخان',e:'🔥',sp:15,ac:30,sf:25,t:6,d:'كان الإنسان القديم يشعل النار ويرسل الدخان ليُرى من بعيد. بطيئة وغير دقيقة، ومعلوماتها منقوصة جدًا.'},
+ pigeon:{n:'الحمام الزاجل',e:'🕊️',sp:35,ac:55,sf:50,t:4.5,d:'حمامة تحمل رسالة مكتوبة. أدق من الدخان، لكنها بطيئة وقد تضيع أو تتعرض للخطر.'},
+ phone:{n:'الهاتف القديم',e:'☎️',sp:80,ac:85,sf:80,t:2,d:'ينقل الصوت فورًا عبر الأسلاك. سريع وواضح، لكنه مرتبط بمكان ثابت.'},
+ net:{n:'الإنترنت',e:'🌐',sp:98,ac:95,sf:95,t:1,d:'يربط العالم كله بثوانٍ، وينقل الصوت والصورة والنص بدقة وسلامة عالية.'},
+ mobile:{n:'الهاتف الجوال',e:'📱',sp:100,ac:97,sf:97,t:0.8,d:'نتصل ونتراسل من أي مكان وفي أي وقت. الأسرع والأسهل، والمعلومات تصل كاملة.'}
+};
+let cur=0,mSel='fire',quizI=0,score=0;
+const Q=[
+ ['ما العناصر الأساسية لعملية الاتصال؟',['مرسل ومستقبل ووسيلة ومعلومات','مرسل فقط','وسيلة فقط'],0],
+ ['من الذي يرسل المعلومة؟',['المستقبل','المرسل','الوسيلة'],1],
+ ['أي وسيلة من التالية هي الأبطأ؟',['الجوال','الإنترنت','إشارات النار والدخان'],2],
+ ['لماذا استخدم الإنسان القديم حاسة البصر في المناطق المفتوحة؟',['لأن صوته لا يصل إلى مسافات بعيدة','لأنه لا يملك صوتًا','لأنه يحب الألوان'],0],
+ ['ما المشكلة الكبرى في الاتصال بالإشارات؟',['لا نراها','ابتكار لغة مشتركة يفهمها الطرفان','هي سريعة جدًا'],1]
+];
+const S=[
+ {t:'أهلًا بكم يا أبطال! ',n:'أهلًا بكم يا أبطال الصف الخامس. اليوم سنتعلم درس تكنولوجيا الاتصال. سنكتشف كيف كان الناس يتواصلون قديمًا، وكيف تطورت الوسائل حتى وصلنا إلى الهاتف الجوال والإنترنت. هيا نبدأ الرحلة!',
+  h:()=>`<div class="big">🚀📡🌍</div><p>سنتعلم في هذا الدرس:</p><ul><li>لماذا كان الاتصال بين الناس مشكلة؟</li><li>ما عناصر عملية الاتصال الأربعة؟</li><li>كيف تطورت وسائل الاتصال عبر الزمن؟</li><li>كيف نتواصل في الأماكن المفتوحة؟</li></ul><p>اضغط <b>🔊 استمع للشرح</b> في أي شاشة لتسمع المعلم الصوتي.</p>`},
+ {t:'لماذا نحتاج إلى وسائل اتصال؟',n:'الاتصال بين الناس في الأماكن المختلفة كان من أهم المشاكل التي تحتاج إلى حل. وذلك بسبب بعد المسافات، واختلاف التضاريس، والعوامل الجوية. لذلك بدأ الإنسان يبحث عن وسائل يوصل بها المعلومات بسرعة ودقة، خاصة وقت الحروب والكوارث الطبيعية. اضغط على زر إرسال الرسالة، ثم اضغط على كل مشكلة لتعرفها.',
+  h:()=>`<div class="stage"><span class="h" style="inset-inline-start:6%">🧑‍🌾</span><span class="h" style="inset-inline-end:6%">🧑‍🌾</span><span class="h" style="font-size:70px;inset-inline-start:40%;bottom:0">⛰️</span><span class="pk" id="pk">✉️</span></div>
+  <div class="row"><button id="go">✉️ أرسل الرسالة</button></div>
+  <div class="row"><button class="alt" data-p="المسافات: كلما بعد الطرف الآخر صعب وصول المعلومة إليه.">📏 بعد المسافات</button><button class="alt" data-p="التضاريس: الجبال والأودية تمنع الرؤية وتعيق الوصول.">⛰️ التضاريس</button><button class="alt" data-p="العوامل الجوية: الضباب والمطر والعواصف تعطل الاتصال.">🌧️ الجو</button></div><div class="info" id="inf">اضغط على إحدى المشاكل لتعرف المزيد.</div>`,
+  i(){ $('#go').onclick=()=>{const p=$('#pk');p.style.setProperty('--t','2.5s');p.style.insetInlineStart='12%';p.textContent='✉️';setTimeout(()=>p.style.insetInlineStart='38%',50);setTimeout(()=>{p.textContent='💥';$('#inf').textContent='الرسالة لم تصل! الجبل والمسافة منعاها. نحتاج وسيلة اتصال!'},2600);setTimeout(()=>{p.style.setProperty('--t','0s');p.style.insetInlineStart='12%'},4500)};
+   document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>$('#inf').textContent=b.dataset.p)}},
+ {t:'عناصر عملية الاتصال',n:'حتى نجري أي عملية اتصال بين طرفين، نحن بحاجة إلى أربعة عناصر أساسية. أولًا المرسل، وهو من يرسل المعلومة. ثانيًا المستقبل، وهو من يستلمها. ثالثًا وسيلة الاتصال، وهي الطريق الذي تسلكه المعلومة. ورابعًا المعلومات، وهي الرسالة نفسها. اختر وسيلة ثم اضغط إرسال، وراقب سرعة وصول الرسالة.',
+  h:()=>`<div class="flow"><div class="node" data-p="المرسل: هو الشخص الذي يبدأ الاتصال ويرسل المعلومة.">🧒<small>مرسل</small></div><div class="track"><span id="pk2">✉️</span></div><div class="node" data-p="المستقبل: هو الشخص الذي يستلم المعلومة ويفهمها.">👧<small>مستقبل</small></div></div>
+  <div class="row"><button class="alt" data-p="وسيلة الاتصال: هي الأداة التي تنقل المعلومة، مثل الهاتف أو الحمام الزاجل.">🛠️ وسيلة الاتصال</button><button class="alt" data-p="المعلومات: هي الرسالة التي نريد إيصالها، فكرة أو خبر أو صورة.">💬 المعلومات</button></div>
+  <div class="row" id="mm">${Object.entries(mediums).map(([k,m])=>`<button class="alt ${k==mSel?'sel':''}" data-m="${k}">${m.e}</button>`).join('')}<button id="snd2">✈️ إرسال</button></div><div class="info" id="inf">اضغط على أي عنصر لتعرفه.</div>`,
+  i(){document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>$('#inf').textContent=b.dataset.p);
+   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mSel=b.dataset.m;document.querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('sel',x==b));$('#inf').textContent='الوسيلة: '+mediums[mSel].n});
+   $('#snd2').onclick=()=>{const p=$('#pk2'),m=mediums[mSel];p.style.setProperty('--t','0s');p.style.insetInlineStart='0';setTimeout(()=>{p.style.setProperty('--t',m.t+'s');p.style.insetInlineStart='85%'},60);$('#inf').textContent='🧒 يرسل بـ '+m.n+' ... وصلت بعد '+(m.t>=4?'وقت طويل':m.t>=2?'وقت متوسط':'لحظات')+'!'}}},
+ {t:'تطور وسائل الاتصال',n:'تطورت وسائل الاتصال عبر الزمن. بدأ الإنسان بإشارات النار والدخان، ثم الحمام الزاجل، ثم الهاتف القديم، ثم الإنترنت، وأخيرًا الهاتف الجوال. اضغط على كل وسيلة، وقارنها بالتي قبلها من حيث السرعة، والدقة والوضوح، وسلامة المعلومات.',
+  h:()=>`<div class="row" id="tl">${Object.entries(mediums).map(([k,m])=>`<button class="alt" data-k="${k}" style="font-size:26px">${m.e}</button>`).join('')}</div><div class="info" id="d"><b>اختر وسيلة من الخط الزمني ⬆️</b></div>
+  <div style="margin-top:10px">⚡ السرعة<div class="bar"><b id="b1"></b></div>🎯 الدقة والوضوح<div class="bar"><b id="b2"></b></div>🛡️ سلامة المعلومات<div class="bar"><b id="b3"></b></div></div>`,
+  i(){const ks=Object.keys(mediums);document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k,m=mediums[k],pv=ks[ks.indexOf(k)-1];document.querySelectorAll('[data-k]').forEach(x=>x.classList.toggle('sel',x==b));
+   $('#d').innerHTML=`<b>${m.n}</b><br>${m.d}`+(pv?`<br>⬆️ مقارنة بـ ${mediums[pv].n}: أسرع وأدق.`:'');$('#b1').style.width=m.sp+'%';$('#b2').style.width=m.ac+'%';$('#b3').style.width=m.sf+'%'})}},
+ {t:'الاتصال في الأماكن المفتوحة',n:'استخدم الإنسان حاسة البصر في المناطق المفتوحة، لأن صوته لا يصل إلى مسافات بعيدة، لكن يمكنه رؤية إشارات كبيرة تدل على معلومات معينة. والمشكلة تكمن في كيفية ابتكار لغة مشتركة. فكر: قبيلتان على قمتي جبلين، كيف تتصلان؟ اتفق مع زميلك على شيفرة، ثم اضغط على عدد النيران، وشاهد هل يفهم الطرف الآخر.',
+  h:()=>`<div class="stage"><span class="h" style="inset-inline-start:6%">⛰️</span><span class="h" style="inset-inline-end:6%">⛰️</span><span class="h flame" id="fire" style="inset-inline-start:7%;bottom:58px;font-size:30px"></span><span class="h" id="eye" style="inset-inline-end:8%;bottom:60px;font-size:30px">👀</span></div>
+  <div class="row">${[1,2,3].map(n=>`<button class="alt" data-f="${n}">${'🔥'.repeat(n)}</button>`).join('')}</div>
+  <div class="info" id="inf">الشيفرة المتفق عليها: 🔥 = أنا بخير | 🔥🔥 = أحتاج مساعدة | 🔥🔥🔥 = خطر قادم!</div>
+  <p style="color:var(--mut);font-size:15px">💡 لولا الاتفاق المسبق على المعنى لما فهم الطرف الآخر شيئًا. هذه هي <b>اللغة المشتركة</b>.</p>`,
+  i(){const msg={1:'أنا بخير ✅',2:'أحتاج مساعدة 🆘',3:'خطر قادم ⚠️'};document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const n=b.dataset.f;$('#fire').textContent='🔥'.repeat(n);$('#inf').textContent='👀 المستقبل فهم: '+msg[n]})}},
+ {t:'🎮 لعبة: رتّب الزمن',n:'لعبة رتب الزمن. اضغط على وسائل الاتصال بالترتيب، من الأقدم إلى الأحدث. كل إجابة صحيحة تعطيك خمس نقاط.',h:()=>`<p>اضغط على الوسائل بالترتيب من <b>الأقدم</b> إلى <b>الأحدث</b> 👇</p><div class='row' id='og'></div><div class='info' id='inf'>ابدأ بأقدم وسيلة!</div>`,i(){const ks=Object.keys(mediums);let nx=0;const g=$('#og');[...ks].sort(()=>Math.random()-.5).forEach(k=>{const b=document.createElement('button');b.className='alt';b.style.fontSize='15px';b.innerHTML=mediums[k].e+'<br>'+mediums[k].n;b.onclick=()=>{if(k==ks[nx]){nx++;b.disabled=true;b.classList.add('sel');b.innerHTML='✅ '+nx+'<br>'+mediums[k].n;addP(5);$('#inf').textContent=nx<5?'أحسنت! أي وسيلة جاءت بعدها؟':'🎉 رائع! رتبتها كلها بشكل صحيح';if(nx==5){boom();say('رائع! رتبت الوسائل بشكل صحيح')}}else{b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),400);$('#inf').textContent='فكّر: أي وسيلة أقدم؟'}};g.appendChild(b)})}},
+ {t:'🎮 لعبة: من هو من؟',n:'لعبة من هو من. اقرأ كل جملة، ثم حدد هل هو مرسل، أم مستقبل، أم وسيلة اتصال، أم معلومات.',h:()=>`<div class='info' id='st' style='font-size:19px;text-align:center'></div><div class='row' id='ch'></div><div class='info' id='inf'>اختر الإجابة الصحيحة</div>`,i(){const L=[['سلمى تكتب رسالة لصديقتها. ما دور سلمى؟',0],['الهاتف الذي تستخدمه سلمى. ما هو؟',2],['العبارة: سأزورك غدًا. ما هي؟',3],['صديقتها التي تقرأ الرسالة. ما دورها؟',1],['الحمامة التي تحمل الخبر. ما هي؟',2],['الجندي الذي يشعل النار ليحذّر. ما دوره؟',0]],N=['مرسل','مستقبل','وسيلة','معلومات'];let q=0;function show(){if(q>=L.length){$('#st').textContent='🎉 أنهيت اللعبة، أنت بطل!';$('#ch').innerHTML='';boom();return}$('#st').textContent=L[q][0];$('#ch').innerHTML='';N.forEach((x,j)=>{const b=document.createElement('button');b.className='alt';b.textContent=x;b.onclick=()=>{if(j==L[q][1]){addP(5);$('#inf').textContent='✅ صحيح!';q++;setTimeout(show,600)}else{b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),400);$('#inf').textContent='❌ حاول مرة أخرى'}};$('#ch').appendChild(b)})}show()}},
+ {t:'🏁 لعبة: سباق الوسائل',n:'سباق الوسائل. سيظهر متسابقان من وسائل الاتصال. توقع من سيصل أولًا، واضغط عليه، ثم شاهد السباق.',h:()=>`<p id='rq'></p><div id='lanes'></div><div class='info' id='inf'>اضغط على الوسيلة التي تتوقع أنها الأسرع</div><div class='row'><button id='nr' class='alt'>🔄 جولة جديدة</button></div>`,i(){const ks=Object.keys(mediums);let busy=false;function round(){busy=false;const a=ks[Math.floor(Math.random()*5)];let b=a;while(b==a)b=ks[Math.floor(Math.random()*5)];$('#rq').innerHTML='🏁 من سيصل أولًا؟';$('#inf').textContent='اضغط على الوسيلة التي تتوقع أنها الأسرع';$('#lanes').innerHTML=[a,b].map(k=>`<div class='lane'><button class='alt' data-w='${k}'>${mediums[k].e} ${mediums[k].n}</button></div>`).join('');document.querySelectorAll('[data-w]').forEach(btn=>btn.onclick=()=>{if(busy)return;busy=true;const w=mediums[a].t<mediums[b].t?a:b;document.querySelectorAll('[data-w]').forEach(x=>{x.style.transition='inset-inline-start '+(mediums[x.dataset.w].t*1.3)+'s linear';x.style.insetInlineStart='62%'});setTimeout(()=>{if(btn.dataset.w==w){addP(10);boom();$('#inf').textContent='🎉 توقع صحيح! '+mediums[w].n+' أسرع. +10 نقاط'}else $('#inf').textContent='❌ الفائز هو '+mediums[w].n+'، فهي الأسرع.'},Math.max(mediums[a].t,mediums[b].t)*1300+200)})}$('#nr').onclick=round;round()}},
+ {t:'اختبر نفسك',n:'حان وقت الاختبار. اقرأ كل سؤال بتمعن، واختر الإجابة الصحيحة.',h:()=>'<div id="q"></div>',i:()=>quiz()},
+ {t:'أحسنت!',n:'',h:()=>`<div class="big">🏆</div><h2 style="text-align:center">نتيجتك: <span id="sc"></span> من ${Q.length}</h2><div class="info"><b>🧪 مهمة المختبر:</b> اختر إحدى وسائل الاتصال في الجدول، وأعدّ تقريرًا عنها باستخدام الحاسوب، وابحث عن الفترة الزمنية التي استُخدمت فيها، وأضف صورًا مناسبة.</div><div class="row"><button id="rs">🔄 أعد الدرس</button></div>`,
+  i(){$('#sc').textContent=score;$('#rs').onclick=()=>{score=0;quizI=0;pts=0;addP(0);go(0)};stop();say(score>=4?'ما شاء الله، أحسنت! أنت بطل الاتصال. ثم نفذ مهمة المختبر: اختر إحدى وسائل الاتصال، وأعدّ تقريرًا عنها باستخدام الحاسوب.':'جهد طيب! أعد الدرس لتتقن عناصر الاتصال ووسائله، ثم نفذ مهمة المختبر.')}}
+];
+function quiz(){const q=$('#q');if(quizI>=Q.length){go(9);return}const [t,o,a]=Q[quizI];
+ q.innerHTML=`<p><b>سؤال ${quizI+1} من ${Q.length}:</b> ${t}</p>`+o.map((x,i)=>`<button class="alt opt" data-o="${i}">${x}</button>`).join('')+'<div class="info" id="fb">اختر إجابتك</div>';
+ q.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(q.dataset.d==quizI)return;q.dataset.d=quizI;const i=+b.dataset.o;
+  q.querySelectorAll('.opt')[a].classList.add('right');if(i==a){score++;addP(10);boom();$('#fb').textContent='🎉 إجابة صحيحة، أحسنت!'}else{b.classList.add('wrong');$('#fb').textContent='❌ حاول مرة أخرى في السؤال التالي. الإجابة الصحيحة ظاهرة بالأخضر.'}
+  setTimeout(()=>{quizI++;q.dataset.d='';quiz()},1700)});say(t)}
+let pts=0;function addP(n){pts+=n;const e=$('#pts');e.textContent='⭐ '+pts+' نقطة';if(n)e.animate([{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:400})}
+function boom(){const em=['🎉','⭐','✨','🎊'];for(let k=0;k<16;k++){const s=document.createElement('span');s.textContent=em[k%4];s.style.cssText='position:fixed;z-index:9;font-size:26px;pointer-events:none;top:55%;left:'+(20+Math.random()*60)+'%';document.body.appendChild(s);s.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+(Math.random()*160-80)+'px,'+(-150-Math.random()*200)+'px) rotate(200deg)',opacity:0}],{duration:1300}).onfinish=()=>s.remove()}}
+let voice=null;
+function pick(){const v=speechSynthesis.getVoices();voice=v.find(x=>/^ar/i.test(x.lang))||null}
+if('speechSynthesis' in window){pick();speechSynthesis.onvoiceschanged=pick}
+function stop(){if('speechSynthesis' in window)speechSynthesis.cancel()}
+function say(t){if(!('speechSynthesis' in window)||!t)return;stop();const u=new SpeechSynthesisUtterance(t);u.lang='ar-SA';if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u)}
+function go(i){cur=Math.max(0,Math.min(S.length-1,i));stop();const s=S[cur];
+ $('#scr').innerHTML=`<div class="card"><h2>${s.t}</h2>${s.h()}</div>`;if(s.i)s.i();
+ $('#prog').innerHTML=S.map((_,j)=>`<i class="${j<=cur?'on':''}"></i>`).join('');
+ $('#prev').style.visibility=cur?'visible':'hidden';$('#next').style.visibility=cur<8?'visible':'hidden';
+ $('#snd').style.visibility=cur==9?'hidden':'visible';window.scrollTo({top:0,behavior:'smooth'})}
+$('#next').onclick=()=>{go(cur+1);if(S[cur].n)say(S[cur].n)};
+$('#prev').onclick=()=>go(cur-1);
+$('#snd').onclick=()=>say(S[cur].n);
+go(0);
+</script>
+</body>
+</html>
