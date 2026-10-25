@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ملخص تطبيقات الطاقة النظيفة</title>
+<style>
+:root{--bg:#eaf4ee;--tx:#14301f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a22;--tx:#e8f3ec}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif}
+.hint{text-align:center;font-size:13px;padding:10px;opacity:.8}
+.card{max-width:440px;margin:0 auto 22px;border-radius:26px;overflow:hidden;background:#fff;color:#16324a;box-shadow:0 8px 24px rgba(0,0,0,.25);border:5px solid var(--c)}
+.hd{background:linear-gradient(135deg,var(--c),var(--c2));padding:18px 16px 14px;text-align:center;color:var(--t,#fff)}
+.hd .ic{font-size:54px;line-height:1.1}.hd h2{margin:4px 0 0;font-size:25px}.hd small{opacity:.9;font-size:14px}
+.bd{padding:14px 16px 6px}
+.it{display:flex;gap:10px;align-items:flex-start;background:var(--l);border-radius:14px;padding:9px 12px;margin-bottom:9px;font-size:16px;line-height:1.7}
+.it i{font-style:normal;font-size:22px}
+.fact{background:#fff6cf;border:2px dashed #e8b800;border-radius:14px;padding:9px 12px;margin:4px 0 10px;font-size:15px}
+.ft{background:var(--c);color:var(--t,#fff);text-align:center;font-size:12.5px;padding:7px}
+.g{--c:#1e9e5a;--c2:#79d36e;--l:#e6f6ec}.b{--c:#1f6feb;--c2:#4db8ff;--l:#e5f0ff}.y{--c:#ffc933;--c2:#ffe27a;--l:#fff3c4;--t:#16324a}
+</style></head><body>
+<div class="hint">📱 التقط صورة شاشة لكل بطاقة لتحفظها كصورة</div>
+<div id="r"></div>
+<script>
+const D=[
+["g","🌍","تطبيقات الطاقة النظيفة","الوحدة الأولى · الدرس الثاني",[["♻️","العالم يتجه اليوم لاستغلال الطاقة النظيفة (الخضراء) والمستدامة."],["🌱","لها مزايا بيئية واقتصادية مجدية، فهي البديل الأمثل للوقود الأحفوري."],["💪","رغم التحديات، يستمر السعي لتطوير استخداماتها وتفعيلها أكثر."]],"أنواعها: الرياح 🌬️ · المياه 💧 · باطن الأرض 🌋 · الشمس ☀️"],
+["b","🌬️","طاقة الرياح","من أقدم مصادر الطاقة",[["🌾","قديماً: طحن الحبوب بطواحين الهواء، وتسيير السفن الشراعية، وضخ المياه."],["⚡","حديثاً: العنفات الهوائية تحوّل حركة الرياح إلى حركة دورانية تُدير المولّد فتنتج كهرباء."],["🎛️","تُضبط سرعتها بالمروحة والفرامل، وتُوقَف عند العواصف."],["📍","تحتاج مناطق تهبّ فيها رياح بسرعة معتدلة طوال العام."]],"🇩🇰 هل تعلم؟ الدنمارك من أكثر الدول استخداماً لطاقة الرياح، وتولّد أكثر من ثلث احتياجاتها منها."],
+["g","💧","طاقة المياه","النواعير والسدود والمدّ والجزر",[["🚢","التنقل بالسفن، وطحن الحبوب بالنواعير، وريّ المزروعات."],["🏞️","توليد الكهرباء بالسدود المائية على نطاق واسع."],["🌊","استغلال ظاهرتي المدّ والجزر قرب المسطحات المائية."],["⛲","نشاط: نافورة تعمل بطاقة المياه (مضخّة وتوربين مائي)."]],"🇨🇳 هل تعلم؟ سد المرّات الثلاث في الصين من أكبر محطات توليد الكهرباء بالمياه."],
+["y","🌋","طاقة باطن الأرض","الطاقة الجوفية",[["♨️","تُستفاد من البخار الناتج عن الينابيع الحارة."],["⚡","يُستخدم البخار في توليد الطاقة الكهربائية."],["🇮🇸","من أشهر الدول التي استخدمتها: أيسلندا."],["🎥","نشاط: مقابلة فيديو مع معلم الجغرافيا وكتابة تقرير ملخّص."]],"💡 المناطق الغنية بالينابيع الحارة هي الأنسب لتوليد الطاقة منها."],
+["y","☀️","الطاقة الشمسية","المصدر الأساسي للطاقة على الأرض",[["🔥","قديماً: تدفئة المنازل، وتجفيف الحبوب، واستخراج الملح من ماء البحر."],["🔋","حديثاً: الخلايا الشمسية تحوّل الطاقة الضوئية إلى كهربائية."],["🏜️","تعمل بكفاءة عالية في المناطق المشمسة طوال العام."],["🚗","أنشطة: سيارة شمسية، ومقطّر شمسي لماء الشرب وإزالة الملح."]],"🇩🇪 هل تعلم؟ ألمانيا من أكثر دول العالم استخداماً للطاقة الشمسية، وتخطط لنسبة ١٠٠٪ بحلول ٢٠٥٠."],
+["b","🛠️","أنشطة ومشروع","طبّق ما تعلمته",[["🌀","أنواع العنفات الهوائية (أفقية وعمودية) وصنع رافعة كهربائية تعمل بالرياح."],["🧭","الخلايا الشمسية: تصميم مطوية بشكل فني عن دور العالم منير نايفة."],["📢","مشروع: نموذج لجهاز يعمل بالطاقة النظيفة، أو إعلان متحرك بـ Google Web Designer."],["❓","فكّر: ما المناطق المناسبة لطاقة الرياح في فلسطين؟ وما تحديات طاقة المياه؟"]],"✅ الطاقة النظيفة = بيئة سليمة ومستقبل مستدام"]
+];
+document.getElementById("r").innerHTML=D.map(([c,ic,h,s,it,f])=>`<div class="card ${c}"><div class="hd"><div class="ic">${ic}</div><h2>${h}</h2><small>${s}</small></div><div class="bd">${it.map(x=>`<div class="it"><i>${x[0]}</i><span>${x[1]}</span></div>`).join("")}<div class="fact">${f}</div></div><div class="ft">تصميم الأستاذ فادي أبو عسقلان · EduTech</div></div>`).join("");
+</script></body></html>
