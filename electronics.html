@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>داتا شيت القطع الإلكترونية</title>
+<style>
+:root{--bg:#eaf4ee;--tx:#14301f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a22;--tx:#e8f3ec}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif}
+.hint{text-align:center;font-size:13px;padding:10px;opacity:.85}
+.card{max-width:440px;margin:0 auto 22px;border-radius:22px;overflow:hidden;background:#fff;color:#16324a;box-shadow:0 8px 24px rgba(0,0,0,.25);border:4px solid var(--c)}
+.hd{background:linear-gradient(135deg,var(--c),var(--c2));padding:12px 16px;color:var(--t,#fff);display:flex;justify-content:space-between;align-items:center}
+.hd h2{margin:0;font-size:21px}.hd span{direction:ltr;font-weight:700;background:rgba(0,0,0,.18);border-radius:8px;padding:2px 10px;font-size:14px}
+.pn{display:flex;gap:8px;padding:10px}.pn>div{flex:1;background:var(--l);border-radius:12px;text-align:center;padding:4px}
+.pn small{display:block;font-size:12.5px;font-weight:700;color:var(--c);filter:brightness(.7)}
+svg{width:100%;height:auto;display:block}
+table{width:calc(100% - 20px);margin:0 10px;border-collapse:collapse;font-size:14.5px}
+td{padding:5px 8px;border-bottom:1px solid #e3e9f0}td:first-child{font-weight:700;width:38%;background:var(--l)}
+.u{margin:10px;background:#fff6cf;border:2px dashed #e8b800;border-radius:12px;padding:8px 12px;font-size:14.5px}
+.ft{background:var(--c);color:var(--t,#fff);text-align:center;font-size:12.5px;padding:7px}
+.g{--c:#1e9e5a;--c2:#79d36e;--l:#e6f6ec}.b{--c:#1f6feb;--c2:#4db8ff;--l:#e5f0ff}.y{--c:#ffc933;--c2:#ffe27a;--l:#fff3c4;--t:#16324a}
+</style></head><body>
+<div class="hint">📄 داتا شيت القطع الإلكترونية · الشكل الحقيقي + الرمز الصحيح<br>📱 التقط لقطة شاشة لكل بطاقة</div>
+<div id="r"></div>
+<script>
+const V=t=>`<svg viewBox="0 0 160 100">${t}</svg>`;
+const K=t=>V(`<g stroke="#16324a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">${t}</g>`);
+const T=(x,y,s,a="middle")=>`<text x="${x}" y="${y}" font-size="11" fill="#16324a" stroke="none" text-anchor="${a}" font-family="Arial">${s}</text>`;
+const LD='stroke="#b9bec7" stroke-width="3.5" stroke-linecap="round"';
+const D=[
+["g","المقاومة الكهربائية","Resistor",
+V(`<path d="M5 45h38M117 45h38" ${LD}/><rect x="40" y="27" width="80" height="36" rx="17" fill="#e9cf9a" stroke="#b79a5c"/><rect x="54" y="28" width="7" height="34" fill="#7a3b12"/><rect x="68" y="28" width="7" height="34" fill="#111"/><rect x="82" y="28" width="7" height="34" fill="#d62b1f"/><rect x="102" y="28" width="6" height="34" fill="#d4af37"/><rect x="46" y="31" width="68" height="6" rx="3" fill="#fff" opacity=".35"/>${T(80,85,"1kΩ: بني-أسود-أحمر-ذهبي")}`),
+K(`<path d="M5 45H40L47 25L59 65L71 25L83 65L95 25L107 65L114 45H155"/>`+T(80,90,"R",).replace('fill="#16324a"','fill="#16324a"')),
+[["الوحدة","أوم Ω (كيلو أوم kΩ)"],["القيم في الدارات","330Ω · 1kΩ · 100kΩ"],["القدرة النموذجية","¼ واط"],["الأطراف","2 — بلا قطبية"]],
+"تحدّ من التيار وتحمي الـ LED والترانزستور. تُوصَل بأي اتجاه."],
+["b","المجسّ الضوئي","LDR",
+V(`<path d="M66 64v32M94 64v32" ${LD}/><circle cx="80" cy="36" r="32" fill="#cfae63" stroke="#7a5b22" stroke-width="2.5"/><circle cx="80" cy="36" r="28" fill="none" stroke="#a88a42"/><path d="M58 22h44l-44 9h44l-44 9h44l-44 9h44" fill="none" stroke="#4a3410" stroke-width="3"/><ellipse cx="68" cy="20" rx="10" ry="5" fill="#fff" opacity=".3"/>`),
+K(`<circle cx="85" cy="50" r="30"/><path d="M5 50H55M115 50H155M55 50h6l5-9 8 18 8-18 8 18 5-9h10"/><path d="M12 12L36 36M26 8L50 32" stroke-width="2.5"/><path d="M38 38l-11-2 9-8zM52 34l-11-2 9-8z" fill="#16324a"/>`),
+[["المبدأ","مقاومة تتغيّر بالضوء"],["في الضوء","مقاومة صغيرة (كيلو أوم)"],["في الظلام","مقاومة كبيرة (ميغا أوم)"],["الأطراف","2 — بلا قطبية"]],
+"إنارة الشوارع التلقائية، وكاميرات التصوير، ودارة غياب الضوء."],
+["y","الترانزستور","BC547 / BC548",
+V(`<path d="M60 56v30M80 56v30M100 56v30" ${LD}/><path d="M48 56V34A32 28 0 0 1 112 34V56Z" fill="#222"/><path d="M54 30A26 22 0 0 1 80 12" stroke="#777" stroke-width="3" fill="none"/>${T(80,44,"BC547").replace('fill="#16324a"','fill="#fff"')}${T(60,97,"1 C")}${T(80,97,"2 B")}${T(100,97,"3 E")}`),
+K(`<circle cx="92" cy="50" r="32"/><path d="M5 50H64M64 33V67M64 43L98 23V6M64 57L98 77V94"/><path d="M98 77L85 75L91 66Z" fill="#16324a"/>`+T(110,14,"C","start")+T(10,43,"B","start")+T(110,94,"E","start")),
+[["النوع","NPN — علبة TO-92"],["الأطراف","1=C مجمّع · 2=B قاعدة · 3=E باعث"],["Vceo الأعلى","BC547: 45V · BC548: 30V"],["التيار Ic الأعلى","100 mA"],["الكسب hFE","110 – 800 (نموذجي)"]],
+"مفتاح إلكتروني أو مكبّر: تيار صغير في القاعدة يتحكّم بتيار أكبر في المجمّع."],
+["g","الثنائي الباعث للضوء","LED",
+V(`<path d="M68 62v34M92 62v24" ${LD}/><path d="M52 62V40A28 32 0 0 1 108 40V62Z" fill="#e53935"/><rect x="46" y="60" width="68" height="7" rx="2" fill="#b71c1c"/><ellipse cx="68" cy="28" rx="9" ry="14" fill="#fff" opacity=".35"/>${T(68,99,"+ A")}${T(92,89,"− K")}`),
+K(`<path d="M5 50H55M95 50H155"/><path d="M55 28V72L95 50Z"/><path d="M95 28V72"/><path d="M80 24L104 4M96 32L120 12"/><path d="M104 4L94 7L101 14zM120 12L110 15L117 22z" fill="#16324a"/>`+T(18,42,"A")+T(142,42,"K")),
+[["اللون","أحمر (نموذجي)"],["جهد الإضاءة Vf","1.8 – 2.2 V"],["التيار الأعلى","20 mA"],["القطبية","الطرف الأطول = الموجب (A)"],["المقاومة الواقية","R = (9−2)÷0.02 ≈ 330Ω"]],
+"مؤشّرات التشغيل، وإشارات المرور، والإنارة. لا يعمل إلا باتجاه واحد."],
+["b","ثنائي زينر","Zener 4.7V",
+V(`<path d="M5 45h40M115 45h40" ${LD}/><rect x="42" y="31" width="76" height="28" rx="9" fill="#e9a458" stroke="#a96a22"/><rect x="100" y="31" width="9" height="28" fill="#111"/><rect x="48" y="35" width="44" height="5" rx="2" fill="#fff" opacity=".4"/>${T(105,78,"الشريط = المهبط K")}`),
+K(`<path d="M5 50H55M95 50H155"/><path d="M55 28V72L95 50Z"/><path d="M103 28H95V72H87"/>`+T(18,42,"A")+T(142,42,"K")),
+[["جهد زينر Vz","4.7 V"],["القدرة","0.5 W (نموذجي)"],["التوصيل الاعتيادي","عكسي: المهبط نحو الموجب"],["القطبية","الشريط الأسود = المهبط"]],
+"تثبيت الجهد وحماية الدارات من الجهد الزائد، وكاشف عتبة في دارة الحرارة."],
+["y","المقاومة الحرارية","NTC 220Ω",
+V(`<path d="M66 60v36M94 60v36" ${LD}/><ellipse cx="80" cy="36" rx="32" ry="28" fill="#2d2d2d"/><ellipse cx="68" cy="22" rx="12" ry="6" fill="#777" opacity=".6"/>${T(80,41,"NTC").replace('fill="#16324a"','fill="#ddd"')}`),
+K(`<path d="M5 50H45M115 50H155"/><rect x="45" y="35" width="70" height="30"/><path d="M40 82L88 18H112"/>`+T(122,28,"−t°","start")),
+[["المبدأ","مقاومة تتغيّر بالحرارة"],["القيمة عند 25°م","220 Ω (حسب الكتاب)"],["النوع NTC","ترتفع الحرارة ← تقلّ المقاومة"],["الأطراف","2 — بلا قطبية"]],
+"موازين الحرارة، والمكيّفات، والثلاجات، وأجهزة إنذار الحريق."],
+["g","البطارية","9V",
+V(`<rect x="46" y="22" width="68" height="72" rx="6" fill="#262626"/><rect x="46" y="40" width="68" height="26" fill="#e8b000"/>${T(80,59,"9V").replace('font-size="11"','font-size="18" font-weight="700"')}<circle cx="64" cy="14" r="8" fill="#c0c4cc" stroke="#888"/><path d="M92 6l10 5v8l-10 5l-10-5v-8z" fill="#c0c4cc" stroke="#888"/>${T(64,18,"+").replace('font-size="11"','font-size="13"')}`),
+K(`<path d="M5 50H68M84 50H155"/><path d="M68 28V72" stroke-width="4"/><path d="M84 38V62" stroke-width="4"/>`+T(56,40,"+").replace('font-size="11"','font-size="15"')+T(98,40,"−").replace('font-size="11"','font-size="15"')+T(80,92,"9 V")),
+[["الجهد","9 V (علبة PP3)"],["السعة","≈ 500 mAh (نموذجي)"],["الأطراف","زرّان: موجب (+) وسالب (−)"],["الطاقة","كيميائية ← كهربائية"]],
+"مصدر الطاقة لدارات التجارب والأجهزة المحمولة وأجهزة التحكم عن بعد."],
+["b","الجرس (الزمّار)","Buzzer 3V",
+V(`<path d="M62 62v34M98 62v34" ${LD}/><rect x="42" y="30" width="76" height="38" fill="#1b1b1b"/><ellipse cx="80" cy="68" rx="38" ry="8" fill="#1b1b1b"/><ellipse cx="80" cy="30" rx="38" ry="10" fill="#3a3a3a"/><circle cx="80" cy="30" r="4" fill="#111"/>${T(52,46,"+").replace('fill="#16324a"','fill="#fff"').replace('font-size="11"','font-size="15"')}`),
+K(`<path d="M5 38H55M5 62H55"/><path d="M55 22V78M55 22H85A28 28 0 0 1 85 78H55"/><path d="M120 38q10 12 0 24M132 30q16 20 0 40"/>`+T(18,32,"+","start").replace('font-size="11"','font-size="15"')),
+[["جهد التشغيل","3 V (حسب الدارة)"],["القطبية","الطرف (+) للموجب"],["الوظيفة","كهرباء ← صوت"],["الأطراف","2"]],
+"أجهزة الإنذار، وإنذار الحريق، وأجراس الأبواب، والمنبّهات."],
+["y","المفتاح الكهربائي","Switch",
+V(`<path d="M62 60v34M98 60v34" ${LD}/><rect x="36" y="48" width="88" height="20" rx="4" fill="#8b9099"/><path d="M80 44l22 8v10l-22 8l-22-8v-10z" fill="#c4c9d1" stroke="#8b9099"/><path d="M80 48L96 12" stroke="#e53935" stroke-width="9" stroke-linecap="round"/><circle cx="97" cy="10" r="7" fill="#e53935"/>`),
+K(`<path d="M5 62H48M112 62H155M48 62L104 24"/><circle cx="48" cy="62" r="4" fill="#16324a"/><circle cx="112" cy="62" r="4" fill="#16324a"/>`),
+[["النوع","SPST (قطب واحد، اتجاه واحد)"],["مغلق ON","يمرّ التيار"],["مفتوح OFF","ينقطع التيار"],["الأطراف","2 — بلا قطبية"]],
+"مفاتيح الإضاءة، والأجهزة المنزلية، ولوحات التحكم."]
+];
+document.getElementById("r").innerHTML=D.map(([c,n,p,sh,sy,sp,u])=>`<div class="card ${c}"><div class="hd"><h2>${n}</h2><span>${p}</span></div><div class="pn"><div>${sh}<small>الشكل الحقيقي</small></div><div>${sy}<small>الرمز في الدارة</small></div></div><table>${sp.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join("")}</table><div class="u">📍 ${u}</div><div class="ft">تصميم الأستاذ فادي أبو عسقلان · EduTech</div></div>`).join("");
+</script></body></html>
