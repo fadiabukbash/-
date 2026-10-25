@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>درس تفاعلي: القطع الإلكترونية</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--tx:#1b2a3a;--mut:#5b6b7c;--pri:#1f6feb;--acc:#ff8a1f;--ok:#1a9d55;--bad:#d33;--bd:#dbe3ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1722;--card:#18232f;--tx:#e8eef6;--mut:#9fb0c3;--pri:#5b9cff;--bd:#2a3a4c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif;line-height:1.8}
+header{background:var(--pri);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+header h1{font-size:17px;margin:0}header label{font-size:13px;white-space:nowrap}
+.dots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;padding:10px}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--bd);cursor:pointer}.dots i.on{background:var(--acc);transform:scale(1.3)}
+main{max-width:720px;margin:0 auto;padding:0 14px 90px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:12px}
+.card h2{margin:0 0 4px;font-size:22px}.en{color:var(--mut);direction:ltr;font-size:14px}
+.vis{display:flex;gap:10px}.vis>div{flex:1;text-align:center;background:var(--bg);border-radius:12px;padding:8px;border:1px solid var(--bd)}
+.vis small{display:block;color:var(--mut);font-size:13px}svg{max-width:100%;height:auto}
+.sym{color:var(--tx)}
+.row{margin-top:10px}.row b{color:var(--pri)}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:12px;padding:10px 16px;font:inherit;font-size:16px;cursor:pointer}
+.btn.s{background:var(--pri)}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--bd);padding:8px 14px calc(8px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:8px;z-index:5}
+nav .btn{flex:1}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:6px 0 4px}footer b{color:var(--acc)}
+.opt{display:block;width:100%;text-align:right;background:var(--bg);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:8px 12px;margin:6px 0;font:inherit;cursor:pointer}
+.opt.ok{background:var(--ok);color:#fff}.opt.bad{background:var(--bad);color:#fff}
+#note{font-size:12px;color:var(--bad);padding:4px 14px;text-align:center}
+</style></head><body>
+<header><h1>⚡ درس القطع الإلكترونية – الصف الثامن</h1><label><input type="checkbox" id="auto" checked> قراءة تلقائية</label></header>
+<div class="dots" id="dots"></div><div id="note"></div>
+<main id="m"></main>
+<nav><button class="btn s" id="nx">التالي ◀</button><button class="btn" id="sp">🔊 استمع</button><button class="btn s" id="pv">▶ السابق</button></nav>
+<script>
+const S=(t,w=120,h=70)=>`<svg viewBox="0 0 ${w} ${h}" width="${w*1.6}" fill="none" stroke-linecap="round">${t}</svg>`;
+const L='stroke="currentColor" stroke-width="3"';
+const C=[
+{n:"المقاومة الكهربائية",e:"Resistor",sh:S(`<path d="M2 35h20M98 35h20" stroke="#999" stroke-width="3"/><rect x="22" y="22" width="76" height="26" rx="12" fill="#e6c98f"/><rect x="36" y="22" width="7" height="26" fill="#a0522d"/><rect x="50" y="22" width="7" height="26" fill="#111"/><rect x="64" y="22" width="7" height="26" fill="#e33"/><rect x="82" y="22" width="6" height="26" fill="#d4af37"/>`),
+sy:S(`<path d="M5 35h25l6-14 12 28 12-28 12 28 12-28 6 14h25" ${L}/>`),
+f:"تحدّ من مقدار التيار الكهربائي المارّ في الدارة، وتحمي القطع الحسّاسة مثل الثنائي الباعث للضوء من التلف. وتُقاس بوحدة الأوم، ومقدارها ثابت لا يتغيّر.",
+w:"تُستخدم في كل الأجهزة الإلكترونية: الراديو والتلفاز والشواحن، وفي دارتنا بقيم مثل ٣٣٠ أوم، و١ كيلو أوم، و١٠٠ كيلو أوم."},
+{n:"المجسّ الضوئي (LDR)",e:"Light Dependent Resistor",sh:S(`<path d="M45 62v-20M75 62v-20" stroke="#999" stroke-width="3"/><circle cx="60" cy="28" r="26" fill="#c8a24a"/><path d="M42 20h36l-36 8h36l-36 8h36" stroke="#333" stroke-width="3"/>`),
+sy:S(`<circle cx="60" cy="35" r="24" ${L}/><path d="M5 35h31M84 35h31" ${L}/><path d="M50 27l5 8-5 8 5 8" stroke="currentColor" stroke-width="2.5"/><path d="M20 8l12 12M32 8l-12 12" stroke="#e8a000" stroke-width="2"/>`),
+f:"هو مقاومة تتغيّر قيمتها حسب كمية الضوء الساقط عليها. عندما يزيد الضوء تقلّ مقاومته، وعندما يقلّ الضوء أو ينعدم تزداد مقاومته كثيراً.",
+w:"يُستخدم في أعمدة الإنارة التي تضيء ليلاً وتنطفئ نهاراً، وفي الإضاءة التلقائية، وفي الكاميرات والألعاب الإلكترونية."},
+{n:"الترانزستور (BC547 أو BC548)",e:"Transistor",sh:S(`<path d="M42 40v26M60 40v26M78 40v26" stroke="#999" stroke-width="3"/><path d="M28 40V22a32 18 0 0 1 64 0v18z" fill="#222"/><text x="40" y="35" fill="#fff" font-size="9" stroke="none">BC547</text><text x="38" y="14" font-size="8" fill="currentColor" stroke="none"></text>`),
+sy:S(`<circle cx="62" cy="35" r="28" ${L}/><path d="M5 35h40M45 20v30M45 28l30-15v-10M45 42l30 15v10" ${L}/><path d="M64 54l8 2-3-8z" fill="currentColor"/><text x="82" y="10" fill="currentColor" stroke="none" font-size="10">C</text><text x="2" y="30" fill="currentColor" stroke="none" font-size="10">B</text><text x="82" y="68" fill="currentColor" stroke="none" font-size="10">E</text>`),
+f:"يعمل كمفتاح إلكتروني أو كمكبّر للإشارة. له ثلاثة أطراف: القاعدة B، والمجمّع C، والباعث E. تيار صغير عند القاعدة يتحكّم بتيار أكبر بين المجمّع والباعث.",
+w:"يُستخدم في مكبّرات الصوت، وأجهزة الراديو، ودارات الإنذار، ومفاتيح التشغيل التلقائي مثل دارة غياب الضوء ودارة استشعار الحرارة."},
+{n:"الثنائي الباعث للضوء (LED)",e:"Light Emitting Diode",sh:S(`<path d="M50 55v12M70 55v12" stroke="#999" stroke-width="3"/><path d="M38 55V30a22 24 0 0 1 44 0v25z" fill="#e33"/><path d="M34 55h52" stroke="#a11" stroke-width="4"/>`),
+sy:S(`<path d="M5 35h35M80 35h35M40 18v34l35-17zM78 18v34" ${L}/><path d="M60 14l12-10M70 22l12-10" stroke="#e8a000" stroke-width="2.5"/>`),
+f:"يضيء عندما يمرّ فيه التيار في اتجاه واحد فقط، وهو الطرف الأطول الموجب. يعطي ضوءاً بألوان مختلفة ويستهلك طاقة قليلة. ويجب وضع مقاومة معه لحمايته.",
+w:"يُستخدم في مصابيح الإنارة الموفّرة، وشاشات التلفاز، ومؤشّرات تشغيل الأجهزة، وإشارات المرور، ولوحات الإعلانات."},
+{n:"البطارية ٩ فولت",e:"9V Battery",sh:S(`<rect x="35" y="12" width="50" height="56" rx="5" fill="#333"/><rect x="35" y="30" width="50" height="18" fill="#e8a000"/><circle cx="48" cy="8" r="5" fill="#bbb"/><rect x="66" y="3" width="10" height="8" fill="#bbb"/>`),
+sy:S(`<path d="M5 35h45M70 35h45M50 12v46M70 22v26" ${L}/><text x="30" y="15" fill="currentColor" stroke="none" font-size="14">+</text>`),
+f:"مصدر للطاقة الكهربائية، وهي تحوّل الطاقة الكيميائية إلى طاقة كهربائية. تعطي جهداً مقداره ٩ فولت لتشغيل الدارة.",
+w:"تُستخدم في أجهزة التحكّم عن بعد، وأجهزة كشف الدخان، والألعاب، والأجهزة المحمولة، ودارات التجارب."},
+{n:"المقاومة الحرارية (NTC)",e:"Thermistor",sh:S(`<path d="M48 45v20M72 45v20" stroke="#999" stroke-width="3"/><ellipse cx="60" cy="28" rx="26" ry="22" fill="#2b2b2b"/><ellipse cx="52" cy="20" rx="8" ry="5" fill="#666"/>`),
+sy:S(`<rect x="25" y="20" width="70" height="30" ${L}/><path d="M5 35h20M95 35h20M40 62l45-55h18" ${L}/>`),
+f:"مقاومة تتغيّر قيمتها بتغيّر درجة الحرارة، لا بتغيّر الجهد. وفي النوع NTC تقلّ مقاومتها كلما ارتفعت درجة الحرارة.",
+w:"تُستخدم في موازين الحرارة الرقمية، والمكيّفات، والغسالات، والثلاجات، وأجهزة إنذار الحريق."},
+{n:"ثنائي زينر ٤٫٧ فولت",e:"Zener Diode",sh:S(`<path d="M2 35h20M98 35h20" stroke="#999" stroke-width="3"/><rect x="22" y="23" width="76" height="24" rx="10" fill="#e07a3c" opacity=".9"/><rect x="80" y="23" width="8" height="24" fill="#111"/>`),
+sy:S(`<path d="M5 35h40M75 35h40M45 15v40l30-20zM75 15v40M75 15h10M75 55h-10" ${L}/>`),
+f:"نوع خاص من الثنائيات، له جهد ثابت يُسمّى جهد زينر. يسمح بمرور التيار في الاتجاه المعاكس عندما يتجاوز الجهد على طرفيه جهد زينر المحدد، وهو هنا ٤٫٧ فولت.",
+w:"يُستخدم في منظّمات الجهد لتثبيت الجهد، وفي حماية الدارات من الجهد الزائد، وفي شواحن الهواتف ومزوّدات الطاقة."},
+{n:"الجرس (الزمّار) ٣ فولت",e:"Buzzer",sh:S(`<path d="M45 52v14M75 52v14" stroke="#999" stroke-width="3"/><path d="M28 52V24a32 16 0 0 1 64 0v28z" fill="#222"/><circle cx="60" cy="22" r="6" fill="#555"/><text x="70" y="44" fill="#fff" stroke="none" font-size="12">+</text>`),
+sy:S(`<path d="M5 35h30M85 35h30M35 20v30h14l18 14V6L49 20z" ${L}/><path d="M80 28q6 7 0 14" ${L}/>`),
+f:"يحوّل الطاقة الكهربائية إلى طاقة صوتية، فيُصدر صوت إنذار عند وصول التيار إليه.",
+w:"يُستخدم في أجهزة الإنذار، وإنذار الحريق، وأجراس الأبواب، والمنبّهات، وأجهزة الميكروويف."},
+{n:"المفتاح الكهربائي",e:"Switch",sh:S(`<rect x="25" y="25" width="70" height="38" rx="6" fill="#ddd" stroke="#888" stroke-width="2"/><rect x="48" y="30" width="24" height="28" rx="4" fill="#e33"/><path d="M45 25v-8M75 25v-8" stroke="#999" stroke-width="3"/>`),
+sy:S(`<path d="M5 50h35M80 50h35M40 50l35-28" ${L}/><circle cx="40" cy="50" r="3" fill="currentColor"/><circle cx="80" cy="50" r="3" fill="currentColor"/>`),
+f:"يفتح الدارة أو يغلقها. عندما يكون مغلقاً يمرّ التيار وتعمل الدارة، وعندما يكون مفتوحاً ينقطع التيار.",
+w:"يُستخدم في مفاتيح الإضاءة، والأجهزة المنزلية، ولوحات التحكّم، وألعاب الأطفال."}
+];
+const P=[];
+P.push({t:"intro"});C.forEach(c=>P.push({t:"c",c}));
+P.push({t:"x",n:"دارة غياب الضوء",s:"مكوّنات الدارة: مقاومات، ومجسّ ضوئي، وترانزستور، وثنائي باعث للضوء، وبطارية ٩ فولت. عندما يسقط الضوء على المجسّ تقلّ مقاومته فيسحب التيار بعيداً عن قاعدة الترانزستور، فلا يعمل الترانزستور ولا يضيء الثنائي. وعند تغطية المجسّ بيدك تزداد مقاومته، فيصل تيار إلى القاعدة، فيعمل الترانزستور كمفتاح مغلق ويضيء الثنائي. الدارة تكشف غياب الضوء، وتُستخدم في إنارة الشوارع وإضاءة السيارات تلقائياً."});
+P.push({t:"x",n:"دارة استشعار الحرارة",s:"مكوّنات الدارة: مقاومة حرارية، ومقاومتان، وترانزستور، وثنائي زينر، وجرس ٣ فولت، ومفتاح، وبطارية. عند تقريب لهب من المقاومة الحرارية ترتفع حرارتها فتقلّ مقاومتها، فيرتفع الجهد عند القاعدة ويتجاوز جهد ثنائي زينر. عندها يعمل الترانزستور ويصل التيار إلى الجرس فيُصدر صوت الإنذار. وهذه هي فكرة أنظمة التنبيه من الحرائق التي تستشعر الحرارة الزائدة وتحوّلها إلى إشارة صوتية."});
+const Q=[["أيّ قطعة تتغيّر مقاومتها بتغيّر الضوء؟",["المجسّ الضوئي","الجرس","البطارية"],0],["ما وظيفة المقاومة الكهربائية؟",["إصدار الصوت","الحدّ من التيار","تخزين الضوء"],1],["أيّ قطعة تتغيّر مقاومتها بتغيّر الحرارة؟",["الثنائي الباعث","المقاومة الحرارية NTC","المفتاح"],1],["ما أطراف الترانزستور؟",["القاعدة والمجمّع والباعث","موجب وسالب فقط","طرفان فقط"],0],["أيّ قطعة تثبّت الجهد عند قيمة محددة؟",["ثنائي زينر","المفتاح","المجسّ الضوئي"],0]];
+P.push({t:"q"});
+let i=0,score=0;
+const m=document.getElementById("m"),dots=document.getElementById("dots"),note=document.getElementById("note");
+let voices=[];function lv(){voices=speechSynthesis.getVoices()}if('speechSynthesis'in window){lv();speechSynthesis.onvoiceschanged=lv}
+let cur="";
+function say(t){if(!('speechSynthesis'in window)||typeof SpeechSynthesisUtterance==='undefined'){note.textContent="المتصفح لا يدعم الصوت";return}
+speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ar-SA";u.rate=.85;const v=voices.find(v=>v.lang.replace("_","-").startsWith("ar"));if(v)u.voice=v;else note.textContent="لم يتم العثور على صوت عربي؛ ثبّت صوت اللغة العربية في إعدادات الجهاز.";speechSynthesis.speak(u)}
+function render(){const p=P[i];let h="";
+if(p.t=="intro"){cur="أهلاً بك يا بطل في درس القطع الإلكترونية. سنتعرّف معاً على تسع قطع: شكلها الحقيقي ورمزها ووظيفتها وأين تُستخدم، ثم نفهم دارتين: دارة غياب الضوء ودارة استشعار الحرارة. اضغط التالي للبدء.";
+h=`<div class="card"><h2>🔌 مرحباً بك!</h2><p>${cur}</p><p>اضغط <b>🔊 استمع</b> لسماع الشرح في أي صفحة.</p></div>`}
+else if(p.t=="c"){const c=p.c;cur=`${c.n}. وظيفتها: ${c.f} أين تُستخدم؟ ${c.w}`;
+h=`<div class="card"><h2>${c.n}</h2><div class="en">${c.e}</div><div class="vis"><div>${c.sh}<small>الشكل الحقيقي</small></div><div class="sym">${c.sy}<small>الرمز في الدارة</small></div></div>
+<div class="row"><b>⚙️ الوظيفة:</b> ${c.f}</div><div class="row"><b>📍 أين تُستخدم؟</b> ${c.w}</div></div>`}
+else if(p.t=="x"){cur=p.n+". "+p.s;h=`<div class="card"><h2>🔧 ${p.n}</h2><p>${p.s}</p></div>`}
+else{cur="اختبر نفسك";h=`<div class="card"><h2>📝 اختبر نفسك</h2><div id="qs"></div><p id="sc"></p></div>`}
+m.innerHTML=h;
+dots.innerHTML=P.map((_,k)=>`<i class="${k==i?"on":""}" onclick="go(${k})"></i>`).join("");
+document.getElementById("pv").style.visibility=i?"visible":"hidden";document.getElementById("nx").style.visibility=i<P.length-1?"visible":"hidden";
+if(p.t=="q")quiz();
+m.insertAdjacentHTML("beforeend",`<footer>تصميم الأستاذ <b>فادي أبو عسقلان</b> · EduTech</footer>`);
+note.textContent="";scrollTo(0,0);if(document.getElementById("auto").checked&&p.t!="q")setTimeout(()=>{try{say(cur)}catch(e){}},300)}
+function quiz(){score=0;const d=document.getElementById("qs");d.innerHTML=Q.map((q,a)=>`<div class="row"><b>${a+1}. ${q[0]}</b>${q[1].map((o,b)=>`<button class="opt" data-a="${a}" data-b="${b}">${o}</button>`).join("")}</div>`).join("");
+d.onclick=e=>{const b=e.target;if(!b.dataset.a||b.parentNode.dataset.done)return;b.parentNode.dataset.done=1;const ok=Q[b.dataset.a][2]==b.dataset.b;b.classList.add(ok?"ok":"bad");if(ok)score++;
+if(d.querySelectorAll("[data-done]").length==Q.length){const s=`نتيجتك ${score} من ${Q.length}`+(score>=4?" — ممتاز!":" — حاول مرة أخرى");document.getElementById("sc").textContent=s;say(s)}}}
+function go(k){try{speechSynthesis.cancel()}catch(e){}if(k<0||k>=P.length)return;i=k;render()}
+const $=id=>document.getElementById(id);
+$('nx').addEventListener('click',()=>go(i+1));$('pv').addEventListener('click',()=>go(i-1));$('sp').addEventListener('click',()=>{try{say(cur)}catch(e){note.textContent='تعذّر تشغيل الصوت'}});
+render();
+</script></body></html>
