@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الكهرباء من حولنا – درس تفاعلي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f8f6;--card:#fff;--tx:#23363a;--mu:#5d7377;--pr:#1f8a70;--ac:#e8912d;--bl:#2f7fc1;--bd:#d6e5e0;--sky:#dff0f7;--box:#eaf4f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14201f;--card:#1c2d2b;--tx:#e6f0ee;--mu:#9fb7b3;--pr:#4cc2a3;--ac:#f0a64f;--bl:#6ab0e8;--bd:#2f4642;--sky:#1d3340;--box:#233a37}}
+:root[data-theme="dark"]{--bg:#14201f;--card:#1c2d2b;--tx:#e6f0ee;--mu:#9fb7b3;--pr:#4cc2a3;--ac:#f0a64f;--bl:#6ab0e8;--bd:#2f4642;--sky:#1d3340;--box:#233a37}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Tajawal',Tahoma,Arial,sans-serif;line-height:1.8;font-size:16px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+header{text-align:center;padding:22px 14px 8px}
+h1{margin:0;font-size:26px;color:var(--pr);font-weight:800}
+header p{margin:4px 0 0;color:var(--mu)}
+main{max-width:760px;margin:auto;padding:10px 14px 30px}
+section{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:16px;margin:14px 0}
+h2{margin:0 0 8px;font-size:21px;color:var(--ac)}
+.sound{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px}
+button.b{background:var(--pr);color:#fff;border:0;border-radius:12px;padding:10px 18px;font:inherit;font-weight:700;font-size:16px;cursor:pointer}
+button.b.o{background:var(--ac)}
+button.b:active{transform:scale(.96)}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+svg{width:100%;height:auto;display:block;border-radius:14px;background:var(--sky)}
+.g{opacity:.22;transition:opacity .6s}.g.on{opacity:1}
+.say{background:var(--box);border-radius:14px;padding:12px 14px;margin-top:10px;min-height:92px}
+.say b{color:var(--pr);font-size:18px}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--bd)}
+.dots i.on{background:var(--pr)}
+@keyframes fl{0%,100%{transform:scale(1,1)}50%{transform:scale(.88,1.18)}}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:fl .35s infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin{transform-box:fill-box;transform-origin:center;animation:sp .8s linear infinite;animation-play-state:paused}
+.run .spin{animation-play-state:running}
+@keyframes fw{to{stroke-dashoffset:-24}}
+.flow{stroke-dasharray:6 6;animation:fw .6s linear infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:0}30%{opacity:1}100%{transform:translateY(-26px);opacity:0}}
+.bub{animation:rise 1.4s infinite}
+.bub:nth-child(2){animation-delay:.4s}.bub:nth-child(3){animation-delay:.9s}
+.formula{background:var(--box);border-radius:14px;padding:12px;text-align:center;font-weight:700;font-size:18px;color:var(--bl)}
+.ex input{width:70px;font:inherit;text-align:center;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);padding:4px}
+.dev{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd)}
+.dev small{color:var(--mu);grid-column:1/-1}
+.dev input[type=range]{width:100%;grid-column:1/-1;accent-color:var(--pr)}
+.hrs{font-weight:700;color:var(--pr)}
+.tot{background:var(--box);border-radius:16px;padding:14px;margin-top:12px;text-align:center}
+.tot .big{font-size:32px;font-weight:800;color:var(--ac)}
+.bar{height:14px;border-radius:9px;background:var(--bd);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;width:0;background:var(--pr);transition:width .4s,background .4s}
+.price{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+.price input{width:70px;font:inherit;text-align:center;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);padding:4px}
+ul{padding-inline-start:20px;margin:6px 0}
+nav#tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg)}
+#tabs button{flex:none;font:inherit;font-size:14px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:999px;padding:6px 14px;cursor:pointer}
+#tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+main>section{display:none}main>section.show{display:block;animation:pg .4s}
+@keyframes pg{from{opacity:0;transform:translateX(-24px)}}
+.sw{overflow:auto;border-radius:14px}.sw svg{width:100%;transition:width .4s}.sw.z1 svg{width:170%}.sw.z2 svg{width:260%}
+.rk{display:grid;grid-template-columns:105px 1fr 56px;gap:6px;align-items:center;font-size:14px;margin:5px 0}
+.rk i{display:block;height:16px;border-radius:8px;width:0;transition:width .8s;background:var(--ac)}
+.scn{background:var(--sky);border-radius:14px;padding:14px;text-align:center;font-size:40px;line-height:1.5;min-height:130px}
+.opt{display:block;width:100%;text-align:right;font:inherit;margin:8px 0;padding:10px 12px;border-radius:12px;border:2px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+.opt.ok{border-color:#1f8a70;background:rgba(31,138,112,.2)}.opt.no{border-color:#d9534f;background:rgba(217,83,79,.15)}
+@keyframes bl{50%{opacity:.3}}.blink{animation:bl 1s infinite;display:inline-block}
+footer{text-align:center;padding:18px 12px 30px;color:var(--mu);border-top:1px solid var(--bd);margin:0 14px}
+footer b{color:var(--pr);display:block;font-size:17px}
+.ft2{display:flex;justify-content:center;gap:10px;direction:rtl;font-weight:700;color:var(--ac)}
+.scn svg{width:100%;height:auto;border-radius:10px}
+</style>
+</head>
+<body>
+<button class="sound" id="snd">🔊 الصوت: يعمل</button><button class="sound" id="nbtn" style="left:auto;right:12px">🗣️ الشرح: يعمل</button>
+<header><h1>⚡ الكهرباء من حولنا</h1><p>الوحدة الثانية – الأمان وترشيد الاستهلاك</p></header>
+<nav id="tabs"></nav>
+<div id="vn" style="display:none;background:#fff3cd;color:#664d03;padding:8px 12px;margin:6px 14px;border-radius:10px;font-size:14px">لم أجد صوتاً عربياً على جهازك. ثبّت صوتاً عربياً من إعدادات «تحويل النص إلى كلام» في الجهاز، ثم أعد تحميل الصفحة.</div>
+<main>
+
+<section id="s1">
+<h2>١) من أين تأتينا الكهرباء؟</h2>
+<p>اضغط «التالي» وتابع رحلة الكهرباء من محطة التوليد حتى بيتك.</p>
+<div class="row" style="margin:0 0 8px"><button class="b o" id="zoom">🔍 تكبير الصورة</button></div>
+<div class="sw" id="sw"><svg id="scene" viewBox="0 0 360 330" role="img" aria-label="رسم متحرك لمحطة توليد الكهرباء">
+ <rect y="270" width="360" height="60" fill="#7aa66a" opacity=".55"/>
+ <g class="g" data-s="1">
+  <rect x="25" y="150" width="100" height="22" rx="4" fill="#6b5b4a"/>
+  <g class="flame"><path d="M55 150q-10-25 5-42q4 14 12 8q6 16-2 34z" fill="#f08a24"/><path d="M85 150q-8-18 3-30q6 10 10 6q4 12-3 24z" fill="#f5c542"/></g>
+  <text x="75" y="190" text-anchor="middle" font-size="13" fill="currentColor">وقود</text>
+ </g>
+ <g class="g" data-s="2">
+  <rect x="25" y="55" width="100" height="55" rx="10" fill="#4f9fd6"/>
+  <rect x="25" y="55" width="100" height="14" rx="6" fill="#9ed0ef"/>
+  <g fill="#fff"><circle class="bub" cx="55" cy="100" r="4"/><circle class="bub" cx="75" cy="102" r="3"/><circle class="bub" cx="98" cy="100" r="4"/></g>
+  <text x="75" y="46" text-anchor="middle" font-size="13" fill="currentColor">غلاية الماء</text>
+ </g>
+ <g class="g" data-s="3">
+  <path d="M125 75H190" stroke="#bcc9d0" stroke-width="12" fill="none"/>
+  <path class="flow" d="M125 75H190" stroke="#fff" stroke-width="5" fill="none"/>
+  <text x="158" y="58" text-anchor="middle" font-size="12" fill="currentColor">بخار قوي</text>
+ </g>
+ <g class="g" data-s="4">
+  <circle cx="220" cy="75" r="32" fill="#5d7380"/>
+  <g class="spin"><path d="M220 45v60M190 75h60M199 54l42 42M241 54l-42 42" stroke="#e8edf0" stroke-width="5"/></g>
+  <circle cx="220" cy="75" r="6" fill="#33424b"/>
+  <text x="220" y="127" text-anchor="middle" font-size="13" fill="currentColor">توربين</text>
+ </g>
+ <g class="g" data-s="5">
+  <rect x="262" y="52" width="70" height="46" rx="8" fill="#e8912d"/>
+  <path d="M300 58l-14 22h12l-5 15l17-24h-12z" fill="#fff6c9"/>
+  <path d="M252 75h10" stroke="#33424b" stroke-width="6"/>
+  <text x="297" y="127" text-anchor="middle" font-size="13" fill="currentColor">مولّد</text>
+ </g>
+ <g class="g" data-s="6">
+  <path d="M297 98V175H190" stroke="#f5c542" stroke-width="3" fill="none"/>
+  <path class="flow" d="M297 98V175H190" stroke="#fff" stroke-width="2" fill="none"/>
+  <g stroke="currentColor" stroke-width="3" fill="none"><path d="M180 150l10 120M200 150l-10 120M170 175h40M175 195h30"/></g>
+  <text x="190" y="143" text-anchor="middle" font-size="12" fill="currentColor">أبراج الشبكة</text>
+  <path d="M180 178H80" stroke="#f5c542" stroke-width="3" fill="none"/>
+  <path class="flow" d="M180 178H80" stroke="#fff" stroke-width="2" fill="none"/>
+  <rect x="25" y="215" width="70" height="55" fill="#e9d8b8"/><path d="M15 215l45-38l45 38z" fill="#c4563f"/>
+  <rect x="50" y="235" width="20" height="20" fill="#ffe27a"/>
+  <path d="M60 178V177" stroke="#f5c542"/>
+ </g>
+</svg></div>
+<div class="dots" id="dots"></div>
+<div class="say" id="say"></div>
+<div class="row"><button class="b" id="rep" style="background:var(--bl)">🗣️ اشرح</button><button class="b o" id="prev">السابق</button><button class="b" id="next">التالي ◀</button></div>
+</section>
+
+<section>
+<h2>٢) ما الطاقة الكهربائية؟</h2>
+<p>هي القدرة الكهربائية في زمن معين، وتقاس بالكيلو واط . ساعة.</p>
+<div class="formula">الطاقة = القدرة × الزمن</div>
+<div class="ex" style="margin-top:12px">
+<p>مثال: سخان ماء قدرته <input id="p" type="number" value="3" min="0" step="0.5"> كيلو واط يعمل <input id="t" type="number" value="5" min="0"> ساعات، وسعر الكيلو واط.ساعة <input id="c" type="number" value="10" min="0"> قروش.</p>
+<div class="tot"><div id="exr">—</div></div>
+</div>
+</section>
+
+<section>
+<h2>٣) ما الأجهزة الأكثر استهلاكاً للكهرباء؟</h2>
+<p>اختر طريقة المقارنة:</p>
+<div class="row" style="margin:0 0 8px"><button class="b" id="rk1">حسب القدرة</button><button class="b o" id="rk2">حسب استهلاك الشهر</button></div>
+<div id="rkl"></div><div class="say" id="rkn"></div>
+<h2 style="margin-top:16px;font-size:18px">🎯 خمّن: أيهما أكثر استهلاكاً في الساعة؟</h2>
+<div id="gq"></div>
+</section>
+
+<section>
+<h2>٤) نشاط: احسب فاتورة الكهرباء</h2>
+<p>حرّك المؤشر لتحديد ساعات تشغيل كل جهاز يومياً، وشاهد الفاتورة الشهرية (٣٠ يوماً).</p>
+<div class="price">سعر الكيلوواط.ساعة: <input id="rate" type="number" value="11" min="0"> قرش</div>
+<div id="devs"></div>
+<div class="tot">
+ <div>استهلاك الشهر: <b id="kwh">0</b> كيلو واط.ساعة</div>
+ <div class="big" id="cost">0</div>
+ <div id="qr" style="color:var(--mu)"></div>
+ <div class="bar"><i id="barf"></i></div>
+ <div id="msg" style="margin-top:8px;font-weight:700"></div>
+</div>
+<div class="row"><button class="b o" id="saver">جرّب وضع الترشيد 🌱</button><button class="b" id="reset" style="background:var(--bl)">إعادة الضبط</button></div>
+</section>
+
+<section>
+<h2>٥) اكتشف الخطأ 🔎</h2>
+<p>انظر إلى المشهد وحدد التصرف الخاطئ فيه، ثم اعرف الجواب.</p>
+<div class="scn" id="gs"></div><div id="go"></div>
+<div class="say" id="gw" style="display:none"></div>
+<div class="row"><button class="b" id="gn" style="display:none">المشهد التالي ◀</button></div>
+<div class="tot" id="gsc">النتيجة: 0</div>
+</section>
+
+<section>
+<h2>٦) نصائح الترشيد</h2>
+<p><b>استبدل مصابيح التنجستن بمصابيح موفرة:</b></p><div id='cmp'></div>
+<ul>
+<li>استخدم ضوء النهار كلما أمكن.</li>
+<li>أطفئ الإنارة في الأماكن غير المشغولة.</li>
+<li>استبدل اللمبات العادية بمصابيح موفرة للطاقة.</li>
+<li>لا تملأ الثلاجة فوق طاقتها وأبعدها عن الشمس والفرن، وقلل فتح بابها.</li>
+<li>لا تشغّل المكيف طيلة الوقت، ونظّف السخان قبل الشتاء.</li>
+</ul>
+<p>فكّر: كيف نتحكم بالإنارة الخارجية لتضيء وقت الحاجة فقط؟</p>
+</section>
+</main>
+<footer>تصميم الأستاذ<b>فادي أبو الكباش</b><div class='ft2'><span>عسقلان</span><span>•</span><span>EduTech</span></div></footer>
+
+<script>
+const STEPS=[
+["١. حرق الوقود","يُحرق الفحم أو النفط أو الوقود النووي لإنتاج حرارة كبيرة."],
+["٢. تسخين الماء","تسخّن الحرارة الماء في الغلاية حتى يغلي."],
+["٣. البخار القوي","يتحول الماء إلى بخار شديد الضغط يندفع في الأنابيب."],
+["٤. تحريك التوربين","يدفع البخار شفرات التوربين فتدور بسرعة كبيرة."],
+["٥. توليد الكهرباء","يدير التوربين المولّد الكهربائي فيُنتج التيار الكهربائي."],
+["٦. الشبكة والبيت","تنتقل الكهرباء عبر الأسلاك والأبراج حتى تصل إلى بيوتنا فتضيء وتشغّل أجهزتنا ⚡"]];
+let n=0,mute=false,ac;
+function A(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}return ac}
+function tone(f,d,type,v){if(mute)return;const a=A();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.value=v||.08;g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d)}
+function hiss(d){if(mute)return;const a=A();if(!a)return;const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=(Math.random()*2-1)*.25;const s=a.createBufferSource(),g=a.createGain();s.buffer=b;g.gain.value=.08;g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);s.connect(g);g.connect(a.destination);s.start()}
+const fx=[()=>{hiss(.5);tone(120,.4,'sawtooth')},()=>{tone(300,.2,'sine');setTimeout(()=>tone(380,.2),150)},()=>hiss(1.2),()=>{tone(90,.8,'sawtooth',.1)},()=>{tone(440,.15,'square',.05);setTimeout(()=>tone(660,.3,'square',.05),130)},()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.25,'triangle',.1),i*120))}];
+const dots=document.getElementById('dots');dots.innerHTML=STEPS.map(()=>'<i></i>').join('');
+function show(play){
+ document.querySelectorAll('.g').forEach(g=>g.classList.toggle('on',+g.dataset.s<=n+1));
+ document.getElementById('scene').classList.toggle('run',n>=3);
+ [...dots.children].forEach((d,i)=>d.classList.toggle('on',i<=n));
+ document.getElementById('say').innerHTML='<b>'+STEPS[n][0]+'</b><br>'+STEPS[n][1];
+ if(play){fx[n]();sayLater(NARR[n],[300,300,300,300,1300,4400][n])}
+}
+next.onclick=()=>{n=(n+1)%STEPS.length;show(true)};
+prev.onclick=()=>{n=(n+STEPS.length-1)%STEPS.length;show(true)};
+snd.onclick=()=>{mute=!mute;snd.textContent=mute?'🔇 الصوت: متوقف':'🔊 الصوت: يعمل'};
+show(false);
+
+function ex(){const e=+p.value*+t.value;exr.innerHTML='الطاقة = '+p.value+' × '+t.value+' = <b>'+e+'</b> كيلو واط.ساعة<br>التكلفة = '+e+' × '+c.value+' = <b style="color:var(--ac)">'+(e*c.value)+'</b> قرشاً';}
+[p,t,c].forEach(i=>i.oninput=ex);ex();
+
+const D=[["ثلاجة ١٨ قدماً",.35,15],["مدفأة",3,4],["غسالة بدون سخان",.5,1],["غسالة بسخان",1.5,1],["مجفف شعر",1.3,1],["فرن كهربائي",2,1],["سخان ماء ٨٠ لتراً",1.5,4],["تلفزيون",.35,4],["مكواة",1.4,1],["نشافة ملابس",2.5,2],["لمبة إنارة عادية",.1,8],["مصباح موفر للطاقة",.02,8],["ميكروويف",1.3,1],["مكيف",1.5,3],["مروحة",.1,4],["كمبيوتر + شاشة مسطحة",.26,8],["طابعة Laser",.84,3],["فاكس",.3,2]];
+const def=D.map(d=>d[2]);
+devs.innerHTML=D.map((d,i)=>`<div class="dev"><span>${d[0]}</span><span class="hrs"><span id="h${i}">${d[2]}</span> ساعة</span><input type="range" id="r${i}" min="0" max="24" step="1" value="${d[2]}"><small>${d[1]} ك.واط.ساعة في الساعة</small></div>`).join('');
+let last=0;
+function calc(tick){
+ let k=0;D.forEach((d,i)=>{const h=+document.getElementById('r'+i).value;document.getElementById('h'+i).textContent=h;k+=d[1]*h*30});
+ const q=k*(+rate.value||0),s=q/100;
+ kwh.textContent=k.toFixed(1);cost.textContent=s.toFixed(2)+' شيكل';qr.textContent='= '+Math.round(q)+' قرش';
+ const pc=Math.min(100,s/12);barf.style.width=pc+'%';barf.style.background=pc>66?'#d9534f':pc>33?'#e8912d':'#1f8a70';
+ msg.textContent=pc>66?'⚠️ الفاتورة مرتفعة! حاول تقليل ساعات التشغيل.':pc>33?'فاتورة متوسطة، يمكنك التوفير أكثر.':'👏 ممتاز! استهلاك مرشّد.';
+ if(tick){tone(300+Math.min(600,s*3),.08,'triangle',.05)}
+}
+devs.oninput=()=>calc(true);rate.oninput=()=>calc(false);
+saver.onclick=()=>{const m={"لمبة إنارة عادية":0,"مصباح موفر للطاقة":8,"مكيف":1,"مدفأة":2,"سخان ماء ٨٠ لتراً":2,"مروحة":4};D.forEach((d,i)=>{if(d[0] in m)document.getElementById('r'+i).value=m[d[0]]});calc(false);tone(660,.3,'triangle',.1)};
+reset.onclick=()=>{def.forEach((v,i)=>document.getElementById('r'+i).value=v);calc(false)};
+calc(false);
+
+/* tabs */
+const L=["🏭 رحلة الكهرباء","📐 الطاقة","🏆 الأكثر استهلاكاً","🧮 الفاتورة","🔎 اكتشف الخطأ","💡 نصائح"];
+const S=[...document.querySelectorAll('main>section')];
+L.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>go2(i);tabs.appendChild(b)});
+function go2(i){S.forEach((s,j)=>s.classList.toggle('show',i==j));[...tabs.children].forEach((b,j)=>{b.classList.toggle('on',i==j);if(i==j)b.scrollIntoView({inline:'center',block:'nearest'})});window.scrollTo({top:0,behavior:'smooth'});tone(500+i*60,.1,'triangle',.05);if(i==2)rank(0);if(INTRO)sayLater(INTRO[i],500)}
+go2(0);
+/* zoom */
+let z=0;zoom.onclick=()=>{z=(z+1)%3;sw.className='sw'+(z?' z'+z:'');zoom.textContent=z==2?'↩️ تصغير':'🔍 تكبير الصورة'};
+/* ranking */
+function rank(m){
+ const a=D.map(d=>({n:d[0],v:m?d[1]*d[2]*30:d[1]})).sort((x,y)=>y.v-x.v).slice(0,10),mx=a[0].v;
+ rkl.innerHTML=a.map(x=>`<div class="rk"><span>${x.n}</span><span><i data-w="${x.v/mx*100}"></i></span><b>${+x.v.toFixed(1)}</b></div>`).join('');
+ setTimeout(()=>rkl.querySelectorAll('i').forEach(i=>i.style.width=i.dataset.w+'%'),50);
+ rkn.innerHTML=m?'<b>حسب استهلاك الشهر</b> (بحسب ساعات التشغيل المعتادة، بالكيلوواط.ساعة): جهاز قليل القدرة قد يستهلك كثيراً إذا عمل ساعات طويلة، مثل الثلاجة والتلفزيون.':'<b>حسب القدرة</b> (كيلوواط في الساعة): الأجهزة التي تنتج حرارة، كالمدفأة والنشافة والفرن والسخان والمكيف، هي الأكثر استهلاكاً.';
+ tone(m?400:520,.15,'triangle',.06)}
+rk1.onclick=()=>{rank(0);sayLater(rkn.textContent,300)};rk2.onclick=()=>{rank(1);sayLater(rkn.textContent,300)};
+function quiz(){let a,b;do{a=D[Math.random()*D.length|0];b=D[Math.random()*D.length|0]}while(a==b||a[1]==b[1]);
+ gq.innerHTML=[a,b].map((d,i)=>`<button class="opt" data-k="${d[1]}">${d[0]}</button>`).join('');gq.dataset.m=Math.max(a[1],b[1]);gq.dataset.d=0}
+gq.onclick=e=>{const b=e.target.closest('.opt');if(!b)return;if(gq.dataset.d==1){quiz();return}gq.dataset.d=1;const ok=+b.dataset.k==+gq.dataset.m;[...gq.children].forEach(x=>{x.textContent+=' ('+x.dataset.k+' ك.واط/ساعة)';if(+x.dataset.k==+gq.dataset.m)x.classList.add('ok');else if(x==b)x.classList.add('no')});gq.insertAdjacentHTML('beforeend','<p><b>'+(ok?'أحسنت! ✅':'ليس تماماً ❌')+'</b> اضغط للسؤال التالي.</p>');ok?tone(784,.25,'triangle',.1):tone(160,.3,'sawtooth',.06);const nm=[...gq.children].find(x=>x.classList.contains('ok')).textContent.split(' (')[0];sayLater((ok?'أحسنت! ':'ليست الإجابة الصحيحة. ')+'الجهاز الأكثر استهلاكاً هو '+nm+'.',300)};
+quiz();
+/* mistakes game */
+const G0=[
+['<span>☀️🪟</span> <span class="blink">💡💡💡</span> 🛋️<br><small style="font-size:14px">غرفة فارغة</small>',['الإنارة مضاءة في غرفة لا أحد فيها رغم وجود ضوء النهار','الأريكة قريبة من النافذة','الغرفة تحتوي نافذة'],'يجب استخدام ضوء النهار وإطفاء الإنارة في الأماكن غير المشغولة، فيوفر ذلك ١٠–١٥٪ من تكلفة الإنارة.'],
+['🍳🔥 &nbsp; 🧊 &nbsp; ☀️🪟',['الثلاجة موضوعة قرب الفرن والشمس (مصادر حرارة)','الثلاجة في المطبخ','الفرن يطهو الطعام'],'الحرارة تجبر الثلاجة على العمل أكثر. أبعدها عن الشمس والفرن لتوفر الطاقة.'],
+['🧊 🥩🍗🍉🥫🍞🥛 🧣',['الثلاجة ممتلئة فوق طاقتها ومغطاة بقماش','الثلاجة فيها أطعمة','الثلاجة بيضاء'],'لا نملأ الثلاجة فوق طاقتها بل نرتّب الأطعمة ونترك فراغات، ونهوّي أسطحها الخارجية ولا نغطيها.'],
+['👦 🧊🚪↔️ ⏳',['باب الثلاجة مفتوح لوقت طويل','الطفل في المطبخ','الثلاجة كبيرة'],'يجب تقليل فتح الثلاجة وإحكام إغلاقها حتى لا تهدر البرودة وتعمل أكثر.'],
+['❄️🌬️ &nbsp; 🪟↔️ &nbsp; 🥵',['المكيف يعمل والنافذة مفتوحة','المكيف مثبّت بالحائط','الجو حار'],'نغلق الأبواب والنوافذ ولا نشغّل المكيف طيلة الوقت، فيقل استهلاك الكهرباء.'],
+['☀️ 🏡 <span class="blink">💡</span><br><small style="font-size:14px">الإنارة الخارجية</small>',['الإنارة الخارجية مضاءة في وضح النهار','للبيت حديقة','الشمس مشرقة'],'تُهدر الطاقة عند بقاء الإنارة الخارجية طوال الليل والنهار. نتحكم بها بحساس ضوئي أو مؤقت لتضيء وقت الحاجة فقط.']];
+let gi=0,sc=0;
+function gShow(){const g=G[gi];gs.innerHTML=g[0];delete go.dataset.l;gw.style.display=gn.style.display='none';
+ go.innerHTML=[0,1,2].sort(()=>Math.random()-.5).map(i=>`<button class="opt" data-i="${i}">${g[1][i]}</button>`).join('');gsc.textContent='النتيجة: '+sc+' من '+G.length+' — مشهد '+(gi+1);if(window.gReady)sayLater('انظر إلى المشهد جيداً. ما التصرف الخاطئ فيه؟',300)}
+go.onclick=e=>{const b=e.target.closest('.opt');if(!b||go.dataset.l)return;go.dataset.l=1;const ok=b.dataset.i==0;if(ok){sc++;tone(784,.25,'triangle',.1)}else tone(160,.3,'sawtooth',.06);
+ [...go.children].forEach(x=>{if(x.dataset.i==0)x.classList.add('ok');else if(x==b)x.classList.add('no')});
+ gw.innerHTML=(ok?'<b>أحسنت! ✅</b>':'<b>ليس تماماً ❌</b>')+' الخطأ: '+G[gi][1][0]+'.<br>'+G[gi][2];if(G[gi][3])gw.innerHTML+=CMP();gw.style.display='block';gn.style.display='';sayLater((ok?'أحسنت! ':'ليس تماماً. ')+'الخطأ هو: '+G[gi][1][0]+'. '+G[gi][2],400);gn.textContent=gi==G.length-1?'النتيجة النهائية 🏆':'المشهد التالي ◀';gsc.textContent='النتيجة: '+sc+' من '+G.length};
+gn.onclick=()=>{if(gi==G.length-1&&gn.dataset.f!=1){gn.dataset.f=1;gs.innerHTML='🏆';go.innerHTML='';gw.innerHTML='<b>أنهيت المشاهد! نتيجتك '+sc+' من '+G.length+'</b><br>'+(sc>=5?'ممتاز، أنت مرشّد طاقة ماهر 🌟':'جيد، راجع النصائح وأعد المحاولة.');gn.textContent='إعادة اللعب 🔄';[784,988,1175].forEach((f,i)=>setTimeout(()=>tone(f,.3,'triangle',.1),i*130));return}
+ if(gn.dataset.f==1){gn.dataset.f=0;gi=0;sc=0}else gi++;gShow()};
+/* electric current sound */
+function zap(long){if(mute)return;const a=A();if(!a)return;const t=a.currentTime,D=long?4:1.6;
+ const mk=(type,f0,f1,v)=>{const o=a.createOscillator(),g=a.createGain(),lp=a.createBiquadFilter();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+D);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.25);g.gain.setValueAtTime(v,t+D-.3);g.gain.linearRampToValueAtTime(.0001,t+D);lp.type='lowpass';lp.frequency.value=2800;o.connect(lp);let n=lp;if(a.createStereoPanner){const p=a.createStereoPanner();p.pan.setValueAtTime(1,t);p.pan.linearRampToValueAtTime(-1,t+D);lp.connect(p);n=p}n.connect(g);g.connect(a.destination);o.start(t);o.stop(t+D)};
+ mk('sawtooth',100,130,.07);mk('square',250,1800,.022);
+ for(let i=0;i<D*14;i++)setTimeout(()=>hiss(.03),Math.random()*D*1000);
+ if(long)setTimeout(()=>{tone(150,.1,'square',.08);setTimeout(()=>[784,988,1319].forEach((f,i)=>setTimeout(()=>tone(f,.3,'triangle',.1),i*120)),150)},D*1000)}
+fx[4]=()=>zap(false);fx[5]=()=>zap(true);
+sw.addEventListener('click',()=>{if(n>=4)fx[n]()});
+/* illustrated scenes */
+const T=(x,y,s)=>`<text x='${x}' y='${y}' text-anchor='middle' font-size='12' font-weight='700' fill='#33474a'>${s}</text>`;
+const V=b=>`<svg viewBox='0 0 300 175' style='background:#f6ecd9'><rect y='140' width='300' height='35' fill='#cdb48c'/>${b}</svg>`;
+const sun=(x,y)=>`<circle cx='${x}' cy='${y}' r='13' fill='#ffc933'/><g stroke='#ffc933' stroke-width='3'>${[0,45,90,135].map(a=>`<line x1='${x-22}' y1='${y}' x2='${x+22}' y2='${y}' transform='rotate(${a} ${x} ${y})'/>`).join('')}</g>`;
+const win=(x,y)=>`<rect x='${x}' y='${y}' width='56' height='56' fill='#9fd4f2' stroke='#8a6b43' stroke-width='4'/><path d='M${x+28} ${y}v56M${x} ${y+28}h56' stroke='#8a6b43' stroke-width='3'/>`;
+const bulb=(x,y,on)=>`<line x1='${x}' y1='0' x2='${x}' y2='${y-12}' stroke='#555'/>${on?`<circle cx='${x}' cy='${y}' r='28' fill='#ffe27a' opacity='.55'/>`:''}<circle cx='${x}' cy='${y}' r='12' fill='${on?'#ffe14d':'#ddd'}' stroke='#777'/><rect x='${x-5}' y='${y+11}' width='10' height='7' fill='#777'/>`;
+const fr=(x,y,w,h)=>`<rect x='${x}' y='${y}' width='${w}' height='${h}' rx='5' fill='#e4edf0' stroke='#7f98a3' stroke-width='2'/><line x1='${x}' y1='${y+h*.35}' x2='${x+w}' y2='${y+h*.35}' stroke='#7f98a3'/><rect x='${x+w-9}' y='${y+h*.12}' width='3' height='14' fill='#7f98a3'/>`;
+const fire=x=>`<rect x='${x}' y='105' width='55' height='35' fill='#555'/><path d='M${x+8} 105q4-14 8 0q4-14 8 0q4-14 8 0q4-14 8 0z' fill='#ff7a1a'/><rect x='${x+10}' y='88' width='35' height='17' rx='3' fill='#9aa5ab'/>`;
+const heat=`<path d='M148 90q-6 -8 0 -16t0 -16M155 95q-6 -8 0 -16' stroke='#e5533d' fill='none' stroke-width='2'/>`;
+const cols=['#e5533d','#4caf50','#f5b52e','#4f9fd6','#a05bc4','#ff8f5a'];
+function CMP(){return `<svg viewBox='0 0 300 160' style='background:#f6ecd9;margin-top:8px'><circle cx='75' cy='45' r='24' fill='#fff1a8' stroke='#777'/><path d='M66 45l5-10l4 10l4-10l5 10' stroke='#e5533d' stroke-width='2' fill='none'/><rect x='64' y='68' width='22' height='12' fill='#777'/><path d='M38 18q-5 6 0 12M112 18q5 6 0 12' stroke='#e5533d' stroke-width='2' fill='none'/><circle cx='225' cy='45' r='30' fill='#fff1a8' opacity='.7'/><g fill='none' stroke='#2aa889' stroke-width='5'><ellipse cx='225' cy='30' rx='14' ry='4'/><ellipse cx='225' cy='42' rx='14' ry='4'/><ellipse cx='225' cy='54' rx='14' ry='4'/></g><rect x='211' y='64' width='28' height='16' rx='3' fill='#999'/><rect x='30' y='98' width='90' height='14' rx='5' fill='#e5533d'/><rect x='180' y='98' width='18' height='14' rx='5' fill='#1f8a70'/>${T(75,130,'تنجستن ١٠٠ واط – مبذّرة')}${T(225,130,'موفّرة ٢٠ واط')}${T(150,152,'نفس الإضاءة تقريباً وتوفير ٨٠٪ من الطاقة')}</svg>`}
+cmp.innerHTML=CMP();
+const G=[
+[V(win(25,35)+`<circle cx='53' cy='63' r='12' fill='#ffc933'/>`+bulb(165,62,1)+`<rect x='205' y='108' width='75' height='32' rx='6' fill='#6b8fb5'/><rect x='205' y='90' width='75' height='22' rx='6' fill='#587aa0'/>`+T(150,162,'غرفة فارغة والشمس مشرقة')),['الإنارة مضاءة في غرفة لا أحد فيها رغم وجود ضوء النهار','الأريكة قريبة من النافذة','الغرفة فيها نافذة'],'نستخدم ضوء النهار ونطفئ الإنارة في الأماكن غير المشغولة، فنوفر ١٠–١٥٪ من تكلفة الإنارة.'],
+[V(sun(255,30)+`<path d='M240 40L140 85' stroke='#ffb300' stroke-width='2' stroke-dasharray='5 4'/>`+fr(95,45,48,95)+fire(160)+heat+T(150,162,'الثلاجة بين الفرن والشمس')),['الثلاجة قرب الفرن وأشعة الشمس (مصادر حرارة)','الثلاجة في المطبخ','الفرن يطهو الطعام'],'الحرارة تجبر الثلاجة على العمل أكثر. أبعدها عن الشمس والفرن لتوفر الطاقة.'],
+[V(`<rect x='95' y='22' width='110' height='118' rx='6' fill='#e4edf0' stroke='#7f98a3' stroke-width='2'/>`+[48,82,116].map(y=>`<line x1='95' y1='${y}' x2='205' y2='${y}' stroke='#7f98a3'/>`+[0,1,2,3,4,5].map(i=>`<rect x='${100+i*17}' y='${y-22}' width='15' height='21' rx='3' fill='${cols[(i+y)%6]}'/>`).join('')).join('')+`<path d='M88 16h124v14l-6 20l-8-10l-10 28l-10-22H88z' fill='#c0453a' stroke='#8d2f27'/>`+T(150,162,'ثلاجة مكتظة ومغطاة بقماش')),['ثلاجة ممتلئة فوق طاقتها ومغطّاة بقماش يمنع تهويتها','الثلاجة فيها أطعمة','الثلاجة بيضاء'],'لا نملأ الثلاجة فوق طاقتها، بل نرتب الأطعمة ونترك فراغات، ونهوّي أسطحها الخارجية ولا نغطيها.'],
+[V(fr(95,25,60,115)+`<path d='M155 25l38 10v100l-38 5z' fill='#cfd8dc' stroke='#7f98a3'/><rect x='99' y='30' width='52' height='105' fill='#fff7c9' opacity='.7'/><g fill='#9fd4f2' opacity='.8'><circle cx='185' cy='95' r='9'/><circle cx='205' cy='110' r='7'/><circle cx='222' cy='122' r='6'/></g><circle cx='255' cy='75' r='11' fill='#e9b98a'/><rect x='245' y='88' width='20' height='42' rx='6' fill='#e5533d'/><circle cx='40' cy='45' r='20' fill='#fff' stroke='#555' stroke-width='3'/><path d='M40 45V32M40 45l9 6' stroke='#555' stroke-width='3'/>`+T(40,82,'١٠ دقائق')+T(150,162,'باب الثلاجة مفتوح منذ مدة')),['باب الثلاجة مفتوح لوقت طويل فتهرب البرودة','الطفل واقف قرب الثلاجة','الثلاجة كبيرة'],'نقلل فتح الثلاجة ونحكم إغلاقها كي لا تهدر البرودة وتعمل أكثر.'],
+[V(`<rect x='25' y='22' width='115' height='34' rx='6' fill='#fff' stroke='#7f98a3' stroke-width='2'/><path d='M35 48h95' stroke='#9fd4f2' stroke-width='3'/><g stroke='#4f9fd6' stroke-width='3' fill='none'><path d='M45 62q6 8 0 16t0 16'/><path d='M82 62q6 8 0 16t0 16'/><path d='M118 62q6 8 0 16t0 16'/></g>`+win(190,35)+`<path d='M246 35l26-8v56l-26 8z' fill='#9fd4f2' stroke='#8a6b43' stroke-width='3'/><path d='M150 100h40' stroke='#4f9fd6' stroke-width='4' stroke-dasharray='6 4'/>`+T(150,162,'المكيف يعمل والنافذة مفتوحة')),['تشغيل المكيف مع ترك النافذة مفتوحة فتخرج البرودة','المكيف على الحائط','النافذة بجانب المكيف'],'نغلق الأبواب والنوافذ ولا نشغّل المكيف طيلة الوقت لتوفير الكهرباء.'],
+[V(sun(255,30)+`<rect x='100' y='75' width='100' height='65' fill='#e9d3a8' stroke='#8a6b43'/><path d='M90 75l60-40l60 40z' fill='#c4563f'/><rect x='140' y='100' width='22' height='40' fill='#8a6b43'/><rect x='172' y='92' width='20' height='20' fill='#9fd4f2'/><circle cx='84' cy='95' r='24' fill='#ffe27a' opacity='.6'/><circle cx='84' cy='95' r='10' fill='#ffe14d' stroke='#777'/>`+T(150,162,'الظهر والمصباح الخارجي مضاء')),['الإنارة الخارجية مضاءة في وضح النهار','للبيت سقف أحمر','الشمس مشرقة'],'تشكل الإنارة الخارجية هدراً للطاقة؛ نتحكم بها بمؤقت أو حساس ضوئي لتضيء وقت الحاجة فقط.'],
+[V(`<circle cx='150' cy='70' r='52' fill='#ffb347' opacity='.45'/><circle cx='150' cy='70' r='34' fill='#fff1a8' stroke='#777' stroke-width='2'/><path d='M138 70l6-14l6 14l6-14l6 14' stroke='#e5533d' stroke-width='3' fill='none'/><rect x='136' y='102' width='28' height='18' rx='3' fill='#777'/><g stroke='#e5533d' stroke-width='2.5' fill='none'><path d='M85 30q-8 8 0 16t0 16'/><path d='M215 30q-8 8 0 16t0 16'/><path d='M60 70q-8 8 0 16'/><path d='M240 70q-8 8 0 16'/></g>`+T(150,135,'لمبة تنجستن ١٠٠ واط')+T(150,162,'معظم طاقتها تتحول إلى حرارة')),['استخدام مصابيح التنجستن العادية التي تستهلك طاقة كبيرة','المصباح معلّق في السقف','المصباح مضاء'],'الأصح استبدالها بمصابيح موفرة للطاقة: ٢٠ واط بدل ١٠٠ واط لإضاءة قريبة، أي توفير نحو ٨٠٪.',1]];
+gShow();window.gReady=1;
+/* spoken narration */
+var nar=true,voice=null,tm=0,INTRO,NARR;
+function pick(){const v=speechSynthesis.getVoices();voice=v.find(x=>/^ar[-_]/i.test(x.lang)&&/google|majed|naayf|hoda|laila|maged|tarik|zariyah|hamed|salma|shakir/i.test(x.name))||v.find(x=>/^ar/i.test(x.lang)||/arab|عرب/i.test(x.name))||null}
+if(window.speechSynthesis){pick();speechSynthesis.onvoiceschanged=pick}
+function say(t){if(!nar||!window.speechSynthesis)return;if(!voice)pick();if(!voice){const k=speechSynthesis.getVoices().length;vn.textContent=k?'لم أجد صوتاً عربياً ضمن أصوات هذا المتصفح. جرّب فتح الرابط في متصفح Chrome.':'هذا المتصفح لا يدعم القراءة الصوتية. افتح الرابط في متصفح Chrome.';vn.style.display='block'}
+ t.split(/[.؟!]\s*/).filter(s=>s.trim()).forEach(s=>{const u=new SpeechSynthesisUtterance(s);u.lang='ar-SA';if(voice)u.voice=voice;u.rate=.9;u.onerror=()=>{vn.textContent='تعذّر تشغيل الصوت العربي هنا. افتح الرابط في متصفح Chrome وتأكد من رفع مستوى صوت الوسائط.';vn.style.display='block'};speechSynthesis.speak(u)})}
+function sayLater(t,d){clearTimeout(tm);if(window.speechSynthesis)speechSynthesis.cancel();if(!nar)return;tm=setTimeout(()=>say(t),d)}
+nbtn.onclick=()=>{nar=!nar;nbtn.textContent=nar?'🗣️ الشرح: يعمل':'🤐 الشرح: متوقف';if(!nar&&window.speechSynthesis)speechSynthesis.cancel()};
+rep.onclick=()=>sayLater(NARR[n],0);
+NARR=['مرحباً بكم يا أبنائي في درس الكهرباء من حولنا. تبدأ رحلة الكهرباء في محطة التوليد، حيث يُحرَق الوقود، كالفحم أو النفط أو الوقود النووي، فتنتج عنه حرارة عالية جداً.',
+'هذه الحرارة الكبيرة تُسخّن الماء داخل غلاية ضخمة، فيغلي الماء ويبدأ بالتحول شيئاً فشيئاً إلى بخار.',
+'ومع استمرار التسخين يصبح البخار شديد الضغط، فيندفع بقوة عبر الأنابيب، كما ينطلق البخار من إبريق الشاي، لكن بقوة أكبر بكثير.',
+'يصطدم هذا البخار القوي بشفرات التوربين فيدفعها، فتدور بسرعة هائلة. إن التوربين يشبه مروحة عملاقة تحركها قوة البخار.',
+'يرتبط التوربين بجهاز يسمى المولّد الكهربائي، وعندما يدور داخله يولّد التيار الكهربائي. انظروا كيف تحولت الحرارة إلى حركة، ثم تحولت الحركة إلى كهرباء.',
+'بعد ذلك ينتقل التيار عبر أسلاك طويلة تحملها الأبراج، وهي ما نسميه شبكة الكهرباء، حتى يصل إلى بيوتنا، فيضيء المصابيح ويشغّل أجهزتنا. وتذكّروا أن هذه الطاقة ثمينة، فلنحسن استخدامها.'];
+INTRO=['في هذه الصفحة ستتعرف على رحلة الكهرباء من المحطة إلى المنزل. اضغط على زر التالي لتنتقل بين المراحل، ويمكنك تكبير الصورة لرؤية التفاصيل.',
+'الطاقة الكهربائية هي القدرة الكهربائية مضروبةً في الزمن، وتُقاس بالكيلو واط ساعة. فإذا كان سخان قدرته ثلاثة كيلو واط يعمل خمس ساعات، فإنه يستهلك خمسة عشر كيلو واط ساعة. جرّب تغيير الأرقام وشاهد النتيجة.',
+'ما الأجهزة الأكثر استهلاكاً للكهرباء؟ الأجهزة التي تولّد حرارة، كالمدفأة والنشافة والفرن والسخان والمكيف، تستهلك قدرة كبيرة. لكن الثلاجة والتلفاز يستهلكان كثيراً أيضاً لأنهما يعملان ساعات طويلة. اختر طريقة المقارنة، ثم جرّب لعبة التخمين.',
+'هنا ستحسب فاتورة الكهرباء. حرّك المؤشر لتحدد ساعات تشغيل كل جهاز يومياً، وسيحسب لك التطبيق الاستهلاك والتكلفة الشهرية، علماً أن سعر الكيلو واط ساعة أحد عشر قرشاً. وحاول أن تجعل الفاتورة أقل ما يمكن.',
+'والآن لعبة اكتشف الخطأ. انظر إلى كل مشهد جيداً، ثم اختر التصرف الخاطئ الذي يهدر الكهرباء.',
+'وهذه أهم نصائح ترشيد الاستهلاك: استخدم ضوء النهار، وأطفئ الإنارة في الأماكن الخالية، واستبدل مصابيح التنجستن بمصابيح موفرة، ولا تملأ الثلاجة فوق طاقتها، وأبعدها عن مصادر الحرارة، وأغلق النوافذ عند تشغيل المكيف.'];
+</script>
+</body>
+</html>
