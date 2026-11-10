@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أنظمة الاستشعار وتطبيقاتها الإلكترونية | عسقلان EduTech</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Cairo & Tajawal -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0a3651',
+                        },
+                        accent: {
+                            gold: '#f59e0b',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            indigo: '#6366f1'
+                        }
+                    },
+                    fontFamily: {
+                        tajawal: ['Tajawal', 'Cairo', 'sans-serif'],
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Glassmorphic Cards */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+        }
+
+        /* Smooth Fan Rotation Animation */
+        @keyframes fan-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin-fan-fast {
+            animation: fan-spin 0.25s linear infinite;
+        }
+
+        /* Alarm Pulse Glow Effect */
+        @keyframes alarm-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.8); transform: scale(1); }
+            50% { box-shadow: 0 0 35px 12px rgba(244, 63, 94, 0.9); transform: scale(1.04); }
+        }
+        .alarm-ring-active {
+            animation: alarm-ring 0.8s infinite;
+        }
+
+        /* Electric Current Wire Animation */
+        @keyframes wire-pulse {
+            0% { stroke-dashoffset: 50; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .wire-glowing {
+            stroke-dasharray: 10;
+            animation: wire-pulse 0.6s linear infinite;
+        }
+
+        /* Tab Transition Effects */
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-btn.active-tab {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff !important;
+            box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.5);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .light ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 6px;
+        }
+        .light ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Header Navbar -->
+    <header class="sticky top-0 z-50 bg-slate-900/80 light:bg-white/80 backdrop-blur-md border-b border-slate-800 light:border-slate-200 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            <!-- Brand Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-accent-emerald flex items-center justify-center text-white text-2xl shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid fa-microchip animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white light:text-slate-900 font-cairo">أنظمة الاستشعار وتطبيقاتها</h1>
+                    <p class="text-xs sm:text-sm font-semibold text-brand-400 light:text-brand-600">درس تفاعلي شامل للعلوم والتكنولوجيا</p>
+                </div>
+            </div>
+
+            <!-- Top Actions: Voice & Theme Switcher -->
+            <div class="flex items-center gap-3">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleTheme()" class="p-3 rounded-xl bg-slate-800 light:bg-slate-100 hover:bg-slate-700 light:hover:bg-slate-200 text-slate-300 light:text-slate-700 transition border border-slate-700 light:border-slate-300 flex items-center gap-2 text-xs font-bold" title="تبديل المظهر">
+                    <i class="fa-solid fa-moon dark:hidden text-amber-500 text-base"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400 text-base"></i>
+                    <span class="hidden sm:inline">المظهر</span>
+                </button>
+
+                <!-- Audio Reader Button -->
+                <button id="mainVoiceBtn" onclick="toggleNarrator()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-brand-500/25 transition">
+                    <i class="fa-solid fa-volume-high text-base" id="narratorIcon"></i>
+                    <span id="narratorBtnText">الراوي الصوتي 🎙️</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Section Tabs Navigation -->
+    <nav class="bg-slate-900/50 light:bg-slate-100/70 border-b border-slate-800 light:border-slate-200 sticky top-20 z-40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-start sm:justify-center gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
+            <button onclick="changeTab('tab1')" id="btn-tab1" class="tab-btn active-tab shrink-0 px-5 py-3 rounded-xl text-sm font-bold text-slate-300 light:text-slate-600 hover:text-white flex items-center gap-2.5">
+                <i class="fa-solid fa-brain text-base"></i>
+                <span>1. مبدأ عمل أنظمة الاستشعار</span>
+            </button>
+            <button onclick="changeTab('tab2')" id="btn-tab2" class="tab-btn shrink-0 px-5 py-3 rounded-xl text-sm font-bold text-slate-300 light:text-slate-600 hover:text-white flex items-center gap-2.5">
+                <i class="fa-solid fa-fire-burner text-base"></i>
+                <span>2. دارة استشعار الحرارة (NTC)</span>
+            </button>
+            <button onclick="changeTab('tab3')" id="btn-tab3" class="tab-btn shrink-0 px-5 py-3 rounded-xl text-sm font-bold text-slate-300 light:text-slate-600 hover:text-white flex items-center gap-2.5">
+                <i class="fa-solid fa-fan text-base"></i>
+                <span>3. المروحة والإنذار (LM35)</span>
+            </button>
+            <button onclick="changeTab('tab4')" id="btn-tab4" class="tab-btn shrink-0 px-5 py-3 rounded-xl text-sm font-bold text-slate-300 light:text-slate-600 hover:text-white flex items-center gap-2.5">
+                <i class="fa-solid fa-square-check text-base"></i>
+                <span>4. اختبر معلوماتك والتقويم</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- ================= TAB 1: SENSING PRINCIPLE ================= -->
+        <section id="tab1" class="tab-content block space-y-8">
+            <!-- Voice Explanation Banner -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-2xl border-r-8 border-r-brand-500">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="space-y-3 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 text-brand-400 light:text-brand-600 font-extrabold text-xs">
+                            <i class="fa-solid fa-headset"></i>
+                            <span>المشهد التعليمي الأول: مبدأ العمل والمفهوم</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-black text-white light:text-slate-900 font-cairo">كيف تعمل المجسات وأنظمة الاستشعار عن بُعد؟</h2>
+                        <p id="script-tab1" class="text-slate-300 light:text-slate-700 text-base sm:text-lg leading-relaxed font-medium">
+                            أهلاً بكم يا أبطال التكنولوجيا! هل تساؤلتم يوماً كيف تشعر الأجهزة حولنا بالبيئة المحيطة؟ إن فكرة عمل المجسات مستوحاة تماماً من عمل حواس الإنسان الخمس. فكما يستقبل الإنسان المؤثرات كالضوء والحرارة بحواسه لتنتقل كإشارات عصبيّة إلى الدماغ ليقوم بمعالجتها وتوليد رد الفعل، فإن نظام الاستشعار يتكون من أربع مراحل متسلسلة: وحدات الإحساس، القراءة، المعالجة، ثم المخرجات!
+                        </p>
+                    </div>
+                    <button onclick="readContent('script-tab1')" class="shrink-0 w-full md:w-auto px-6 py-4 bg-brand-500/20 hover:bg-brand-500/30 text-brand-300 light:text-brand-700 font-bold rounded-2xl border border-brand-500/40 transition flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-circle-play text-xl"></i>
+                        <span class="text-base">استمع للشرح الصوتي 🎙️</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Human vs Sensor Comparison Simulator -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Human vs Sensor Card -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6">
+                    <h3 class="text-xl font-bold text-white light:text-slate-900 flex items-center gap-3 font-cairo">
+                        <i class="fa-solid fa-people-arrows text-accent-gold text-2xl"></i>
+                        المحاكاة المقارنة بين الإنسان والنظام الإلكتروني
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Step 1 -->
+                        <div class="p-4 rounded-2xl bg-slate-900/60 light:bg-slate-100 border border-slate-800 light:border-slate-200 flex items-center gap-4 hover:border-brand-500 transition cursor-pointer" onclick="triggerNodeHighlight(1)">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 font-black text-lg flex items-center justify-center shrink-0">1</div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-bold text-white light:text-slate-900">وحدات الإحساس (Sensors)</h4>
+                                <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 mt-0.5">العين/الجلد/الأذن عند الإنسان ⚡ المقاومة الحرارية والمجسات في الجهاز</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="p-4 rounded-2xl bg-slate-900/60 light:bg-slate-100 border border-slate-800 light:border-slate-200 flex items-center gap-4 hover:border-brand-500 transition cursor-pointer" onclick="triggerNodeHighlight(2)">
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 font-black text-lg flex items-center justify-center shrink-0">2</div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-bold text-white light:text-slate-900">قراءة الإشارة (Signal Reading)</h4>
+                                <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 mt-0.5">السيالات العصبية للأعصاب ⚡ الفرق الفولطي والتيار الكهربائي</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="p-4 rounded-2xl bg-slate-900/60 light:bg-slate-100 border border-slate-800 light:border-slate-200 flex items-center gap-4 hover:border-brand-500 transition cursor-pointer" onclick="triggerNodeHighlight(3)">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 font-black text-lg flex items-center justify-center shrink-0">3</div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-bold text-white light:text-slate-900">المعالجة (Processing)</h4>
+                                <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 mt-0.5">الدماغ لإصدار التوجيه ⚡ الترانزستور والمتحكمات الإلكترونية</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="p-4 rounded-2xl bg-slate-900/60 light:bg-slate-100 border border-slate-800 light:border-slate-200 flex items-center gap-4 hover:border-brand-500 transition cursor-pointer" onclick="triggerNodeHighlight(4)">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-lg flex items-center justify-center shrink-0">4</div>
+                            <div class="flex-1">
+                                <h4 class="text-base font-bold text-white light:text-slate-900">المخرجات (Output Devices)</h4>
+                                <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 mt-0.5">استجابة وحركة العضلات ⚡ جرس إنذار / دوران مروحة / إضاءة مصباح</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Animated Interactive Sequence Flow -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between items-center">
+                    <div class="w-full text-right mb-6">
+                        <h3 class="text-xl font-bold text-white light:text-slate-900 flex items-center gap-3 font-cairo">
+                            <i class="fa-solid fa-diagram-next text-brand-400 text-2xl"></i>
+                            المخطط الانسيابي التفاعلي للدارات
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 mt-1">تتبع المسار التسلسلي الذي تعبره الإشارات الإلكترونية داخل أنظمة الاستشعار</p>
+                    </div>
+
+                    <!-- Diagram Flow Active Nodes -->
+                    <div class="w-full max-w-sm space-y-4">
+                        <div id="flow-node-1" class="flow-card p-4 rounded-2xl border-2 border-slate-800 bg-slate-900 light:bg-white text-center transition-all duration-300 shadow-md">
+                            <span class="text-xs font-bold text-blue-400 block mb-1">المرحلة الأولى</span>
+                            <div class="text-base font-bold text-white light:text-slate-900">1. وحدات إحساس (Sensors)</div>
+                        </div>
+
+                        <div class="text-center text-slate-600"><i class="fa-solid fa-down-long text-xl animate-bounce"></i></div>
+
+                        <div id="flow-node-2" class="flow-card p-4 rounded-2xl border-2 border-slate-800 bg-slate-900 light:bg-white text-center transition-all duration-300 shadow-md">
+                            <span class="text-xs font-bold text-amber-400 block mb-1">المرحلة الثانية</span>
+                            <div class="text-base font-bold text-white light:text-slate-900">2. قراءة الإشارة (Reading)</div>
+                        </div>
+
+                        <div class="text-center text-slate-600"><i class="fa-solid fa-down-long text-xl animate-bounce"></i></div>
+
+                        <div id="flow-node-3" class="flow-card p-4 rounded-2xl border-2 border-slate-800 bg-slate-900 light:bg-white text-center transition-all duration-300 shadow-md">
+                            <span class="text-xs font-bold text-purple-400 block mb-1">المرحلة الثالثة</span>
+                            <div class="text-base font-bold text-white light:text-slate-900">3. معالجة البيانات (Processing)</div>
+                        </div>
+
+                        <div class="text-center text-slate-600"><i class="fa-solid fa-down-long text-xl animate-bounce"></i></div>
+
+                        <div id="flow-node-4" class="flow-card p-4 rounded-2xl border-2 border-slate-800 bg-slate-900 light:bg-white text-center transition-all duration-300 shadow-md">
+                            <span class="text-xs font-bold text-emerald-400 block mb-1">المرحلة الرابعة</span>
+                            <div class="text-base font-bold text-white light:text-slate-900">4. مخرجات النظام (Outputs)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="runDiagramSequence()" class="mt-8 w-full py-4 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white font-extrabold rounded-2xl shadow-xl transition flex items-center justify-center gap-3 text-base">
+                        <i class="fa-solid fa-play"></i>
+                        <span>تشغيل المحاكاة الانسيابية</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: HEAT CIRCUIT SIMULATOR ================= -->
+        <section id="tab2" class="tab-content hidden space-y-8">
+            <!-- Voice Explanation Banner -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-2xl border-r-8 border-r-amber-500">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="space-y-3 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 text-amber-400 font-extrabold text-xs">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>المشهد التعليمي الثاني: نشاط (1:3:1) بناء دارة استشعار الحرارة</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-black text-white light:text-slate-900 font-cairo">دارة استشعار الحرارة بمقاومة NTC وجرس الإنذار</h2>
+                        <p id="script-tab2" class="text-slate-300 light:text-slate-700 text-base sm:text-lg leading-relaxed font-medium">
+                            نستخدم في هذا النشاط مقاومة حرارية من نوع NTC بقدرة 220 أوم. تذكّر دائماً أن المقاومة الحرارية تختلف عن المقاومة الكهربائية العادية؛ فقيمة NTC تتغيّر عكسياً بتغيّر درجة الحرارة! فعند تقريب لهب أو مصدر حراري، تقل قيمتها مما يرفع الفولتية المارة إلى ثنائي زينر (4.7V) ليفعّل الترانزستور BC548 كمفتاح قاطع إلكتروني مكملاً الدارة، مما يؤدي لإطلاق صوت جرس الإنذار!
+                        </p>
+                    </div>
+                    <button onclick="readContent('script-tab2')" class="shrink-0 w-full md:w-auto px-6 py-4 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 light:text-amber-800 font-bold rounded-2xl border border-amber-500/40 transition flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-circle-play text-xl"></i>
+                        <span class="text-base">استمع للشرح الصوتي 🎙️</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Workbench Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Component Specs List -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-5 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white light:text-slate-900 mb-4 flex items-center gap-3 font-cairo">
+                            <i class="fa-solid fa-microchip text-amber-400 text-2xl"></i>
+                            أدوات النشاط الإلكتروني
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <div class="p-3.5 bg-slate-900/60 light:bg-slate-100 rounded-xl border border-slate-800 light:border-slate-200 flex justify-between items-center">
+                                <span class="font-bold text-sm text-slate-200 light:text-slate-800">مقاومة حرارية NTC</span>
+                                <span class="text-xs bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-md font-bold">220Ω</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/60 light:bg-slate-100 rounded-xl border border-slate-800 light:border-slate-200 flex justify-between items-center">
+                                <span class="font-bold text-sm text-slate-200 light:text-slate-800">ترانزستور BC548</span>
+                                <span class="text-xs bg-purple-500/20 text-purple-300 px-2.5 py-1 rounded-md font-bold">مفتاح إلكتروني</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/60 light:bg-slate-100 rounded-xl border border-slate-800 light:border-slate-200 flex justify-between items-center">
+                                <span class="font-bold text-sm text-slate-200 light:text-slate-800">ثنائي زينر (Zener)</span>
+                                <span class="text-xs bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded-md font-bold">4.7V</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/60 light:bg-slate-100 rounded-xl border border-slate-800 light:border-slate-200 flex justify-between items-center">
+                                <span class="font-bold text-sm text-slate-200 light:text-slate-800">جرس تنبيه طوارئ</span>
+                                <span class="text-xs bg-rose-500/20 text-rose-300 px-2.5 py-1 rounded-md font-bold">3V</span>
+                            </div>
+                            <div class="p-3.5 bg-slate-900/60 light:bg-slate-100 rounded-xl border border-slate-800 light:border-slate-200 flex justify-between items-center">
+                                <span class="font-bold text-sm text-slate-200 light:text-slate-800">مصدر تغذية (بطارية)</span>
+                                <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-md font-bold">9V</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-xs space-y-1">
+                        <span class="font-bold text-amber-400 block text-sm"><i class="fa-solid fa-lightbulb ml-1"></i> معلومات الدرس:</span>
+                        <p class="text-slate-300 light:text-slate-700 leading-relaxed">ثنائي زينر يسمح بمرور التيار بالاتجاه المعاكس عندما يتعدى فرق الجهد على أطرافه القيمة المحددة (4.7V).</p>
+                    </div>
+                </div>
+
+                <!-- Interactive SVG Schematic Visualizer -->
+                <div class="lg:col-span-2 glass-panel rounded-3xl p-6 sm:p-8 flex flex-col justify-between items-center relative overflow-hidden">
+                    <div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-white light:text-slate-900 flex items-center gap-3 font-cairo">
+                                <i class="fa-solid fa-wave-square text-rose-500 text-2xl"></i>
+                                المحاكي البصري للدارة الحرارية
+                            </h3>
+                            <p class="text-xs text-slate-400 light:text-slate-600">اضغط على زر "تقريب شعلة النار" لاختبار النظام</p>
+                        </div>
+                        <span id="circuit1-badge" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 light:bg-slate-200 text-slate-300 light:text-slate-700 border border-slate-700">
+                            الحالة: أمان (حرارة طبيعية)
+                        </span>
+                    </div>
+
+                    <!-- SVG Schematic -->
+                    <div class="w-full bg-slate-950 light:bg-slate-900 p-4 rounded-2xl border border-slate-800 my-4 relative shadow-inner">
+                        <svg viewBox="0 0 500 300" class="w-full h-auto">
+                            <!-- Circuit Base Wires -->
+                            <path d="M 60 50 L 440 50 L 440 250 L 60 250 Z" fill="none" stroke="#475569" stroke-width="4" stroke-linejoin="round"/>
+                            
+                            <!-- Glowing Wire Overlay when Active -->
+                            <path id="active-wire-glow" d="M 60 50 L 440 50 L 440 250 L 60 250 Z" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linejoin="round" class="hidden" />
+
+                            <!-- Middle Junction Wires -->
+                            <line x1="200" y1="50" x2="200" y2="150" stroke="#475569" stroke-width="4" />
+                            <line x1="200" y1="150" x2="300" y2="150" stroke="#475569" stroke-width="4" />
+                            <line x1="200" y1="150" x2="200" y2="250" stroke="#475569" stroke-width="4" />
+                            <line x1="300" y1="150" x2="300" y2="180" stroke="#475569" stroke-width="4" />
+                            <line x1="300" y1="220" x2="300" y2="250" stroke="#475569" stroke-width="4" />
+
+                            <!-- Battery (9V) -->
+                            <g transform="translate(60, 150)">
+                                <rect x="-18" y="-30" width="36" height="60" fill="#1e293b" stroke="#3b82f6" stroke-width="3" rx="6" />
+                                <text x="0" y="5" fill="#3b82f6" font-size="14" font-weight="black" text-anchor="middle">9V</text>
+                            </g>
+
+                            <!-- NTC Thermistor -->
+                            <g transform="translate(130, 50)" id="svg-ntc">
+                                <rect x="-25" y="-14" width="50" height="28" fill="#0f172a" stroke="#f59e0b" stroke-width="3" rx="4" />
+                                <line x1="-30" y1="18" x2="30" y2="-18" stroke="#f59e0b" stroke-width="3" />
+                                <text x="0" y="-20" fill="#f59e0b" font-size="12" text-anchor="middle" font-weight="bold">NTC 220Ω</text>
+                            </g>
+
+                            <!-- Resistor 1k -->
+                            <g transform="translate(200, 100)">
+                                <rect x="-12" y="-18" width="24" height="36" fill="#0f172a" stroke="#94a3b8" stroke-width="3" rx="3" />
+                                <text x="-20" y="5" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="end">1kΩ</text>
+                            </g>
+
+                            <!-- Zener Diode 4.7V -->
+                            <g transform="translate(300, 200)">
+                                <polygon points="-12,-12 12,0 -12,12" fill="#8b5cf6" />
+                                <line x1="12" y1="-15" x2="12" y2="15" stroke="#8b5cf6" stroke-width="4" />
+                                <text x="24" y="4" fill="#8b5cf6" font-size="11" font-weight="bold">Zener 4.7V</text>
+                            </g>
+
+                            <!-- Transistor BC548 -->
+                            <g transform="translate(350, 150)">
+                                <circle cx="0" cy="0" r="24" fill="#0f172a" stroke="#38bdf8" stroke-width="3" />
+                                <text x="0" y="5" fill="#38bdf8" font-size="10" text-anchor="middle" font-weight="bold">BC548</text>
+                            </g>
+
+                            <!-- Buzzer Component -->
+                            <g transform="translate(440, 120)" id="svg-buzzer">
+                                <circle cx="0" cy="0" r="26" fill="#1e293b" stroke="#ef4444" stroke-width="4" id="buzzer-ring" />
+                                <path d="M-10,-12 L12,0 L-10,12 Z" fill="#ef4444" />
+                                <text x="0" y="42" fill="#ef4444" font-size="12" text-anchor="middle" font-weight="bold">جرس (3V)</text>
+                            </g>
+
+                            <!-- Animated Flame Graphic -->
+                            <g id="svg-flame" transform="translate(130, 10)" class="hidden transition-all">
+                                <path d="M 0 15 Q -12 -5 0 -25 Q 12 -5 0 15 Z" fill="#f97316" class="animate-bounce" />
+                                <path d="M 0 10 Q -6 0 0 -12 Q 6 0 0 10 Z" fill="#facc15" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Action Controls -->
+                    <div class="flex flex-wrap items-center justify-center gap-4 mt-2">
+                        <button onclick="toggleHeatTrigger()" id="heat-trigger-btn" class="px-8 py-4 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-extrabold rounded-2xl shadow-xl transition flex items-center gap-3 text-base">
+                            <i class="fa-solid fa-fire-flame-curved text-xl"></i>
+                            <span id="heat-btn-text">تقريب لهب النار (تسخين المقاومة NTC)</span>
+                        </button>
+
+                        <button onclick="resetHeatTrigger()" class="px-5 py-4 bg-slate-800 light:bg-slate-200 hover:bg-slate-700 text-slate-300 light:text-slate-700 font-bold rounded-2xl border border-slate-700 transition">
+                            <i class="fa-solid fa-rotate-right ml-1"></i>
+                            <span>إعادة التبريد</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: AUTO FAN & LM35 ================= -->
+        <section id="tab3" class="tab-content hidden space-y-8">
+            <!-- Voice Explanation Banner -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-2xl border-r-8 border-r-emerald-500">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="space-y-3 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 font-extrabold text-xs">
+                            <i class="fa-solid fa-wind"></i>
+                            <span>المشهد التعليمي الثالث: المروحة الأوتوماتيكية LM35</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-black text-white light:text-slate-900 font-cairo">أنظمة الإنذار والمروحة الأوتوماتيكية (Auto Fan)</h2>
+                        <p id="script-tab3" class="text-slate-300 light:text-slate-700 text-base sm:text-lg leading-relaxed font-medium">
+                            تُستخدم أنظمة التنبيه من الحرائق لاستشعار الدخان والحرارة الزائدة وتحويلها إلى إشارات مرئية أو سمعية. وفي نشاط المروحة الأوتوماتيكية، نستخدم **مجس الحرارة LM35** الذي يعطي فولتية تتناسب طردياً مع درجة الحرارة بمعدل **10 ملي فولت لكل 1 درجة مئوية**. عندما ترتفع الحرارة، يرتفع الجهد ليقوم الترانزستور بتشغيل محرك المروحة تلقائياً لتبريد المكان!
+                        </p>
+                    </div>
+                    <button onclick="readContent('script-tab3')" class="shrink-0 w-full md:w-auto px-6 py-4 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 light:text-emerald-800 font-bold rounded-2xl border border-emerald-500/40 transition flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-circle-play text-xl"></i>
+                        <span class="text-base">استمع للشرح الصوتي 🎙️</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Auto Fan Workbench -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Control Dashboard Card -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold text-white light:text-slate-900 mb-2 flex items-center gap-3 font-cairo">
+                            <i class="fa-solid fa-gauge-high text-emerald-400 text-2xl"></i>
+                            لوحة قراءات مجس LM35
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 mb-6">غيّر درجة الحرارة بواسطة الشريط وسجل تغير الفولتية والتأثير</p>
+
+                        <!-- Dashboard Displays -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="p-5 rounded-2xl bg-slate-900/80 light:bg-slate-100 border border-slate-800 light:border-slate-200 text-center">
+                                <span class="text-xs font-bold text-slate-400 light:text-slate-600 block mb-1">درجة الحرارة</span>
+                                <div class="text-3xl sm:text-4xl font-black text-amber-400 font-cairo">
+                                    <span id="lm35-temp-text">25</span> °C
+                                </div>
+                            </div>
+                            <div class="p-5 rounded-2xl bg-slate-900/80 light:bg-slate-100 border border-slate-800 light:border-slate-200 text-center">
+                                <span class="text-xs font-bold text-slate-400 light:text-slate-600 block mb-1">الفولتية الخارجة (Vout)</span>
+                                <div class="text-3xl sm:text-4xl font-black text-brand-400 font-cairo">
+                                    <span id="lm35-volt-text">250</span> mV
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Temperature Range Slider -->
+                        <div class="space-y-4 bg-slate-900/60 light:bg-slate-100 p-5 rounded-2xl border border-slate-800 light:border-slate-200">
+                            <div class="flex justify-between text-xs font-bold text-slate-300 light:text-slate-700">
+                                <span>بارد (10°C)</span>
+                                <span class="text-emerald-400 font-black">عتبة التنشيط (40°C)</span>
+                                <span>حار جداً (90°C)</span>
+                            </div>
+                            <input type="range" id="lm35Range" min="10" max="90" value="25" oninput="handleFanSlider(this.value)" class="w-full h-3 bg-slate-700 light:bg-slate-300 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                        </div>
+                    </div>
+
+                    <!-- Transistor Logic Card -->
+                    <div id="fan-logic-card" class="p-5 bg-slate-900/80 light:bg-slate-100 rounded-2xl border border-slate-800 light:border-slate-200 flex items-center gap-4">
+                        <div id="fan-logic-icon" class="w-12 h-12 rounded-xl bg-slate-800 light:bg-slate-200 flex items-center justify-center text-slate-400 text-2xl shrink-0">
+                            <i class="fa-solid fa-toggle-off"></i>
+                        </div>
+                        <div>
+                            <h4 id="fan-logic-title" class="font-bold text-base text-white light:text-slate-900">الترانزستور: قاطع مفتوح (OFF)</h4>
+                            <p id="fan-logic-desc" class="text-xs text-slate-400 light:text-slate-600 mt-0.5">الفولتية الصادرة غير كافية لتشغيل الترانزستور. المروحة متوقفة.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fan Graphics Visualizer -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-between relative overflow-hidden">
+                    <h3 class="text-xl font-bold text-white light:text-slate-900 self-start mb-2 flex items-center gap-3 font-cairo">
+                        <i class="fa-solid fa-fan text-blue-400 text-2xl"></i>
+                        المروحة الأوتوماتيكية التفاعلية
+                    </h3>
+
+                    <!-- Fan Hub Animation -->
+                    <div class="my-8 flex flex-col items-center">
+                        <div id="fan-casing" class="w-56 h-56 sm:w-64 sm:h-64 rounded-full border-4 border-slate-700 bg-slate-950/90 flex items-center justify-center relative shadow-2xl transition-all duration-300">
+                            <!-- Center Motor Badge -->
+                            <div class="w-14 h-14 rounded-full bg-slate-800 border-2 border-slate-600 z-20 flex items-center justify-center shadow-lg">
+                                <div class="w-5 h-5 rounded-full bg-emerald-500"></div>
+                            </div>
+                            
+                            <!-- Blades -->
+                            <div id="fan-blades-svg" class="absolute w-full h-full flex items-center justify-center z-10">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <path d="M50 50 C 45 20, 60 10, 50 5 C 40 10, 45 20, 50 50 Z" fill="#0284c7" />
+                                    <path d="M50 50 C 45 20, 60 10, 50 5 C 40 10, 45 20, 50 50 Z" fill="#0284c7" transform="rotate(120 50 50)" />
+                                    <path d="M50 50 C 45 20, 60 10, 50 5 C 40 10, 45 20, 50 50 Z" fill="#0284c7" transform="rotate(240 50 50)" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Air Wave Stream Icons -->
+                        <div id="air-waves" class="hidden opacity-0 transition-opacity duration-300 mt-6 flex gap-4 text-emerald-400 text-2xl">
+                            <i class="fa-solid fa-wind animate-bounce"></i>
+                            <i class="fa-solid fa-wind animate-bounce [animation-delay:0.2s]"></i>
+                            <i class="fa-solid fa-wind animate-bounce [animation-delay:0.4s]"></i>
+                        </div>
+                    </div>
+
+                    <!-- Quick Preset Buttons -->
+                    <div class="w-full grid grid-cols-2 gap-4">
+                        <button onclick="setPresetTemp(25)" class="py-3 px-4 bg-slate-800 light:bg-slate-200 hover:bg-slate-700 text-xs sm:text-sm font-bold text-slate-300 light:text-slate-700 rounded-xl transition">
+                            ❄️ حرارة غادية (25°C)
+                        </button>
+                        <button onclick="setPresetTemp(65)" class="py-3 px-4 bg-rose-600/20 hover:bg-rose-600/30 text-xs sm:text-sm font-bold text-rose-400 rounded-xl border border-rose-500/40 transition">
+                            🔥 حرارة مرتفعة (65°C)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: QUIZ & ASSESSMENT ================= -->
+        <section id="tab4" class="tab-content hidden space-y-8">
+            <!-- Header Summary -->
+            <div class="glass-panel rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-r-8 border-r-brand-500 shadow-xl">
+                <div>
+                    <h2 class="text-2xl font-black text-white light:text-slate-900 font-cairo">التقويم الذاتي واختبار المفاهيم</h2>
+                    <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 mt-1">اضغط على بطاقات الأسئلة لإظهار الإجابة النموذجية وتقييم مدى استيعابك للمادة</p>
+                </div>
+                <div class="flex items-center gap-3 bg-slate-900/80 light:bg-slate-100 px-5 py-3 rounded-2xl border border-slate-800 light:border-slate-200">
+                    <span class="text-xs font-bold text-slate-400 light:text-slate-600">بطاقات الأسئلة المجابة:</span>
+                    <span id="quiz-counter" class="text-xl font-black text-emerald-400 font-cairo">0 / 4</span>
+                </div>
+            </div>
+
+            <!-- Quiz Interactive Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Question 1 -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-4 hover:border-brand-500 transition cursor-pointer" onclick="toggleQuizAnswer(1)">
+                    <div class="flex items-start justify-between gap-4">
+                        <span class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 font-black flex items-center justify-center shrink-0">س1</span>
+                        <h3 class="text-base sm:text-lg font-bold text-white light:text-slate-900 flex-1 leading-snug">
+                            ما المقصود بالنظام؟ وما هي مكونات نظام الاستشعار عن بعد الأربعة؟
+                        </h3>
+                    </div>
+
+                    <div id="quiz-ans-1" class="hidden pt-4 border-t border-slate-800 light:border-slate-200 text-xs sm:text-sm text-slate-300 light:text-slate-700 space-y-2">
+                        <p class="font-bold text-emerald-400"><i class="fa-solid fa-circle-check ml-1"></i> الإجابة النموذجية:</p>
+                        <p>النظام هو مجموعة أجزاء وعناصر متكاملة تعمل معاً لتحقيق هدف محدد.</p>
+                        <p class="font-bold text-white light:text-slate-900">المكونات الأربعة الأساسية:</p>
+                        <ul class="list-disc list-inside space-y-1 text-slate-400 light:text-slate-600 pr-2">
+                            <li>وحدات إحساس (Sensors)</li>
+                            <li>قراءة الإشارات (Reading)</li>
+                            <li>معالجة البيانات (Processing)</li>
+                            <li>المخرجات وتوليد الأفعال (Outputs)</li>
+                        </ul>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-2">
+                        <span>انقر لكشف/إخفاء الإجابة</span>
+                        <i id="quiz-icon-1" class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-4 hover:border-brand-500 transition cursor-pointer" onclick="toggleQuizAnswer(2)">
+                    <div class="flex items-start justify-between gap-4">
+                        <span class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 font-black flex items-center justify-center shrink-0">س2</span>
+                        <h3 class="text-base sm:text-lg font-bold text-white light:text-slate-900 flex-1 leading-snug">
+                            ما وظيفة الترانزستور في دارتي استشعار الحرارة والمروحة؟
+                        </h3>
+                    </div>
+
+                    <div id="quiz-ans-2" class="hidden pt-4 border-t border-slate-800 light:border-slate-200 text-xs sm:text-sm text-slate-300 light:text-slate-700 space-y-2">
+                        <p class="font-bold text-emerald-400"><i class="fa-solid fa-circle-check ml-1"></i> الإجابة النموذجية:</p>
+                        <p>يعمل الترانزستور كـ **مفتاح أو قاطع إلكتروني (Electronic Switch)** يُغلق الدارة لتشغيل المخرجات (الجرس أو المروحة) فور وصول فولتية القاعدة إلى الحد المطلوبة.</p>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-2">
+                        <span>انقر لكشف/إخفاء الإجابة</span>
+                        <i id="quiz-icon-2" class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-4 hover:border-brand-500 transition cursor-pointer" onclick="toggleQuizAnswer(3)">
+                    <div class="flex items-start justify-between gap-4">
+                        <span class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 font-black flex items-center justify-center shrink-0">س3</span>
+                        <h3 class="text-base sm:text-lg font-bold text-white light:text-slate-900 flex-1 leading-snug">
+                            كيف يعمل مجس الحرارة LM35 مع درجة الحرارة؟
+                        </h3>
+                    </div>
+
+                    <div id="quiz-ans-3" class="hidden pt-4 border-t border-slate-800 light:border-slate-200 text-xs sm:text-sm text-slate-300 light:text-slate-700 space-y-2">
+                        <p class="font-bold text-emerald-400"><i class="fa-solid fa-circle-check ml-1"></i> الإجابة النموذجية:</p>
+                        <p>يقوم بالتأثر بالحرارة ويُعطي فولتية خارجية تتناسب طردياً مع الحرارة بمعدل **10mV لكل 1°C** (درجة مئوية واحدة).</p>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-2">
+                        <span>انقر لكشف/إخفاء الإجابة</span>
+                        <i id="quiz-icon-3" class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 space-y-4 hover:border-brand-500 transition cursor-pointer" onclick="toggleQuizAnswer(4)">
+                    <div class="flex items-start justify-between gap-4">
+                        <span class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 font-black flex items-center justify-center shrink-0">س4</span>
+                        <h3 class="text-base sm:text-lg font-bold text-white light:text-slate-900 flex-1 leading-snug">
+                            ما الفرق بين المقاومة الكهربائية العادية والمقاومة الحرارية NTC؟
+                        </h3>
+                    </div>
+
+                    <div id="quiz-ans-4" class="hidden pt-4 border-t border-slate-800 light:border-slate-200 text-xs sm:text-sm text-slate-300 light:text-slate-700 space-y-2">
+                        <p class="font-bold text-emerald-400"><i class="fa-solid fa-circle-check ml-1"></i> الإجابة النموذجية:</p>
+                        <p>المقاومة العادية لا تتغير قيمتها بتغير درجة الحرارة، أما مقاومة NTC فتتغير قيمتها عكسياً مع الحرارة (تقل قيمتها عند ارتفاع الحرارة).</p>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-2">
+                        <span>انقر لكشف/إخفاء الإجابة</span>
+                        <i id="quiz-icon-4" class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Prominent Dedicated Educational Footer -->
+    <footer class="bg-slate-900 light:bg-white border-t border-slate-800 light:border-slate-200 py-10 mt-auto transition-colors">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center space-y-4">
+            <div class="flex items-center gap-3 text-2xl font-black font-cairo tracking-wide">
+                <span class="text-brand-500">عسقلان</span>
+                <span class="bg-gradient-to-r from-amber-400 to-emerald-400 bg-clip-text text-transparent">EduTech</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-400 light:text-slate-600 max-w-md">
+                منصة تكنولوجية تفاعلية مخصصة لشرح وتطوير دروس الاستشعار عن بعد والدارات الإلكترونية بأسلوب مبتكر وسلس.
+            </p>
+            <div class="text-xs text-slate-500 border-t border-slate-800 light:border-slate-200 pt-4 w-full max-w-xs">
+                جميع الحقوق محفوظة © عسقلان EduTech 2026
+            </div>
+        </div>
+    </footer>
+
+    <!-- Logic Scripting -->
+    <script>
+        // Theme Toggle (Dark/Light)
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            document.documentElement.classList.toggle('light');
+        }
+
+        // Navigation Tab Switcher
+        function changeTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) activeBtn.classList.add('active-tab');
+
+            // Stop ongoing speech
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        }
+
+        // Speech Synthesis Narrator
+        let speakingState = false;
+
+        function readContent(scriptElementId) {
+            if (!('speechSynthesis' in window)) {
+                alert('متصفحك لا يدعم خاصية القراءة الصوتية مباشرة.');
+                return;
+            }
+
+            const text = document.getElementById(scriptElementId).innerText;
+            window.speechSynthesis.cancel();
+
+            if (speakingState) {
+                speakingState = false;
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.9;
+
+            utterance.onstart = () => { speakingState = true; };
+            utterance.onend = () => { speakingState = false; };
+            utterance.onerror = () => { speakingState = false; };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleNarrator() {
+            const activeContent = document.querySelector('.tab-content:not(.hidden)').id;
+            const scriptId = 'script-' + activeContent;
+            if (document.getElementById(scriptId)) {
+                readContent(scriptId);
+            } else {
+                alert('الشرح الصوتي متاح في المشاهد الأول والثاني والثالث.');
+            }
+        }
+
+        // Tab 1 Sequence Diagram Simulation
+        function runDiagramSequence() {
+            const nodes = [1, 2, 3, 4];
+            nodes.forEach(n => {
+                const card = document.getElementById(`flow-node-${n}`);
+                card.classList.remove('border-brand-500', 'bg-brand-500/20', 'scale-105');
+                card.classList.add('border-slate-800', 'bg-slate-900');
+            });
+
+            nodes.forEach((n, idx) => {
+                setTimeout(() => {
+                    const card = document.getElementById(`flow-node-${n}`);
+                    card.classList.remove('border-slate-800', 'bg-slate-900');
+                    card.classList.add('border-brand-500', 'bg-brand-500/20', 'scale-105');
+                }, idx * 600);
+            });
+        }
+
+        function triggerNodeHighlight(step) {
+            runDiagramSequence();
+        }
+
+        // Tab 2 Heat Circuit Simulation
+        let heatActive = false;
+
+        function toggleHeatTrigger() {
+            heatActive = !heatActive;
+            const flame = document.getElementById('svg-flame');
+            const badge = document.getElementById('circuit1-badge');
+            const wire = document.getElementById('active-wire-glow');
+            const buzzer = document.getElementById('svg-buzzer');
+            const buzzerRing = document.getElementById('buzzer-ring');
+            const btnText = document.getElementById('heat-btn-text');
+
+            if (heatActive) {
+                flame.classList.remove('hidden');
+                badge.textContent = "الحالة: تنبيه حريق! الجرس يعمل 🔔";
+                badge.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/50 animate-pulse";
+                
+                wire.classList.remove('hidden');
+                wire.classList.add('wire-glowing');
+
+                buzzer.classList.add('alarm-ring-active');
+                buzzerRing.setAttribute('fill', '#f43f5e');
+                btnText.textContent = "إبعاد لهب النار (تبريد NTC)";
+
+                playAudioBeep();
+            } else {
+                resetHeatTrigger();
+            }
+        }
+
+        function resetHeatTrigger() {
+            heatActive = false;
+            document.getElementById('svg-flame').classList.add('hidden');
+            const badge = document.getElementById('circuit1-badge');
+            badge.textContent = "الحالة: أمان (حرارة طبيعية)";
+            badge.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700";
+
+            document.getElementById('active-wire-glow').classList.add('hidden');
+            document.getElementById('active-wire-glow').classList.remove('wire-glowing');
+
+            const buzzer = document.getElementById('svg-buzzer');
+            buzzer.classList.remove('alarm-ring-active');
+            document.getElementById('buzzer-ring').setAttribute('fill', '#1e293b');
+            document.getElementById('heat-btn-text').textContent = "تقريب لهب النار (تسخين المقاومة NTC)";
+        }
+
+        function playAudioBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(750, ctx.currentTime);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.7);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.7);
+            } catch (e) {}
+        }
+
+        // Tab 3 LM35 Auto Fan Simulation
+        function handleFanSlider(tempValue) {
+            document.getElementById('lm35-temp-text').textContent = tempValue;
+            const voltValue = tempValue * 10; // 10mV per C
+            document.getElementById('lm35-volt-text').textContent = voltValue;
+
+            const fanBlades = document.getElementById('fan-blades-svg');
+            const fanCasing = document.getElementById('fan-casing');
+            const airWaves = document.getElementById('air-waves');
+            const logicTitle = document.getElementById('fan-logic-title');
+            const logicDesc = document.getElementById('fan-logic-desc');
+            const logicIcon = document.getElementById('fan-logic-icon');
+
+            if (tempValue >= 40) {
+                fanBlades.classList.add('spin-fan-fast');
+                fanCasing.classList.add('border-emerald-500', 'shadow-emerald-500/30');
+                fanCasing.classList.remove('border-slate-700');
+
+                airWaves.classList.remove('hidden');
+                airWaves.classList.remove('opacity-0');
+
+                logicTitle.textContent = "الترانزستور: قاطع مغلق (ON)";
+                logicTitle.className = "font-bold text-base text-emerald-400";
+                logicDesc.textContent = `وصل الجهد لـ ${voltValue}mV (أعلى من العتبة). الترانزستور يُشغل محرك المروحة تلقائياً.`;
+                logicIcon.innerHTML = '<i class="fa-solid fa-toggle-on text-emerald-400"></i>';
+                logicIcon.className = 'w-12 h-12 rounded-xl bg-emerald-500/20 text-2xl flex items-center justify-center shrink-0';
+            } else {
+                fanBlades.classList.remove('spin-fan-fast');
+                fanCasing.classList.remove('border-emerald-500', 'shadow-emerald-500/30');
+                fanCasing.classList.add('border-slate-700');
+
+                airWaves.classList.add('opacity-0');
+                setTimeout(() => airWaves.classList.add('hidden'), 300);
+
+                logicTitle.textContent = "الترانزستور: قاطع مفتوح (OFF)";
+                logicTitle.className = "font-bold text-base text-white light:text-slate-900";
+                logicDesc.textContent = "الفولتية الصادرة غير كافية لتشغيل الترانزستور. المروحة متوقفة.";
+                logicIcon.innerHTML = '<i class="fa-solid fa-toggle-off text-slate-400"></i>';
+                logicIcon.className = 'w-12 h-12 rounded-xl bg-slate-800 light:bg-slate-200 text-2xl flex items-center justify-center shrink-0';
+            }
+        }
+
+        function setPresetTemp(val) {
+            const range = document.getElementById('lm35Range');
+            range.value = val;
+            handleFanSlider(val);
+        }
+
+        // Tab 4 Quiz Answers Toggle
+        const solvedQuizSet = new Set();
+
+        function toggleQuizAnswer(id) {
+            const ans = document.getElementById(`quiz-ans-${id}`);
+            const icon = document.getElementById(`quiz-icon-${id}`);
+
+            if (ans.classList.contains('hidden')) {
+                ans.classList.remove('hidden');
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                solvedQuizSet.add(id);
+            } else {
+                ans.classList.add('hidden');
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            }
+
+            document.getElementById('quiz-counter').textContent = `${solvedQuizSet.size} / 4`;
+        }
+    </script>
+</body>
+</html>
