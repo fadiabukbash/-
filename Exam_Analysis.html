@@ -1,0 +1,2778 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تحليل نتائج الاختبارات المدرسية - تطوير الأستاذ فادي أبو الكباش</title>
+    <!-- خط القاهرة الواضح والمريح للعين -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة ExcelJS لتوليد ملفات إكسل بدوال وتنسيقات A4 حقيقية -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+    <!-- مكتبة SheetJS (XLSX) لقراءة واستيراد ملفات الأسماء من Excel و CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- أيقونات Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- إنشاء ملفات PDF مباشرة دون فتح نافذة الطباعة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- قراءة نص الاختبارات PDF وWord داخل المتصفح -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        /* تحسين وضوح صفحة رصد العلامات: ألوان هادئة وتباين مرتفع */
+        #app-shell { background: #f3f6fa; color: #172033; }
+        #view-analysis { color: #172033; }
+        #view-analysis #printable-container { background: #f3f6fa; border-radius: 18px; padding: 8px; }
+        #view-analysis .a4-sheet {
+            background: #ffffff !important;
+            color: #172033 !important;
+            border: 1px solid #d5dee8 !important;
+            box-shadow: 0 5px 18px rgba(15, 35, 55, .08) !important;
+        }
+        #view-analysis table.official-table { background: #ffffff; color: #172033; }
+        #view-analysis #analysis-table-head tr:first-child th {
+            background: #e3edf7 !important;
+            color: #173b5e !important;
+            font-weight: 800 !important;
+            border-color: #879bad !important;
+        }
+        #view-analysis #analysis-table-head tr:nth-child(2) th {
+            background: #f0f5fa !important;
+            color: #243b53 !important;
+            font-weight: 800 !important;
+            border-color: #a8b7c6 !important;
+        }
+        #view-analysis #analysis-table-body td {
+            color: #172033;
+            border-color: #aebbc8 !important;
+        }
+        #view-analysis #analysis-table-body tr:hover td { outline: 1px solid #d9e6f2; outline-offset: -1px; }
+        #view-analysis #analysis-table-body input[data-q] {
+            display: block;
+            width: 100%;
+            min-width: 34px;
+            min-height: 36px;
+            box-sizing: border-box;
+            padding: 5px 2px !important;
+            border: 1px solid #d5dee8;
+            border-radius: 5px;
+            background: rgba(255,255,255,.92) !important;
+            color: #111827 !important;
+            -webkit-text-fill-color: #111827 !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            line-height: 1.35 !important;
+            opacity: 1 !important;
+        }
+        #view-analysis #analysis-table-body input[data-q]:focus {
+            outline: 2px solid #2874b8 !important;
+            outline-offset: -2px;
+            background: #ffffff !important;
+            border-color: #2874b8 !important;
+        }
+        #view-analysis #analysis-table-body input[type='text']:not([data-q]) {
+            color: #172033 !important;
+            -webkit-text-fill-color: #172033 !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 14px !important;
+            opacity: 1 !important;
+        }
+        #view-analysis #analysis-table-body input::placeholder { color: #8795a5 !important; opacity: 1; }
+        #view-analysis .official-header-block { color: #172033 !important; }
+        #view-analysis .official-header-block p,
+        #view-analysis .official-header-block span,
+        #view-analysis .official-signatures { color: #26384a; }
+        #view-analysis .official-header-block h2 { color: #102f4b !important; }
+        #view-analysis .no-print.bg-white { color: #243447; }
+        @media (max-width: 640px) {
+            #view-analysis #printable-container { padding: 3px; }
+            #view-analysis .a4-sheet { padding: 10px !important; border-radius: 12px !important; }
+            #view-analysis table.official-table th,
+            #view-analysis table.official-table td { font-size: 12px !important; }
+            #view-analysis #analysis-table-body input[data-q] { min-height: 40px; font-size: 15px !important; }
+        }
+
+        .welcome-shell {
+            background: radial-gradient(circle at 15% 15%, rgba(56,189,248,.22), transparent 30%),
+                        radial-gradient(circle at 85% 85%, rgba(212,175,55,.16), transparent 28%),
+                        linear-gradient(135deg, #061b32 0%, #0a3961 52%, #102b4b 100%);
+        }
+        .welcome-glass {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.16);
+            backdrop-filter: blur(12px);
+        }
+        .welcome-grid {
+            background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+            background-size: 34px 34px;
+        }
+        @media print {
+            #welcome-page { display: none !important; }
+        }
+
+        /* إخفاء أسهم الزيادة والنقصان الافتراضية في حقول الأرقام لتسهيل الإدخال السريع */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* تنسيق ورقة A4 في وضع المعاينة */
+        .a4-sheet {
+            background: white;
+            width: 100%;
+            max-width: 210mm;
+            margin: 0 auto;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.25);
+            border: 1px solid #cbd5e1;
+        }
+
+        .preview-mode-active {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background-color: #1e293b;
+            overflow-y: auto;
+            padding: 4.75rem 0.75rem 2rem 0.75rem;
+        }
+
+        /* إبقاء شريط المعاينة وزر الرجوع فوق ورقة المعاينة دائماً */
+        #preview-toolbar:not(.hidden) {
+            display: flex !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 99999 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        /* ضغط ذكي للجدول في وضع المعاينة لضمان احتواء حتى 45 طالباً في ورقة واحدة */
+        .preview-mode-active .a4-sheet {
+            padding: 6mm 7mm !important;
+        }
+        .preview-mode-active table.official-table th,
+        .preview-mode-active table.official-table td {
+            padding-top: 1px !important;
+            padding-bottom: 1px !important;
+            font-size: 8.5pt !important;
+            line-height: 1.15 !important;
+        }
+        .preview-mode-active table.official-table input {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            font-size: 8.5pt !important;
+            height: 15px !important;
+        }
+
+        /* تنسيقات الطباعة الرسمية A4 (تضمن احتواء 45 طالباً + الإحصائيات في صفحة واحدة فقط) */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 5mm;
+            }
+
+            html, body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            main {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            #view-setup {
+                display: none !important;
+            }
+
+            #view-analysis {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .preview-mode-active {
+                position: static !important;
+                background: white !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            #view-analysis #printable-container { background: white !important; padding: 0 !important; }
+            .a4-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 1mm 2mm !important;
+            }
+
+            .official-header-block {
+                margin-bottom: 3px !important;
+                padding-bottom: 3px !important;
+            }
+            .official-header-block p,
+            .official-header-block span,
+            .official-header-block div {
+                font-size: 8.5pt !important;
+                line-height: 1.15 !important;
+            }
+            .official-header-block h2 {
+                font-size: 10.5pt !important;
+            }
+
+            table.official-table {
+                width: 100% !important;
+                table-layout: fixed;
+                border-collapse: collapse !important;
+            }
+
+            table.official-table th,
+            table.official-table td {
+                padding: 0.5px 2px !important;
+                font-size: 8pt !important;
+                line-height: 1.08 !important;
+                height: 13.5px !important;
+                word-wrap: break-word;
+            }
+
+            table.official-table input {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 8pt !important;
+                line-height: 1.08 !important;
+                height: 13px !important;
+                color: #000 !important;
+                width: 100% !important;
+            }
+
+            /* إظهار صفوف التحليل النهائية دائماً عند الطباعة */
+            #analysis-table-foot {
+                display: table-footer-group !important;
+            }
+
+            .official-signatures {
+                margin-top: 6px !important;
+                padding-top: 2px !important;
+                font-size: 9pt !important;
+            }
+        }
+
+        /* تنسيق صفحة الترحيب: ألوان فاتحة وتباين مريح للعين */
+        #welcome-page.welcome-shell {
+            background:
+                radial-gradient(circle at 12% 12%, rgba(42,120,180,.12), transparent 30%),
+                radial-gradient(circle at 88% 82%, rgba(212,175,55,.13), transparent 28%),
+                linear-gradient(145deg, #f7fafd 0%, #eaf1f7 52%, #f8f7f1 100%) !important;
+            color: #18324b !important;
+        }
+        #welcome-page.welcome-grid {
+            background-image:
+                linear-gradient(rgba(20,65,100,.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(20,65,100,.035) 1px, transparent 1px) !important;
+            background-size: 38px 38px !important;
+        }
+        #welcome-page .welcome-glass {
+            background: rgba(255,255,255,.88) !important;
+            border: 1px solid #d8e3ed !important;
+            box-shadow: 0 10px 28px rgba(25,55,82,.07) !important;
+            backdrop-filter: blur(8px);
+        }
+        #welcome-page > .absolute { border-color: rgba(35,91,135,.12) !important; }
+        #welcome-page .text-white,
+        #welcome-page .text-slate-100,
+        #welcome-page .text-slate-200,
+        #welcome-page .text-slate-300,
+        #welcome-page .text-sky-100,
+        #welcome-page .text-sky-200 { color: #334b61 !important; }
+        #welcome-page h1,
+        #welcome-page h2 { color: #123b5d !important; }
+        #welcome-page .text-amber-300 { color: #a87812 !important; }
+        #welcome-page .text-sky-300 { color: #176b9e !important; }
+        #welcome-page .text-emerald-300 { color: #16806b !important; }
+        #welcome-page .text-violet-300 { color: #6b58a5 !important; }
+        #welcome-page .bg-gradient-to-br.from-sky-400 { box-shadow: 0 12px 28px rgba(20,85,130,.2) !important; }
+        #welcome-page .welcome-glass .bg-sky-500 { background: #176b9e !important; }
+        #welcome-page button[onclick="enterApp()"] {
+            background: linear-gradient(110deg, #e5bd55, #f3d987) !important;
+            color: #18324b !important;
+            box-shadow: 0 9px 22px rgba(145,108,25,.18) !important;
+        }
+        #welcome-page button[onclick="enterApp()"]:hover {
+            background: linear-gradient(110deg, #f0cf78, #f7e5ad) !important;
+        }
+        #welcome-page .text-center.mt-7 { color: #425c72 !important; }
+        @media (max-width: 640px) {
+            #welcome-page { padding-top: 24px !important; padding-bottom: 24px !important; }
+            #welcome-page .welcome-glass { box-shadow: 0 6px 18px rgba(25,55,82,.06) !important; }
+        }
+
+
+        /* تحسين شامل للاستجابة: صفحة الترحيب وكامل النظام */
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        #welcome-page {
+            width: 100%; min-height: 100vh; min-height: 100svh;
+            box-sizing: border-box; padding: clamp(24px, 5vh, 56px) clamp(16px, 4vw, 56px) !important;
+        }
+        #welcome-page > .relative.z-10 {
+            width: 100%; max-width:  min(1240px, 100%); margin-inline: auto;
+        }
+        #welcome-page .text-center.text-white { margin-bottom: clamp(26px, 4vh, 44px) !important; }
+        #welcome-page .text-center.text-white > p:first-of-type { font-size: clamp(16px, 1.5vw, 20px) !important; }
+        #welcome-page h1 { font-size: clamp(2rem, 4.2vw, 3.8rem) !important; line-height: 1.35 !important; }
+        #welcome-page .text-center.text-white > p:nth-of-type(2) { font-size: clamp(1.35rem, 2.4vw, 2rem) !important; }
+        #welcome-page .text-center.text-white > p:last-of-type {
+            max-width: 920px !important; font-size: clamp(16px, 1.45vw, 19px) !important;
+            line-height: 2 !important;
+        }
+        #welcome-page .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 { gap: clamp(12px, 1.5vw, 20px) !important; }
+        #welcome-page .welcome-glass { border-radius: 22px !important; }
+        #welcome-page .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 .welcome-glass { padding: clamp(16px, 2vw, 24px) !important; }
+        #welcome-page .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 h2 { font-size: clamp(16px, 1.35vw, 19px) !important; }
+        #welcome-page .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 p { font-size: clamp(14px, 1.1vw, 16px) !important; line-height: 1.8 !important; }
+        #welcome-page .welcome-glass.max-w-4xl { max-width: 1050px !important; padding: clamp(20px, 3vw, 34px) !important; }
+        #welcome-page .welcome-glass.max-w-4xl h2 { font-size: clamp(20px, 1.8vw, 25px) !important; }
+        #welcome-page .welcome-glass.max-w-4xl p { font-size: clamp(15px, 1.2vw, 17px) !important; line-height: 1.9 !important; }
+        #welcome-page button[onclick="enterApp()"] { min-height: 58px; font-size: clamp(17px, 1.4vw, 20px) !important; padding: 16px clamp(28px, 4vw, 48px) !important; }
+        #app-shell { width: 100%; min-width: 0; overflow-x: clip; }
+        #app-shell main, #app-shell section, #app-shell .max-w-7xl { min-width: 0; }
+        #app-shell input, #app-shell select, #app-shell textarea, #app-shell button { max-width: 100%; }
+        #app-shell .overflow-x-auto { max-width: 100%; -webkit-overflow-scrolling: touch; }
+        #app-shell table { max-width: 100%; }
+        img, svg { max-width: 100%; }
+        @media (max-width: 900px) {
+            #welcome-page { align-items: flex-start !important; }
+            #welcome-page > .relative.z-10 { max-width: 760px; }
+            #welcome-page .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+        }
+        @media (max-width: 640px) {
+            #welcome-page { padding: 22px 14px 26px !important; }
+            #welcome-page .flex.justify-center.mb-6 { margin-bottom: 20px !important; }
+            #welcome-page .text-center.text-white { margin-bottom: 24px !important; }
+            #welcome-page h1 { font-size: clamp(27px, 7vw, 36px) !important; }
+            #welcome-page .text-center.text-white > p:last-of-type { font-size: 16px !important; line-height: 1.9 !important; }
+            #welcome-page .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 { grid-template-columns: 1fr !important; }
+            #welcome-page .welcome-glass.max-w-4xl { padding: 19px 16px !important; }
+            #welcome-page .welcome-glass.max-w-4xl .grid { gap: 14px !important; }
+            #welcome-page .welcome-glass.max-w-4xl .flex { align-items: flex-start !important; text-align: right !important; }
+            #welcome-page button[onclick="enterApp()"] { width: 100%; min-height: 58px; }
+            #app-shell header .max-w-7xl { padding-inline: 12px !important; }
+            #app-shell main { padding-inline: 10px !important; }
+            #app-shell .grid { min-width: 0; }
+            #app-shell .overflow-x-auto table { min-width: 680px; }
+            #toast { left: 10px !important; right: 10px !important; bottom: 10px !important; width: auto; }
+        }
+        @media (min-width: 641px) and (max-width: 1024px) {
+            #app-shell main { padding-inline: 18px !important; }
+            #app-shell .overflow-x-auto table { min-width: 720px; }
+        }
+        @media (min-width: 1025px) {
+            #welcome-page { padding-top: 44px !important; padding-bottom: 44px !important; }
+        }
+
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- صفحة الترحيب الافتتاحية -->
+    <section id="welcome-page" class="welcome-shell welcome-grid no-print min-h-screen flex items-center justify-center px-4 py-8 sm:py-12 relative overflow-hidden">
+        <div class="absolute -top-24 -left-20 w-72 h-72 rounded-full border border-sky-300/10"></div>
+        <div class="absolute -bottom-32 -right-20 w-96 h-96 rounded-full border border-amber-300/10"></div>
+        <div class="relative z-10 w-full max-w-5xl mx-auto">
+            <div class="flex justify-center mb-6">
+                <div class="welcome-glass rounded-full px-5 py-2 flex items-center gap-2 text-sky-100 text-xs sm:text-sm font-extrabold tracking-wide">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-amber-300"></i>
+                    <span>ASQALAN EDUTECH</span>
+                </div>
+            </div>
+            <div class="text-center text-white mb-8 sm:mb-10">
+                <div class="mx-auto mb-5 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-br from-sky-400 to-blue-700 shadow-2xl shadow-sky-950/50 flex items-center justify-center ring-1 ring-white/25">
+                    <i data-lucide="chart-no-axes-combined" class="w-11 h-11 sm:w-14 sm:h-14 text-white"></i>
+                </div>
+                <p class="text-sky-200 text-sm sm:text-base font-bold mb-3">منظومة ذكية لدعم العملية التعليمية</p>
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">نظام تحليل نتائج الاختبارات</h1>
+                <p class="mt-4 text-lg sm:text-2xl font-extrabold text-amber-300">من العلامة إلى التحسين</p>
+                <p class="mt-4 max-w-3xl mx-auto text-slate-200 text-sm sm:text-base leading-8">
+                    أداة تعليمية تساعد المعلم على رصد العلامات بدقة، وقراءة نتائج الطلبة، واكتشاف مواطن التعثر، وبناء خطة علاجية واضحة؛ لتصبح نتائج الاختبار نقطة انطلاق نحو تعلم أفضل.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+                <div class="welcome-glass rounded-2xl p-4 text-white text-center">
+                    <i data-lucide="clipboard-check" class="w-7 h-7 mx-auto mb-2 text-sky-300"></i>
+                    <h2 class="font-extrabold text-sm">رصد دقيق</h2>
+                    <p class="text-xs text-slate-300 mt-1 leading-6">إدخال العلامات والتحقق من صحتها</p>
+                </div>
+                <div class="welcome-glass rounded-2xl p-4 text-white text-center">
+                    <i data-lucide="chart-pie" class="w-7 h-7 mx-auto mb-2 text-amber-300"></i>
+                    <h2 class="font-extrabold text-sm">تحليل النتائج</h2>
+                    <p class="text-xs text-slate-300 mt-1 leading-6">قراءة الأداء وتحديد مواطن الضعف</p>
+                </div>
+                <div class="welcome-glass rounded-2xl p-4 text-white text-center">
+                    <i data-lucide="users" class="w-7 h-7 mx-auto mb-2 text-emerald-300"></i>
+                    <h2 class="font-extrabold text-sm">متابعة الطلبة</h2>
+                    <p class="text-xs text-slate-300 mt-1 leading-6">تحديد الأسئلة والطلبة المتعثرين</p>
+                </div>
+                <div class="welcome-glass rounded-2xl p-4 text-white text-center">
+                    <i data-lucide="clipboard-list" class="w-7 h-7 mx-auto mb-2 text-violet-300"></i>
+                    <h2 class="font-extrabold text-sm">خطة علاجية</h2>
+                    <p class="text-xs text-slate-300 mt-1 leading-6">إعداد خطة منظمة قابلة للطباعة</p>
+                </div>
+            </div>
+
+            <div class="welcome-glass rounded-3xl p-5 sm:p-7 text-white max-w-4xl mx-auto">
+                <h2 class="text-lg sm:text-xl font-extrabold text-center mb-5">كيف تستخدم النظام؟</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                    <div class="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-2">
+                        <span class="w-9 h-9 shrink-0 rounded-full bg-sky-500 text-white flex items-center justify-center font-extrabold">1</span>
+                        <p class="text-sm text-slate-100 leading-6">أدخل بيانات الاختبار وحدد عدد الأسئلة وعلاماتها</p>
+                    </div>
+                    <div class="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-2">
+                        <span class="w-9 h-9 shrink-0 rounded-full bg-sky-500 text-white flex items-center justify-center font-extrabold">2</span>
+                        <p class="text-sm text-slate-100 leading-6">أضف أسماء الطلبة ثم أدخل علامات كل سؤال</p>
+                    </div>
+                    <div class="flex sm:flex-col items-center sm:items-center gap-3 sm:gap-2">
+                        <span class="w-9 h-9 shrink-0 rounded-full bg-sky-500 text-white flex items-center justify-center font-extrabold">3</span>
+                        <p class="text-sm text-slate-100 leading-6">استعرض التحليل والخطة العلاجية واحفظ النتائج</p>
+                    </div>
+                </div>
+                <div class="text-center mt-7">
+                    <button type="button" onclick="enterApp()" class="inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-l from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 px-9 py-4 text-base sm:text-lg font-extrabold shadow-xl shadow-amber-950/30 transition-transform hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-amber-200/40">
+                        <i data-lucide="rocket" class="w-6 h-6"></i>
+                        <span>ابدأ تحليل النتائج</span>
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-center mt-7 text-slate-300">
+                <p class="text-sm font-bold">إعداد وتطوير الأستاذ فادي أبو الكباش</p>
+                <p class="text-xs mt-1 text-sky-200">عسقلان EduTech · تكنولوجيا التعليم نحو تعلم أفضل</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="app-shell" class="hidden min-h-screen flex flex-col">
+
+    <!-- شريط الإشعارات العائم -->
+    <div id="toast" class="no-print fixed bottom-5 left-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-bold border border-slate-700">
+        <div class="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+        </div>
+        <span id="toast-message">تم الحفظ بنجاح</span>
+    </div>
+
+    <!-- الشريط العلوي المبسّط بأزرار ملونة وبارزة لجميع المعلمين -->
+    <header class="no-print bg-white border-b-2 border-slate-200 shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-col lg:flex-row items-center justify-between gap-3">
+            
+            <!-- العنوان والشعار -->
+            <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-2.5 rounded-2xl shadow-md text-white">
+                        <i data-lucide="award" class="w-7 h-7"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">مساعد المعلم لتحليل الاختبارات</h1>
+                        <p class="text-xs font-semibold text-slate-500">تطوير الأستاذ فادي أبو الكباش</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الأزرار الرئيسية الخمسة بألوان مميزة وواضحة -->
+            <div class="flex flex-wrap items-center justify-center gap-2 w-full lg:w-auto">
+                <!-- 1. زر البيانات والأسماء (أزرق سماوي) -->
+                <button id="tab-btn-setup" onclick="switchTab('setup')" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-sky-600 hover:bg-sky-700 text-white shadow-md ring-2 ring-sky-300">
+                    <i data-lucide="user-cog" class="w-5 h-5"></i>
+                    <span>1. البيانات والأسماء</span>
+                </button>
+
+                <!-- 2. زر رصد العلامات والتحليل (أزرق ملكي) -->
+                <button id="tab-btn-analysis" onclick="switchTab('analysis')" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-blue-100 hover:bg-blue-200 text-blue-900">
+                    <i data-lucide="edit-3" class="w-5 h-5 text-blue-700"></i>
+                    <span>2. رصد العلامات والتحليل</span>
+                </button>
+
+                <!-- 3. الخطة العلاجية الذكية -->
+                <button id="tab-btn-treatment" onclick="switchTab('treatment')" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-amber-100 hover:bg-amber-200 text-amber-900">
+                    <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                    <span>3. الخطة العلاجية</span>
+                </button>
+
+                <!-- 3. زر معاينة الصفحة للطباعة (بنفسجي بارز) -->
+                <button onclick="openPrintPreview()" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-purple-600 hover:bg-purple-700 text-white shadow-md">
+                    <i data-lucide="eye" class="w-5 h-5"></i>
+                    <span>معاينة الصفحة</span>
+                </button>
+
+                <!-- 4. زر طباعة الكشف (أخضر زمردي بارز) -->
+                <button onclick="printSheet()" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-md">
+                    <i data-lucide="printer" class="w-5 h-5"></i>
+                    <span>طباعة الكشف (A4)</span>
+                </button>
+
+                <!-- 5. زر حفظ كملف إكسل (أخضر إكسل داكن بارز) -->
+                <button onclick="exportToExcel()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-green-800 hover:bg-green-900 text-white shadow-md">
+                    <i data-lucide="file-spreadsheet" class="w-5 h-5 text-green-300"></i>
+                    <span>حفظ إكسل (.xlsx)</span>
+                </button>
+                <button type="button" onclick="returnToWelcome()" class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all bg-slate-800 hover:bg-slate-900 text-white shadow-md">
+                    <i data-lucide="house" class="w-4 h-4"></i>
+                    <span>الرئيسية</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-5">
+
+        <!-- =================================================================== -->
+        <!-- الصفحة الأولى: البيانات الأساسية وقائمة الأسماء                    -->
+        <!-- =================================================================== -->
+        <section id="view-setup" class="space-y-5">
+            <div class="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-bold text-sky-900">رتّب بيانات الاختبار أولاً، ثم حدّد عدد الأسئلة وعلاماتها، وبعدها أضف أسماء الطلاب.</div>
+            
+            <div class="flex flex-col gap-5">
+                <!-- البطاقة 1: البيانات الأساسية للاختبار -->
+                <div class="w-full bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-9 h-9 rounded-xl bg-sky-600 text-white flex items-center justify-center font-extrabold text-base shadow-sm">1</span>
+                            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">معلومات المعلم والصف والاختبار</h3>
+                        </div>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                            <i data-lucide="check" class="w-3.5 h-3.5"></i> محفوظ تلقائياً
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">اسم المعلم</label>
+                            <input type="text" id="meta-teacher" oninput="updateMeta('teacher', this.value)" placeholder="اكتب اسم المعلم هنا" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">المبحث / المادة</label>
+                            <input type="text" id="meta-subject" oninput="updateMeta('subject', this.value)" placeholder="مثال: التكنولوجيا / الرياضيات" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">الصف</label>
+                            <input type="text" id="meta-grade" oninput="updateMeta('grade', this.value)" placeholder="مثال: السابع" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">الشعبة</label>
+                            <input type="text" id="meta-section" oninput="updateMeta('section', this.value)" placeholder="مثال: أ" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">تاريخ الاختبار</label>
+                            <input type="date" id="meta-date" oninput="updateMeta('date', this.value)" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">عنوان الاختبار</label>
+                            <input type="text" id="meta-examTitle" oninput="updateMeta('examTitle', this.value)" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">المديرية</label>
+                            <input type="text" id="meta-directorate" oninput="updateMeta('directorate', this.value)" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-extrabold text-slate-700 mb-1.5">اسم المدرسة</label>
+                            <input type="text" id="meta-school" oninput="updateMeta('school', this.value)" class="w-full rounded-xl border-2 border-slate-200 px-3.5 py-2.5 text-sm font-bold focus:border-sky-600 outline-none transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- البطاقة 2: إعدادات الأسئلة والعلامات -->
+                <div class="w-full bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-5">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                            <span class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-extrabold text-base shadow-sm">2</span>
+                            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">عدد الأسئلة وعلامة كل سؤال</h3>
+                        </div>
+
+                        <!-- التحكم في عدد الأسئلة -->
+                        <div class="bg-amber-50/70 p-3.5 rounded-2xl border-2 border-amber-200 flex items-center justify-between">
+                            <div>
+                                <span class="block text-sm font-extrabold text-slate-900">عدد أسئلة الاختبار</span>
+                                <span class="text-xs font-semibold text-slate-600">من 1 إلى 15 سؤالاً</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeQuestionCount(-1)" class="w-10 h-10 rounded-xl bg-white border-2 border-slate-300 hover:bg-slate-100 font-extrabold text-xl flex items-center justify-center text-slate-800 shadow-sm">-</button>
+                                <input type="number" id="question-count-input" min="1" max="15" onchange="setQuestionCount(this.value)" class="w-14 h-10 text-center font-extrabold text-lg rounded-xl border-2 border-amber-400 bg-white text-slate-900">
+                                <button onclick="changeQuestionCount(1)" class="w-10 h-10 rounded-xl bg-white border-2 border-slate-300 hover:bg-slate-100 font-extrabold text-xl flex items-center justify-center text-slate-800 shadow-sm">+</button>
+                            </div>
+                        </div>
+
+                        <!-- بطاقات علامة كل سؤال -->
+                        <div>
+                            <div class="flex items-center justify-between text-xs font-extrabold text-slate-600 mb-2 px-1">
+                                <span>علامة كل سؤال</span>
+                                <span>علامة النجاح (50%)</span>
+                            </div>
+                            <div id="questions-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-60 overflow-y-auto p-1">
+                                <!-- يتم توليد البطاقات ديناميكياً -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ملخص مجموع العلامات -->
+                    <div class="bg-slate-900 text-white rounded-2xl p-4 flex items-center justify-between shadow-inner">
+                        <div>
+                            <span class="text-xs text-slate-300 font-bold block">مجموع علامات الاختبار</span>
+                            <span class="text-xs text-emerald-400 font-bold">علامة النجاح الكلية: <strong id="setup-pass-mark">10</strong></span>
+                        </div>
+                        <div class="text-left">
+                            <span id="setup-total-marks" class="text-3xl font-extrabold text-amber-400">20</span>
+                            <span class="text-xs text-slate-300 mr-1 font-bold">علامة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شريط الخطوة السريعة لاستيراد الأسماء أو البدء -->
+            <div class="bg-gradient-to-l from-sky-50 to-indigo-50 rounded-2xl p-4 sm:p-5 shadow-sm border-2 border-sky-200 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center shrink-0 shadow">
+                        <i data-lucide="folder-up" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-slate-900 text-base">هل لديك قائمة أسماء الطلاب جاهزة في ملف؟</h2>
+                        <p class="text-xs sm:text-sm text-slate-600 font-medium">اضغط على الزر الأخضر لاختيار ملف (Excel أو CSV أو نصي) وسيتم سحب الأسماء تلقائياً (حتى 45 طالباً في صفحة واحدة)</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <input type="file" id="import-students-file" accept=".xlsx,.xls,.csv,.txt" class="hidden" onchange="handleImportFile(event)">
+                    <button onclick="document.getElementById('import-students-file').click()" class="px-5 py-3 rounded-xl text-sm font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-2 shadow-md">
+                        <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                        <span>استيراد الأسماء من ملف</span>
+                    </button>
+                    <button onclick="saveClassAndStartNew()" class="px-4 py-3 rounded-xl text-sm font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white transition flex items-center gap-2 shadow">
+                        <i data-lucide="archive" class="w-4 h-4"></i>
+                        <span>حفظ الصف الحالي وبدء صف آخر</span>
+                    </button>
+                    <select id="saved-classes-select" onchange="loadArchivedClass(this.value)" class="px-3 py-3 rounded-xl text-sm font-bold bg-white border-2 border-indigo-200 text-slate-800 max-w-[220px]">
+                        <option value="">فتح صف محفوظ...</option>
+                    </select>
+                    <button onclick="createBlankClass()" class="px-4 py-3 rounded-xl text-sm font-bold bg-white hover:bg-rose-50 text-rose-700 border-2 border-rose-200 transition flex items-center gap-2">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>إفراغ القائمة والبدء من جديد</span>
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- البطاقة 3: إدارة قائمة الطلاب -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-3">
+                        <span class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-extrabold text-base shadow-sm">3</span>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">قائمة أسماء طلاب الصف (<span id="setup-students-count" class="text-emerald-700">10</span> خانات)</h3>
+                            <p class="text-xs font-semibold text-slate-500">اكتب الأسماء مباشرة أو الصقها دفعة واحدة (يتسع الكشف لـ 45 طالباً في صفحة A4 واحدة)</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="openBulkPasteModal()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white transition flex items-center gap-2 shadow-sm">
+                            <i data-lucide="clipboard-paste" class="w-4 h-4"></i>
+                            <span>لصق قائمة أسماء دفعة واحدة</span>
+                        </button>
+                        <button onclick="addMultipleStudents(5)" class="px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-100 hover:bg-sky-200 text-sky-900 transition flex items-center gap-1.5">
+                            <i data-lucide="users" class="w-4 h-4 text-sky-700"></i>
+                            <span>+ 5 خانات فارغة</span>
+                        </button>
+                        <button onclick="addStudent()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1.5 shadow-sm">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            <span>+ إضافة طالب</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- قائمة الطلاب في صفحة الإعدادات -->
+                <div id="setup-students-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 max-h-80 overflow-y-auto p-1">
+                    <!-- يتم توليدها ديناميكياً -->
+                </div>
+
+                <!-- زر الانتقال السريع لكشف الرصد والتحليل -->
+                <div class="pt-4 border-t border-slate-100 flex justify-end">
+                    <button onclick="switchTab('analysis')" class="px-7 py-3.5 rounded-2xl text-base font-extrabold bg-blue-600 hover:bg-blue-700 text-white transition flex items-center gap-3 shadow-lg">
+                        <span>الخطوة التالية: الانتقال لرصد العلامات</span>
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- الصفحة الثانية: كشف تحليل نتائج الصف (Official Analysis Sheet)      -->
+        <!-- =================================================================== -->
+        <section id="view-analysis" class="hidden space-y-5">
+
+            <!-- شريط أدوات مبسّط وواضح أعلى الكشف (يُخفى عند الطباعة) -->
+            <div class="no-print bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="font-extrabold text-slate-800 flex items-center gap-1.5">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+                        دليل الألوان:
+                    </span>
+                    <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 font-bold">ناجح (≥ 50%)</span>
+                    <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-900 font-bold">راسب (&lt; 50%)</span>
+                    <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-bold">فارغ = غائب</span>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- زر التحكم بإظهار/إخفاء جدول الإحصائيات في نهاية الاختبار -->
+                    <button id="toggle-stats-btn" onclick="toggleFooterStats()" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition flex items-center gap-1.5">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-amber-700"></i>
+                        <span id="toggle-stats-label">إظهار التحليل النهائي</span>
+                    </button>
+
+                    <button onclick="addStudent()" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-sky-600 hover:bg-sky-700 text-white transition flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        <span>إضافة طالب</span>
+                    </button>
+
+                    <button onclick="clearAllScores()" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-rose-100 hover:bg-rose-200 text-rose-800 transition flex items-center gap-1.5">
+                        <i data-lucide="eraser" class="w-4 h-4"></i>
+                        <span>تصفير العلامات</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- شريط التحكم العلوي في وضع المعاينة (يحتوي على زر العودة البارز) -->
+            <div id="preview-toolbar" class="hidden no-print fixed top-0 inset-x-0 z-50 bg-slate-900/95 backdrop-blur text-white px-4 py-3 shadow-2xl border-b border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <!-- زر العودة الكبير والواضح باللون البرتقالي البارز -->
+                    <button type="button" onclick="closePrintPreview()" title="العودة إلى الصفحة السابقة" aria-label="العودة إلى الصفحة السابقة" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-sm font-extrabold flex items-center gap-2 shadow-lg transition ring-2 ring-amber-200">
+                        <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                        <span>العودة إلى الصفحة السابقة</span>
+                    </button>
+                    <div class="hidden sm:block">
+                        <span class="font-extrabold text-sm block text-white">معاينة الصفحة النهائية للطباعة (A4)</span>
+                        <span class="text-xs text-slate-300">الكشف مضبوط تلقائياً ليظهر كاملاً في صفحة واحدة</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button onclick="printSheet()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-extrabold flex items-center gap-2 shadow-lg transition">
+                        <i data-lucide="printer" class="w-5 h-5"></i>
+                        <span>طباعة الآن</span>
+                    </button>
+                    <button onclick="exportToExcel()" class="px-4 py-2.5 rounded-xl bg-green-800 hover:bg-green-700 text-white text-sm font-extrabold flex items-center gap-2 shadow-lg transition">
+                        <i data-lucide="file-spreadsheet" class="w-5 h-5 text-green-300"></i>
+                        <span>حفظ إكسل</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- الورقة الرسمية A4 -->
+            <div id="printable-container">
+                <div class="a4-sheet p-4 sm:p-6 rounded-2xl print:rounded-none">
+                    
+                    <!-- الترويسة الرسمية -->
+                    <div class="official-header-block border-b-2 border-slate-800 pb-2.5 mb-2.5">
+                        <div class="grid grid-cols-3 items-start text-xs sm:text-sm font-bold text-slate-900">
+                            <!-- اليمين -->
+                            <div class="space-y-0.5 text-right">
+                                <p>دولة فلسطين</p>
+                                <p id="sheet-directorate">مديرية التربية والتعليم - الخليل</p>
+                                <p id="sheet-school">مدرسة عسقلان الأساسية للبنين</p>
+                            </div>
+                            <!-- الوسط -->
+                            <div class="text-center space-y-1">
+                                <p class="text-xs font-semibold text-slate-700">بسم الله الرحمن الرحيم</p>
+                                <div class="inline-block border-2 border-slate-800 bg-slate-100 px-3 py-1 rounded-lg mt-0.5">
+                                    <h2 id="sheet-examTitle" class="text-sm sm:text-base font-extrabold text-slate-900">تحليل امتحان نصف الفصل الدراسي الثاني</h2>
+                                </div>
+                            </div>
+                            <!-- اليسار -->
+                            <div class="space-y-0.5 text-left text-xs sm:text-sm">
+                                <p>التاريخ: <span id="sheet-date" class="font-normal">2026-11-16</span></p>
+                                <p>المبحث: <span id="sheet-subject" class="font-extrabold">التكنولوجيا</span></p>
+                                <p>الصف: <span id="sheet-grade" class="font-extrabold">السابع</span> &nbsp;|&nbsp; الشعبة: <span id="sheet-section" class="font-extrabold">أ</span></p>
+                            </div>
+                        </div>
+
+                        <!-- شريط البيانات الوصفية والإحصائية العلوية -->
+                        <div class="mt-2 pt-1.5 border-t border-slate-300 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                            <div>
+                                <span class="text-slate-600">معلم المادة: </span>
+                                <span id="sheet-teacher" class="text-slate-900">فادي أبو الكباش</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-600">العدد الكلي: </span>
+                                <span id="stat-total-students" class="text-slate-900 font-extrabold">0</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="text-slate-600">عدد الغياب: </span>
+                                <input type="number" id="stat-absent-input" min="0" onchange="manualAbsentChange(this.value)" class="w-10 text-center font-extrabold text-rose-700 bg-white border border-slate-300 rounded px-1 py-0 print:border-none print:bg-transparent" title="يُحسب تلقائياً ويمكن تعديله يدوياً">
+                                <button onclick="resetAutoAbsent()" id="reset-absent-btn" class="hidden no-print text-[10px] text-sky-600 underline" title="إعادة الحساب التلقائي للغياب">(تلقائي)</button>
+                            </div>
+                            <div>
+                                <span class="text-slate-600">الحضور الفعلي: </span>
+                                <span id="stat-present-students" class="text-emerald-700 font-extrabold">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تنبيه العلامات غير المكتملة -->
+                    <div id="missing-scores-alert" class="hidden mb-3 rounded-xl border-2 border-amber-300 bg-amber-50 p-3 text-sm text-amber-950" role="alert" aria-live="polite"></div>
+
+                    <!-- جدول رصد العلامات والتحليل الإحصائي -->
+                    <div class="overflow-x-auto">
+                        <table class="official-table w-full border-collapse border border-slate-800 text-center text-xs sm:text-sm">
+                            <thead id="analysis-table-head">
+                                <!-- يتم توليد الرأس ديناميكياً حسب عدد الأسئلة -->
+                            </thead>
+                            <tbody id="analysis-table-body">
+                                <!-- يتم توليد صفوف الطلاب ديناميكياً -->
+                            </tbody>
+                            <tfoot id="analysis-table-foot">
+                                <!-- يظهر فقط في نهاية الاختبار / المعاينة / الطباعة -->
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- تذييل التوقيعات الرسمي -->
+                    <div class="official-signatures mt-4 pt-2 flex items-center justify-between text-xs sm:text-sm font-bold text-slate-800 px-4">
+                        <div>
+                            <p>توقيع معلم المادة: ..............................</p>
+                        </div>
+                        <div>
+                            <p>توقيع مدير المدرسة: ..............................</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 pt-1 text-center text-[9px] font-medium text-slate-500">تطوير الأستاذ فادي أبو الكباش</div>
+                </div>
+            </div>
+
+            <!-- قسم الملخص الإحصائي والرسوم البيانية (يظهر فقط في نهاية الاختبار عند وجود علامات مرصودة) -->
+            <div id="final-dashboard-section" class="hidden no-print grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+                <!-- بطاقات المؤشرات السريعة -->
+                <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-extrabold text-slate-500">متوسط علامات الطلاب</span>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span id="kpi-avg" class="text-2xl sm:text-3xl font-extrabold text-slate-900">0</span>
+                            <span id="kpi-avg-max" class="text-xs font-bold text-slate-400">/ 20</span>
+                        </div>
+                        <span id="kpi-avg-pct" class="text-xs font-bold text-sky-600 mt-1">0% من العلامة الكلية</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-extrabold text-slate-500">نسبة النجاح العامة</span>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span id="kpi-pass-rate" class="text-2xl sm:text-3xl font-extrabold text-emerald-600">0%</span>
+                        </div>
+                        <span id="kpi-pass-count" class="text-xs font-bold text-slate-500 mt-1">0 ناجح من 0 حاضر</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-extrabold text-slate-500">أعلى علامة مسجلة</span>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span id="kpi-max" class="text-2xl sm:text-3xl font-extrabold text-emerald-700">0</span>
+                        </div>
+                        <span id="kpi-max-student" class="text-xs font-bold text-slate-500 mt-1 truncate">-</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <span class="text-xs font-extrabold text-slate-500">أدنى علامة مسجلة</span>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span id="kpi-min" class="text-2xl sm:text-3xl font-extrabold text-rose-600">0</span>
+                        </div>
+                        <span id="kpi-min-student" class="text-xs font-bold text-slate-500 mt-1 truncate">-</span>
+                    </div>
+                </div>
+
+                <!-- مخطط تحليل الأسئلة (نقاط القوة والضعف) -->
+                <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-base font-extrabold text-slate-900">تحليل نسبة النجاح لكل سؤال (نقاط القوة والضعف)</h3>
+                            <p class="text-xs font-semibold text-slate-500">يوضح نسبة الطلاب الذين حققوا 50% فأكثر في كل سؤال</p>
+                        </div>
+                        <i data-lucide="bar-chart-3" class="w-6 h-6 text-emerald-600"></i>
+                    </div>
+                    <div id="questions-chart" class="space-y-3">
+                        <!-- يتم توليد أشرطة المخطط ديناميكياً -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- الصفحة الثالثة: الخطة العلاجية الذكية المرتبطة بنتائج التحليل -->
+        <section id="view-treatment" class="hidden max-w-7xl mx-auto space-y-5">
+            <div class="bg-gradient-to-l from-indigo-900 via-blue-800 to-sky-700 text-white rounded-2xl p-5 sm:p-7 shadow-lg">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/15 rounded-xl p-3"><i data-lucide="clipboard-check" class="w-8 h-8"></i></div>
+                    <div><h2 class="text-xl sm:text-2xl font-extrabold">الخطة العلاجية الذكية</h2>
+                    <p class="text-sm text-blue-100 mt-1">تُستخرج البيانات تلقائياً من رصد العلامات، وتتحدث الخطة عند تعديل أي علامة.</p></div>
+                </div>
+            </div>
+            <div class="bg-white border border-sky-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                <div><h3 class="font-extrabold text-slate-900">ملف الاختبار لتحديد المهارات</h3><p class="text-xs text-slate-600">ارفع نسخة PDF أو Word من الاختبار؛ سيقرأ النظام نص الأسئلة ويربط السؤال برقمِه في كشف العلامات.</p></div>
+                <div class="flex flex-wrap items-center gap-3"><input id="exam-file-input" type="file" accept=".pdf,.docx,.txt" onchange="loadExamFile(this.files[0])" class="block w-full sm:w-auto text-sm border rounded-xl p-2"><span id="exam-file-status" class="text-xs text-slate-500">لم يتم رفع ملف اختبار بعد.</span></div>
+                <div id="exam-text-preview" class="hidden text-xs bg-slate-50 border rounded-xl p-3 whitespace-pre-wrap max-h-40 overflow-auto"></div>
+            </div>
+            <div id="treatment-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <div><h3 class="font-extrabold text-slate-900">ترتيب الأسئلة حسب الحاجة للعلاج</h3><p class="text-xs text-slate-500">الأولوية للسؤال الذي أخفق فيه أكبر عدد من الطلاب.</p></div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="printTreatmentPlan()" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold"><i data-lucide="printer" class="w-4 h-4 inline"></i> طباعة الخطة</button>
+                        <button onclick="saveTreatmentPlanPDF()" class="px-4 py-2 rounded-xl bg-blue-700 text-white text-xs font-extrabold"><i data-lucide="file-down" class="w-4 h-4 inline"></i> حفظ الخطة PDF</button>
+                    </div>
+                </div>
+                <div id="treatment-question-ranking" class="space-y-2"></div>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2"><div><h3 class="font-extrabold text-slate-900">تفاصيل الخطة العلاجية للسؤال</h3><p class="text-xs text-slate-500">اختر السؤال لمراجعة التشخيص والخطة العلاجية التي أعدّها النظام تلقائياً.</p></div>
+                <select id="treatment-question-select" onchange="renderTreatmentDetails()" class="border-2 border-slate-200 rounded-xl p-2 text-sm font-bold"></select></div>
+                <div id="treatment-details" class="space-y-4"></div>
+            </div>
+            <p class="text-xs text-slate-500 text-center">ملاحظة: يُعد الطالب متعثراً في السؤال إذا حصل على أقل من 50% من علامته، ولا يُحتسب الغائب ضمن النسبة.</p>
+        </section>
+    </main>
+
+    <!-- حقوق التصميم -->
+    <footer class="no-print mt-auto px-4 py-5">
+        <div class="max-w-7xl mx-auto rounded-2xl border border-slate-200 bg-white shadow-sm px-5 py-4 text-center">
+            <div class="flex items-center justify-center gap-2 text-slate-500 text-xs font-semibold mb-1">
+                <span class="h-px w-8 bg-gradient-to-l from-transparent to-amber-500"></span>
+                <i data-lucide="sparkles" class="w-4 h-4 text-amber-500"></i>
+                <span>تصميم وتطوير</span>
+                <span class="h-px w-8 bg-gradient-to-r from-transparent to-amber-500"></span>
+            </div>
+            <p class="text-sm sm:text-base font-extrabold bg-gradient-to-l from-blue-800 via-indigo-700 to-amber-600 bg-clip-text text-transparent">الأستاذ فادي أبو الكباش</p>
+        </div>
+    </footer>
+    </div><!-- نهاية واجهة النظام بعد صفحة الترحيب -->
+
+    <!-- نافذة لصق قائمة أسماء الطلاب دفعة واحدة -->
+    <div id="bulk-paste-modal" class="no-print hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-extrabold text-slate-900">لصق قائمة أسماء الطلاب</h3>
+                <button onclick="closeBulkPasteModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-xs font-semibold text-slate-600 leading-relaxed">
+                انسخ عمود أسماء الطلاب من ملف الإكسل أو الوورد وألصقه هنا (كل اسم في سطر مستقل):
+            </p>
+            <textarea id="bulk-names-textarea" rows="8" placeholder="أحمد محمد علي&#10;خالد يوسف حسن&#10;محمود سامي إبراهيم..." class="w-full rounded-xl border-2 border-slate-200 p-3 text-sm font-bold focus:border-sky-600 outline-none"></textarea>
+            <div class="flex items-center justify-between pt-2">
+                <label class="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                    <input type="checkbox" id="bulk-replace-checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                    <span>استبدال القائمة الحالية بالكامل</span>
+                </label>
+                <div class="flex items-center gap-2">
+                    <button onclick="closeBulkPasteModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">إلغاء</button>
+                    <button onclick="processBulkPaste()" class="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white shadow">اعتماد الأسماء</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. الحالة الافتراضية الفارغة عند الفتح
+        // =========================================================================
+        function getDefaultEmptyState() {
+            const today = new Date().toISOString().split('T')[0];
+            return {
+                meta: {
+                    teacher: '',
+                    directorate: 'مديرية التربية والتعليم - الخليل',
+                    school: 'مدرسة عسقلان الأساسية للبنين',
+                    examTitle: 'تحليل امتحان نصف الفصل الدراسي الثاني',
+                    subject: '',
+                    grade: '',
+                    section: '',
+                    date: today
+                },
+                questions: [5, 4, 3, 4, 4],
+                manualAbsent: null,
+                forceShowStats: null, // null = تلقائي عند وجود علامات مرصودة، true/false = يدوي
+                students: Array.from({ length: 10 }, () => ({
+                    name: '',
+                    scores: [null, null, null, null, null],
+                    note: ''
+                }))
+            };
+        }
+
+        // =========================================================================
+        // 2. إدارة الحالة (State Management) والحفظ التلقائي
+        // =========================================================================
+        const STORAGE_KEY = 'palestine_exam_analysis_v3';
+        let appState = null;
+        let examQuestionTexts = {}; // نص كل سؤال مستخرج من ملف الاختبار
+        let examTextContent = '';
+
+        function enterApp() {
+            document.getElementById('welcome-page').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('hidden');
+            switchTab('setup');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function returnToWelcome() {
+            saveState();
+            document.getElementById('app-shell').classList.add('hidden');
+            document.getElementById('welcome-page').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            lucide.createIcons();
+        }
+
+        function initApp() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    appState = JSON.parse(saved);
+                } catch (e) {
+                    appState = getDefaultEmptyState();
+                }
+            } else {
+                appState = getDefaultEmptyState();
+            }
+
+            syncSetupInputs();
+            renderQuestionsConfig();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            refreshArchivedClasses();
+            lucide.createIcons();
+        }
+
+        function saveState(showNotify = false) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            if (showNotify) {
+                showToast('تم حفظ التغييرات تلقائياً');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2600);
+        }
+
+        // =========================================================================
+        // 3. التنقل بين التبويبات بأزرار بارزة وملونة
+        // =========================================================================
+        function switchTab(tabName) {
+            const views = { setup: 'view-setup', analysis: 'view-analysis', treatment: 'view-treatment' };
+            Object.entries(views).forEach(([key, id]) => document.getElementById(id).classList.toggle('hidden', key !== tabName));
+            const styles = {
+                setup: ['bg-sky-600 text-white shadow-md ring-2 ring-sky-300', 'bg-sky-100 text-sky-900'],
+                analysis: ['bg-blue-700 text-white shadow-md ring-2 ring-blue-300', 'bg-blue-100 text-blue-900'],
+                treatment: ['bg-amber-500 text-white shadow-md ring-2 ring-amber-300', 'bg-amber-100 text-amber-900']
+            };
+            ['setup','analysis','treatment'].forEach(key => {
+                const btn = document.getElementById(`tab-btn-${key}`);
+                if (!btn) return;
+                btn.className = `flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all ${key === tabName ? styles[key][0] : styles[key][1]}`;
+            });
+            if (tabName === 'setup') renderSetupStudentsList();
+            if (tabName === 'analysis') renderAnalysisSheet();
+            if (tabName === 'treatment') renderTreatmentPlan();
+            lucide.createIcons();
+        }
+
+        // =========================================================================
+        // 4. وظائف الصفحة الأولى: الإعدادات والبيانات الأساسية
+        // =========================================================================
+        function syncSetupInputs() {
+            document.getElementById('meta-teacher').value = appState.meta.teacher || '';
+            document.getElementById('meta-subject').value = appState.meta.subject || '';
+            document.getElementById('meta-grade').value = appState.meta.grade || '';
+            document.getElementById('meta-section').value = appState.meta.section || '';
+            document.getElementById('meta-date').value = appState.meta.date || '';
+            document.getElementById('meta-examTitle').value = appState.meta.examTitle || '';
+            document.getElementById('meta-directorate').value = appState.meta.directorate || '';
+            document.getElementById('meta-school').value = appState.meta.school || '';
+            document.getElementById('question-count-input').value = appState.questions.length;
+        }
+
+        function updateMeta(field, value) {
+            appState.meta[field] = value;
+            saveState();
+            updateSheetHeader();
+        }
+
+        function changeQuestionCount(delta) {
+            setQuestionCount(appState.questions.length + delta);
+        }
+
+        function setQuestionCount(val) {
+            let count = parseInt(val, 10);
+            if (isNaN(count)) count = 5;
+            count = Math.max(1, Math.min(15, count));
+
+            const currentLen = appState.questions.length;
+            if (count > currentLen) {
+                for (let i = currentLen; i < count; i++) {
+                    appState.questions.push(4);
+                    appState.students.forEach(s => s.scores.push(null));
+                }
+            } else if (count < currentLen) {
+                appState.questions = appState.questions.slice(0, count);
+                appState.students.forEach(s => {
+                    s.scores = s.scores.slice(0, count);
+                });
+            }
+
+            document.getElementById('question-count-input').value = count;
+            saveState();
+            renderQuestionsConfig();
+            renderAnalysisSheet();
+        }
+
+        function updateQuestionMaxMark(qIdx, val) {
+            const normalized = String(val).replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632)).replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776)).replace(/[٫،,]/g, '.').trim();
+            const num = /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized) ? Number(normalized) : NaN;
+            if (!Number.isFinite(num) || num < 0.5) {
+                showToast('علامة السؤال القصوى يجب أن تكون 0.5 أو أكثر.');
+                renderQuestionsConfig();
+                return;
+            }
+            const highestRecorded = Math.max(-1, ...appState.students.map(st => {
+                const score = st.scores[qIdx];
+                return score === null || score === '' || score === undefined ? -1 : Number(score);
+            }));
+            if (highestRecorded > num) {
+                showToast(`لا يمكن جعل العلامة القصوى ${num}؛ توجد علامة مرصودة أعلى منها (${highestRecorded}).`);
+                renderQuestionsConfig();
+                return;
+            }
+            appState.questions[qIdx] = num;
+            saveState();
+            renderQuestionsConfig();
+            renderAnalysisSheet();
+        }
+
+        function renderQuestionsConfig() {
+            const grid = document.getElementById('questions-grid');
+            grid.innerHTML = '';
+
+            let totalMarks = 0;
+            appState.questions.forEach((maxMark, idx) => {
+                totalMarks += maxMark;
+                const passMark = Number((maxMark / 2).toFixed(2));
+                const card = document.createElement('div');
+                card.className = 'bg-slate-50 border-2 border-slate-200 rounded-xl p-2.5 flex items-center justify-between gap-2';
+                card.innerHTML = `
+                    <div>
+                        <span class="block text-xs font-extrabold text-slate-900">س${idx + 1}</span>
+                        <span class="text-[11px] text-emerald-700 font-bold">نجاح: ${passMark}</span>
+                    </div>
+                    <input type="number" step="0.5" min="0.5" value="${maxMark}" 
+                        onchange="updateQuestionMaxMark(${idx}, this.value)"
+                        class="w-14 text-center font-extrabold text-sm rounded-lg border-2 border-slate-300 bg-white py-1 focus:border-amber-500 outline-none">
+                `;
+                grid.appendChild(card);
+            });
+
+            totalMarks = Number(totalMarks.toFixed(2));
+            document.getElementById('setup-total-marks').textContent = totalMarks;
+            document.getElementById('setup-pass-mark').textContent = Number((totalMarks / 2).toFixed(2));
+        }
+
+        function renderSetupStudentsList() {
+            const container = document.getElementById('setup-students-list');
+            document.getElementById('setup-students-count').textContent = appState.students.length;
+            container.innerHTML = '';
+
+            appState.students.forEach((st, idx) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 focus-within:border-sky-500 focus-within:bg-white transition';
+                item.innerHTML = `
+                    <span class="text-xs font-extrabold text-slate-400 w-5">${idx + 1}.</span>
+                    <input type="text" value="${escapeHtml(st.name)}" 
+                        onchange="updateStudentName(${idx}, this.value)"
+                        placeholder="اكتب اسم الطالب"
+                        class="flex-1 bg-transparent text-xs font-bold text-slate-900 outline-none">
+                    <button onclick="removeStudent(${idx})" class="text-slate-400 hover:text-rose-600 p-1 transition" title="حذف الطالب">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        function updateStudentName(idx, name) {
+            appState.students[idx].name = name;
+            saveState();
+        }
+
+        function addStudent() {
+            const emptyScores = new Array(appState.questions.length).fill(null);
+            appState.students.push({ name: '', scores: emptyScores, note: '' });
+            saveState();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            showToast('تمت إضافة خانة طالب جديد');
+        }
+
+        function addMultipleStudents(count) {
+            const qLen = appState.questions.length;
+            for (let i = 0; i < count; i++) {
+                appState.students.push({ name: '', scores: new Array(qLen).fill(null), note: '' });
+            }
+            saveState();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            showToast(`تمت إضافة ${count} خانات فارغة`);
+        }
+
+        function removeStudent(idx) {
+            appState.students.splice(idx, 1);
+            saveState();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            showToast('تم حذف الطالب');
+        }
+
+        const ARCHIVE_KEY = 'palestine_exam_analysis_saved_classes_v1';
+
+        function getArchivedClasses() {
+            try { return JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]'); }
+            catch (e) { return []; }
+        }
+
+        function refreshArchivedClasses() {
+            const select = document.getElementById('saved-classes-select');
+            if (!select) return;
+            const current = select.value;
+            const items = getArchivedClasses();
+            select.innerHTML = '<option value="">فتح صف محفوظ...</option>' + items.map((item, i) =>
+                `<option value="${i}">${escapeHtml(item.label || ('صف محفوظ ' + (i + 1)))}</option>`
+            ).join('');
+            if (current && items[Number(current)]) select.value = current;
+        }
+
+        function saveClassAndStartNew() {
+            const hasData = appState.students.some(st => st.name.trim() || st.scores.some(v => v !== null && v !== undefined));
+            if (!hasData && !appState.meta.grade && !appState.meta.section) {
+                showToast('أدخل بيانات الصف أولاً قبل حفظه');
+                return;
+            }
+            const suggested = [appState.meta.grade, appState.meta.section, appState.meta.subject].filter(Boolean).join(' - ') || 'صف بدون تسمية';
+            const label = prompt('اكتب اسماً للتعرّف على الصف المحفوظ:', suggested);
+            if (label === null) return;
+            const archive = getArchivedClasses();
+            archive.unshift({ label: label.trim() || suggested, state: JSON.parse(JSON.stringify(appState)), savedAt: new Date().toISOString() });
+            localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+            refreshArchivedClasses();
+            createBlankClass();
+            showToast('تم حفظ الصف السابق وفتح كشف جديد. يمكنك استعادته من قائمة الصفوف المحفوظة.');
+        }
+
+        function loadArchivedClass(indexValue) {
+            if (indexValue === '') return;
+            const item = getArchivedClasses()[Number(indexValue)];
+            if (!item) return;
+            if (!confirm(`سيتم فتح «${item.label}» واستبدال البيانات المعروضة حالياً. تأكد من حفظ الصف الحالي أولاً. متابعة؟`)) {
+                document.getElementById('saved-classes-select').value = '';
+                return;
+            }
+            appState = JSON.parse(JSON.stringify(item.state));
+            saveState();
+            syncSetupInputs();
+            renderQuestionsConfig();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            switchTab('setup');
+            document.getElementById('saved-classes-select').value = '';
+            showToast('تم استرجاع بيانات الصف المحفوظ');
+        }
+
+        function createBlankClass() {
+            const qCount = appState.questions.length || 5;
+            const blankStudents = Array.from({ length: 10 }, () => ({
+                name: '',
+                scores: new Array(qCount).fill(null),
+                note: ''
+            }));
+            appState.manualAbsent = null;
+            appState.forceShowStats = null;
+            appState.students = blankStudents;
+            saveState();
+            syncSetupInputs();
+            renderQuestionsConfig();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            showToast('تم إفراغ القائمة والبدء بكشف جديد');
+        }
+
+        // =========================================================================
+        // استيراد أسماء الطلاب بذكاء من ملف خارجي (Excel / CSV / TXT)
+        // =========================================================================
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileName = file.name.toLowerCase();
+            const reader = new FileReader();
+
+            if (fileName.endsWith('.txt') || fileName.endsWith('.csv')) {
+                reader.onload = function(e) {
+                    const text = e.target.result;
+                    const lines = text.split(/\r?\n/)
+                        .map(line => {
+                            const parts = line.split(/[,;\t]/).map(p => p.replace(/^["']|["']$/g, '').trim());
+                            const textPart = parts.find(p => p.length > 1 && isNaN(Number(p)));
+                            return textPart || '';
+                        })
+                        .filter(name => isValidStudentName(name));
+
+                    applyImportedNames(lines);
+                };
+                reader.readAsText(file, 'UTF-8');
+            } else {
+                reader.onload = function(e) {
+                    try {
+                        if (typeof XLSX === 'undefined') {
+                            showToast('مكتبة قراءة الإكسل غير متوفرة حالياً');
+                            return;
+                        }
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+                        const extractedNames = extractNamesFromExcelRows(rows);
+                        applyImportedNames(extractedNames);
+                    } catch (err) {
+                        console.error(err);
+                        showToast('تعذر قراءة الملف، تأكد من سلامة صيغة الإكسل');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            event.target.value = '';
+        }
+
+        function isValidStudentName(val) {
+            if (!val) return false;
+            const cleaned = String(val).trim();
+            if (cleaned.length < 2) return false;
+            if (!isNaN(Number(cleaned))) return false;
+            const ignoredHeaders = ['الاسم', 'اسم الطالب', 'اسم الطالبة', 'الطلاب', 'الرقم', 'م', 'name', 'student', 'student name', 'ملاحظات'];
+            if (ignoredHeaders.includes(cleaned.toLowerCase())) return false;
+            return true;
+        }
+
+        function extractNamesFromExcelRows(rows) {
+            if (!rows || rows.length === 0) return [];
+
+            let targetColIdx = -1;
+            let startRowIdx = 0;
+
+            for (let r = 0; r < Math.min(10, rows.length); r++) {
+                const row = rows[r];
+                for (let c = 0; c < row.length; c++) {
+                    const cellStr = String(row[c] || '').trim();
+                    if (cellStr.includes('اسم الطالب') || cellStr.includes('اسم الطالبة') || cellStr === 'الاسم' || cellStr.toLowerCase().includes('name')) {
+                        targetColIdx = c;
+                        startRowIdx = r + 1;
+                        break;
+                    }
+                }
+                if (targetColIdx !== -1) break;
+            }
+
+            if (targetColIdx === -1) {
+                let maxTextScore = -1;
+                const colCount = Math.max(...rows.map(r => r.length));
+                for (let c = 0; c < colCount; c++) {
+                    let textScore = 0;
+                    for (let r = 0; r < rows.length; r++) {
+                        const val = String(rows[r][c] || '').trim();
+                        if (val.length >= 3 && isNaN(Number(val))) {
+                            textScore += val.length;
+                        }
+                    }
+                    if (textScore > maxTextScore) {
+                        maxTextScore = textScore;
+                        targetColIdx = c;
+                    }
+                }
+            }
+
+            if (targetColIdx === -1) return [];
+
+            const names = [];
+            for (let r = startRowIdx; r < rows.length; r++) {
+                const rawName = String(rows[r][targetColIdx] || '').trim();
+                if (rawName.includes('عدد الطلاب') || rawName.includes('نسبة النجاح') || rawName.includes('توقيع')) {
+                    break;
+                }
+                if (isValidStudentName(rawName)) {
+                    names.push(rawName);
+                }
+            }
+            return names;
+        }
+
+        function applyImportedNames(names) {
+            if (!names || names.length === 0) {
+                showToast('لم يتم العثور على أسماء صالحة داخل الملف');
+                return;
+            }
+            const qCount = appState.questions.length;
+            appState.students = names.map(name => ({
+                name,
+                scores: new Array(qCount).fill(null),
+                note: ''
+            }));
+            appState.manualAbsent = null;
+            saveState();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            showToast(`تم استيراد ${names.length} طالباً من الملف بنجاح!`);
+        }
+
+        // نافذة لصق الأسماء
+        function openBulkPasteModal() {
+            document.getElementById('bulk-paste-modal').classList.remove('hidden');
+            document.getElementById('bulk-names-textarea').focus();
+        }
+
+        function closeBulkPasteModal() {
+            document.getElementById('bulk-paste-modal').classList.add('hidden');
+        }
+
+        function processBulkPaste() {
+            const raw = document.getElementById('bulk-names-textarea').value;
+            const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length === 0) {
+                closeBulkPasteModal();
+                return;
+            }
+            const replace = document.getElementById('bulk-replace-checkbox').checked;
+            const qCount = appState.questions.length;
+            const newEntries = lines.map(name => ({
+                name,
+                scores: new Array(qCount).fill(null),
+                note: ''
+            }));
+
+            if (replace) {
+                appState.students = newEntries;
+            } else {
+                appState.students = appState.students.concat(newEntries);
+            }
+
+            document.getElementById('bulk-names-textarea').value = '';
+            closeBulkPasteModal();
+            saveState();
+            renderSetupStudentsList();
+            renderAnalysisSheet();
+            showToast(`تم إدراج ${lines.length} طالباً بنجاح`);
+        }
+
+        // =========================================================================
+        // 5. الحسابات الإحصائية المطابقة لدوال ملف الإكسل المرجعي
+        // =========================================================================
+        function calculateStatistics() {
+            const totalMaxMark = appState.questions.reduce((acc, v) => acc + v, 0);
+            const namedStudents = appState.students.filter(s => s.name && s.name.trim() !== '');
+            const totalStudents = namedStudents.length > 0 ? namedStudents.length : appState.students.length;
+
+            let autoAbsentCount = 0;
+            let hasAnyScoreInClass = false;
+
+            const studentResults = appState.students.map((st, idx) => {
+                const hasName = st.name && st.name.trim() !== '';
+                const hasAnyScore = st.scores.some(sc => sc !== null && sc !== '' && !isNaN(sc));
+                if (hasAnyScore) hasAnyScoreInClass = true;
+
+                // الصف الفارغ بالكامل يُعامل كغياب تلقائي، أما الصف الجزئي فيُعد رصداً غير مكتمل.
+                const isAbsent = !hasAnyScore;
+                const missingQuestions = st.scores
+                    .map((sc, qIdx) => (sc === null || sc === '' || sc === undefined || !Number.isFinite(Number(sc))) ? qIdx : -1)
+                    .filter(qIdx => qIdx >= 0);
+                const isIncomplete = hasAnyScore && missingQuestions.length > 0;
+                if (hasName && isAbsent) autoAbsentCount++;
+
+                let sum = 0;
+                if (!isAbsent && !isIncomplete) {
+                    st.scores.forEach(sc => { sum += Number(sc); });
+                }
+                sum = Number(sum.toFixed(2));
+
+                return {
+                    index: idx,
+                    name: st.name,
+                    hasName,
+                    scores: st.scores,
+                    isAbsent,
+                    isIncomplete,
+                    missingQuestions,
+                    total: (isAbsent || isIncomplete) ? null : sum,
+                    note: st.note
+                };
+            });
+
+            // إذا لم يُرصد أي طالب بعد، فالغياب 0 حتى يبدأ المعلم بالرصد
+            const effectiveAutoAbsent = hasAnyScoreInClass ? autoAbsentCount : 0;
+
+            const absentCount = (appState.manualAbsent !== null && appState.manualAbsent !== '')
+                ? Math.max(0, Math.min(totalStudents, parseInt(appState.manualAbsent, 10)))
+                : effectiveAutoAbsent;
+
+            const incompleteCount = studentResults.filter(res => res.isIncomplete).length;
+            const presentCount = hasAnyScoreInClass ? Math.max(0, totalStudents - absentCount - incompleteCount) : 0;
+            const missingScoreStudents = studentResults.filter(res => res.isIncomplete);
+
+            // حساب الناجحين والراسبين لكل سؤال
+            const questionStats = appState.questions.map((maxMark, qIdx) => {
+                const passThreshold = maxMark / 2;
+                let passed = 0;
+
+                studentResults.forEach(res => {
+                    if (!res.isAbsent && !res.isIncomplete) {
+                        const val = Number(res.scores[qIdx]);
+                        if (val >= passThreshold) passed++;
+                    }
+                });
+
+                const failed = Math.max(0, presentCount - passed);
+                const passPct = presentCount > 0 ? Number(((passed / presentCount) * 100).toFixed(2)) : 0;
+                const failPct = presentCount > 0 ? Number(((failed / presentCount) * 100).toFixed(2)) : 0;
+
+                return { passed, failed, passPct, failPct, maxMark, passThreshold };
+            });
+
+            // إحصائيات العمود الكلي (العلامة)
+            const totalPassThreshold = totalMaxMark / 2;
+            let totalPassed = 0;
+            let scoresSum = 0;
+            let maxScoreObj = { val: -1, name: '-' };
+            let minScoreObj = { val: Infinity, name: '-' };
+
+            studentResults.forEach(res => {
+                if (!res.isAbsent && !res.isIncomplete && res.total !== null) {
+                    if (res.total >= totalPassThreshold) totalPassed++;
+                    scoresSum += res.total;
+                    if (res.total > maxScoreObj.val) {
+                        maxScoreObj = { val: res.total, name: res.name || `طالب #${res.index + 1}` };
+                    }
+                    if (res.total < minScoreObj.val) {
+                        minScoreObj = { val: res.total, name: res.name || `طالب #${res.index + 1}` };
+                    }
+                }
+            });
+
+            const totalFailed = Math.max(0, presentCount - totalPassed);
+            const totalPassPct = presentCount > 0 ? Number(((totalPassed / presentCount) * 100).toFixed(2)) : 0;
+            const totalFailPct = presentCount > 0 ? Number(((totalFailed / presentCount) * 100).toFixed(2)) : 0;
+            const averageScore = presentCount > 0 ? Number((scoresSum / presentCount).toFixed(2)) : 0;
+
+            return {
+                totalMaxMark: Number(totalMaxMark.toFixed(2)),
+                totalStudents,
+                hasAnyScoreInClass,
+                absentCount,
+                presentCount,
+                incompleteCount,
+                missingScoreStudents,
+                studentResults,
+                questionStats,
+                overall: {
+                    passed: totalPassed,
+                    failed: totalFailed,
+                    passPct: totalPassPct,
+                    failPct: totalFailPct,
+                    average: averageScore,
+                    max: maxScoreObj.val === -1 ? 0 : maxScoreObj.val,
+                    maxStudent: maxScoreObj.name,
+                    min: minScoreObj.val === Infinity ? 0 : minScoreObj.val,
+                    minStudent: minScoreObj.name
+                }
+            };
+        }
+
+        // =========================================================================
+        // 6. رسم وتحديث كشف تحليل النتائج الرسمي (الصفحة الثانية)
+        // =========================================================================
+        function updateSheetHeader() {
+            document.getElementById('sheet-directorate').textContent = appState.meta.directorate || '';
+            document.getElementById('sheet-school').textContent = appState.meta.school || '';
+            document.getElementById('sheet-examTitle').textContent = appState.meta.examTitle || '';
+            document.getElementById('sheet-date').textContent = appState.meta.date || '';
+            document.getElementById('sheet-subject').textContent = appState.meta.subject || '---';
+            document.getElementById('sheet-grade').textContent = appState.meta.grade || '---';
+            document.getElementById('sheet-section').textContent = appState.meta.section || '---';
+            document.getElementById('sheet-teacher').textContent = appState.meta.teacher || '---';
+        }
+
+        function toggleFooterStats() {
+            const stats = calculateStatistics();
+            const currentlyVisible = appState.forceShowStats !== null ? appState.forceShowStats : stats.hasAnyScoreInClass;
+            appState.forceShowStats = !currentlyVisible;
+            saveState();
+            renderAnalysisSheet();
+        }
+
+        function renderAnalysisSheet() {
+            updateSheetHeader();
+            const stats = calculateStatistics();
+            const missingAlert = document.getElementById('missing-scores-alert');
+            if (missingAlert) {
+                if (stats.incompleteCount > 0) {
+                    const details = stats.missingScoreStudents.map(st => {
+                        const missing = st.missingQuestions.map(q => `س${q + 1}`).join('، ');
+                        return `<li><strong>${escapeHtml(st.name || `الطالب ${st.index + 1}`)}</strong>: لم تُدخل علامة ${missing}</li>`;
+                    }).join('');
+                    missingAlert.classList.remove('hidden');
+                    missingAlert.innerHTML = `<div class="font-extrabold mb-1">⚠️ يوجد ${stats.incompleteCount} طالب لديهم علامات ناقصة</div><div class="text-xs mb-2">أكمل العلامات التالية قبل اعتماد التحليل. لن تُحتسب هذه الصفوف في النتائج أو الخطة العلاجية حتى يكتمل رصدها:</div><ul class="list-disc pr-5 space-y-1 text-xs">${details}</ul>`;
+                } else {
+                    missingAlert.classList.add('hidden');
+                    missingAlert.innerHTML = '';
+                }
+            }
+
+            // تحديث الشريط الإحصائي العلوي
+            document.getElementById('stat-total-students').textContent = stats.totalStudents;
+            document.getElementById('stat-absent-input').value = stats.absentCount;
+            document.getElementById('stat-present-students').textContent = stats.presentCount;
+
+            const resetBtn = document.getElementById('reset-absent-btn');
+            if (appState.manualAbsent !== null) {
+                resetBtn.classList.remove('hidden');
+            } else {
+                resetBtn.classList.add('hidden');
+            }
+
+            // 1. بناء رأس الجدول (THEAD)
+            const thead = document.getElementById('analysis-table-head');
+            let qHeadersHtml = '';
+            let qMaxMarksHtml = '';
+
+            appState.questions.forEach((maxMark, idx) => {
+                qHeadersHtml += `<th class="border border-slate-800 bg-slate-200 py-1 px-1 font-extrabold w-11 sm:w-13">س${idx + 1}</th>`;
+                qMaxMarksHtml += `<th class="border border-slate-800 bg-slate-100 py-0.5 px-1 font-extrabold text-slate-900">${maxMark}</th>`;
+            });
+
+            thead.innerHTML = `
+                <tr>
+                    <th rowspan="2" class="border border-slate-800 bg-slate-200 py-1 px-1 w-8 font-extrabold">الرقم</th>
+                    <th rowspan="2" class="border border-slate-800 bg-slate-200 py-1 px-2 text-right font-extrabold min-w-[155px]">اسم الطالب</th>
+                    ${qHeadersHtml}
+                    <th class="border border-slate-800 bg-amber-100 py-1 px-1 font-extrabold w-14">العلامة</th>
+                    <th rowspan="2" class="border border-slate-800 bg-slate-200 py-1 px-1.5 font-extrabold w-20">ملاحظات</th>
+                </tr>
+                <tr>
+                    ${qMaxMarksHtml}
+                    <th class="border border-slate-800 bg-amber-200 py-0.5 px-1 font-extrabold text-slate-900">${stats.totalMaxMark}</th>
+                </tr>
+            `;
+
+            // 2. بناء جسم الجدول (TBODY - صفوف الطلاب)
+            const tbody = document.getElementById('analysis-table-body');
+            tbody.innerHTML = '';
+
+            stats.studentResults.forEach((res, stIdx) => {
+                const tr = document.createElement('tr');
+                tr.className = res.isIncomplete ? 'bg-amber-50/70 hover:bg-amber-100 transition-colors' : 'hover:bg-slate-50 transition-colors';
+
+                let cellsHtml = `
+                    <td class="border border-slate-800 font-bold text-slate-700 py-0.5">${stIdx + 1}</td>
+                    <td class="border border-slate-800 text-right px-1.5 py-0.5">
+                        <input type="text" value="${escapeHtml(res.name)}" 
+                            onchange="updateStudentNameFromSheet(${stIdx}, this.value)"
+                            placeholder="اسم الطالب..."
+                            class="w-full bg-transparent font-bold text-slate-900 outline-none focus:bg-sky-50 rounded px-1">
+                    </td>
+                `;
+
+                // خلايا درجات الأسئلة
+                appState.questions.forEach((maxMark, qIdx) => {
+                    const rawVal = res.scores[qIdx];
+                    const displayVal = (rawVal === null || rawVal === undefined) ? '' : rawVal;
+                    let cellBg = '';
+                    if (!res.isAbsent && !res.isIncomplete && displayVal !== '') {
+                        cellBg = Number(displayVal) >= (maxMark / 2)
+                            ? 'bg-emerald-50/80 text-emerald-950 print:bg-transparent print:text-black'
+                            : 'bg-rose-50/90 text-rose-800 font-extrabold print:bg-transparent print:text-black';
+                    }
+
+                    cellsHtml += `
+                        <td class="border border-slate-800 p-0 ${cellBg}">
+                            <input type="text" inputmode="decimal" dir="ltr" autocomplete="off" spellcheck="false"
+                                value="${displayVal}"
+                                data-st="${stIdx}" data-q="${qIdx}"
+                                oninput="normalizeScoreDigits(this)"
+                                onchange="handleScoreInput(${stIdx}, ${qIdx}, this)"
+                                onkeydown="handleGridNavigation(event, ${stIdx}, ${qIdx})"
+                                class="w-full h-full text-center py-0.5 bg-transparent font-extrabold outline-none focus:bg-sky-100 focus:ring-1 focus:ring-sky-500">
+                        </td>
+                    `;
+                });
+
+                // خلية المجموع (العلامة)
+                let totalCellClass = 'bg-amber-50/50 font-extrabold text-slate-900';
+                if (!res.isAbsent && !res.isIncomplete && res.total !== null) {
+                    totalCellClass = res.total >= (stats.totalMaxMark / 2)
+                        ? 'bg-emerald-100/80 text-emerald-950 font-extrabold print:bg-slate-100 print:text-black'
+                        : 'bg-rose-100/90 text-rose-900 font-extrabold print:bg-slate-100 print:text-black';
+                }
+
+                const totalDisplay = res.isAbsent ? '-' : (res.isIncomplete ? 'غير مكتمل' : res.total);
+                const autoNotePlaceholder = (stats.hasAnyScoreInClass && res.hasName && res.isAbsent) ? 'غائب' : (res.isIncomplete ? 'علامات ناقصة' : '');
+                const currentNote = res.note || '';
+
+                cellsHtml += `
+                    <td class="border border-slate-800 py-0.5 px-1 ${totalCellClass}">${totalDisplay}</td>
+                    <td class="border border-slate-800 p-0">
+                        <input type="text" value="${escapeHtml(currentNote)}" 
+                            placeholder="${autoNotePlaceholder}"
+                            onchange="updateStudentNote(${stIdx}, this.value)"
+                            class="w-full text-center text-xs py-0.5 px-1 bg-transparent font-bold text-slate-700 placeholder:text-rose-600 placeholder:font-extrabold outline-none focus:bg-sky-50">
+                    </td>
+                `;
+
+                tr.innerHTML = cellsHtml;
+                tbody.appendChild(tr);
+            });
+
+            // 3. بناء تذييل الجدول الإحصائي (TFOOT) - يظهر فقط في نهاية الاختبار (عند وجود علامات أو تفعيله)
+            const tfoot = document.getElementById('analysis-table-foot');
+            const showStatsFooter = appState.forceShowStats !== null ? appState.forceShowStats : stats.hasAnyScoreInClass;
+
+            const toggleLabel = document.getElementById('toggle-stats-label');
+            if (toggleLabel) {
+                toggleLabel.textContent = showStatsFooter ? 'إخفاء التحليل النهائي' : 'إظهار التحليل النهائي';
+            }
+
+            const buildStatRow = (label, rowBgClass, valueExtractor, isPercent = false) => {
+                let qCells = '';
+                stats.questionStats.forEach(qs => {
+                    const val = valueExtractor(qs);
+                    qCells += `<td class="border border-slate-800 py-0.5 px-1 font-extrabold">${val}${isPercent ? '%' : ''}</td>`;
+                });
+                const overallVal = valueExtractor(stats.overall);
+                return `
+                    <tr class="${rowBgClass}">
+                        <td colspan="2" class="border border-slate-800 py-1 px-2 text-right font-extrabold text-slate-900">${label}</td>
+                        ${qCells}
+                        <td class="border border-slate-800 py-1 px-1 font-extrabold text-slate-900">${overallVal}${isPercent ? '%' : ''}</td>
+                        <td class="border border-slate-800 bg-slate-100"></td>
+                    </tr>
+                `;
+            };
+
+            tfoot.innerHTML = `
+                ${buildStatRow('عدد الطلاب الناجحين', 'bg-emerald-50/90 print:bg-slate-100', obj => obj.passed, false)}
+                ${buildStatRow('نسبة النجاح %', 'bg-emerald-100/70 print:bg-white', obj => obj.passPct, true)}
+                ${buildStatRow('عدد الطلاب الراسبين', 'bg-rose-50/90 print:bg-slate-100', obj => obj.failed, false)}
+                ${buildStatRow('نسبة الرسوب %', 'bg-rose-100/70 print:bg-white', obj => obj.failPct, true)}
+            `;
+
+            if (showStatsFooter) {
+                tfoot.classList.remove('hidden');
+            } else {
+                tfoot.classList.add('hidden');
+            }
+
+            // تحديث لوحة المؤشرات السفلية (تظهر فقط في نهاية الاختبار)
+            const dashboardSection = document.getElementById('final-dashboard-section');
+            if (showStatsFooter) {
+                dashboardSection.classList.remove('hidden');
+                updateDashboardKPIs(stats);
+            } else {
+                dashboardSection.classList.add('hidden');
+            }
+            if (!document.getElementById('view-treatment').classList.contains('hidden')) renderTreatmentPlan();
+        }
+
+        // تحويل الأرقام العربية والهندية إلى أرقام 0-9 لتسهيل الإدخال والحساب.
+        function normalizeScoreDigits(inputEl) {
+            // تحويل الأرقام العربية والهندية والفاصلة العشرية فقط، مع إبقاء أي محارف أخرى
+            // ليتمكن التحقق من اكتشافها وإظهار تنبيه بدلاً من حذفها بصمت.
+            const normalized = inputEl.value
+                .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632))
+                .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776))
+                .replace(/[٫،,]/g, '.');
+            if (inputEl.value !== normalized) {
+                const start = inputEl.selectionStart;
+                inputEl.value = normalized;
+                if (start !== null) inputEl.setSelectionRange(start, start);
+            }
+        }
+
+        function handleScoreInput(stIdx, qIdx, inputEl) {
+            normalizeScoreDigits(inputEl);
+            const maxMark = Number(appState.questions[qIdx]);
+            const rawStr = inputEl.value.trim();
+            const previousValue = appState.students[stIdx].scores[qIdx];
+
+            if (rawStr === '') {
+                appState.students[stIdx].scores[qIdx] = null;
+            } else {
+                // يقبل الأعداد الصحيحة والعشرية الموجبة فقط، ويرفض النصوص والقيم السالبة.
+                if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(rawStr)) {
+                    inputEl.value = previousValue === null || previousValue === undefined ? '' : previousValue;
+                    inputEl.classList.add('bg-rose-100', 'ring-2', 'ring-rose-500');
+                    showToast(`قيمة غير صحيحة في السؤال س${qIdx + 1}: أدخل رقماً من 0 إلى ${maxMark} فقط`);
+                    setTimeout(() => inputEl.classList.remove('bg-rose-100', 'ring-2', 'ring-rose-500'), 1400);
+                    return;
+                }
+                const val = Number(rawStr);
+                if (!Number.isFinite(val) || val < 0 || val > maxMark) {
+                    inputEl.value = previousValue === null || previousValue === undefined ? '' : previousValue;
+                    inputEl.classList.add('bg-rose-100', 'ring-2', 'ring-rose-500');
+                    const reason = val > maxMark
+                        ? `العلامة المدخلة (${val}) أكبر من العلامة القصوى للسؤال (${maxMark})`
+                        : 'العلامة لا يمكن أن تكون سالبة';
+                    showToast(`خطأ في السؤال س${qIdx + 1}: ${reason}. تم الاحتفاظ بالقيمة السابقة.`);
+                    setTimeout(() => inputEl.classList.remove('bg-rose-100', 'ring-2', 'ring-rose-500'), 1400);
+                    return;
+                }
+                appState.students[stIdx].scores[qIdx] = val;
+            }
+
+            saveState();
+            // تأخير إعادة رسم الجدول حتى يكتمل انتقال المؤشر إلى الخلية التي نقر عليها المستخدم؛
+            // ثم إعادة التركيز عليها حتى لا يضطر للنقر مرتين عند الانتقال بين الخلايا.
+            setTimeout(() => {
+                const active = document.activeElement;
+                const focusKey = active && active.matches && active.matches('input[data-st][data-q]')
+                    ? { st: active.dataset.st, q: active.dataset.q }
+                    : null;
+                renderAnalysisSheet();
+                if (focusKey) {
+                    const next = document.querySelector(`input[data-st="${focusKey.st}"][data-q="${focusKey.q}"]`);
+                    if (next) { next.focus({ preventScroll: true }); next.select(); }
+                }
+            }, 0);
+        }
+
+        // التنقل داخل شبكة العلامات: الأسهم بين الأعمدة والصفوف، وEnter إلى الطالب التالي.
+        function handleGridNavigation(e, stIdx, qIdx) {
+            let targetSt = stIdx;
+            let targetQ = qIdx;
+            const lastQ = appState.questions.length - 1;
+
+            if (e.key === 'Enter' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                targetSt = Math.min(appState.students.length - 1, stIdx + 1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                targetSt = Math.max(0, stIdx - 1);
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                targetQ = Math.min(lastQ, qIdx + 1); // التالي بصرياً في الجدول من اليمين لليسار
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                targetQ = Math.max(0, qIdx - 1);
+            } else {
+                return; // Tab يبقى على سلوكه الطبيعي بين الخلايا
+            }
+
+            const nextInput = document.querySelector(`input[data-st="${targetSt}"][data-q="${targetQ}"]`);
+            if (nextInput) {
+                nextInput.focus();
+                nextInput.select();
+            }
+        }
+
+        function updateStudentNameFromSheet(stIdx, val) {
+            appState.students[stIdx].name = val;
+            saveState();
+        }
+
+        function updateStudentNote(stIdx, val) {
+            appState.students[stIdx].note = val;
+            saveState();
+        }
+
+        function manualAbsentChange(val) {
+            const parsed = parseInt(val, 10);
+            if (isNaN(parsed) || parsed < 0) {
+                appState.manualAbsent = null;
+            } else {
+                appState.manualAbsent = parsed;
+            }
+            saveState();
+            renderAnalysisSheet();
+        }
+
+        function resetAutoAbsent() {
+            appState.manualAbsent = null;
+            saveState();
+            renderAnalysisSheet();
+            showToast('تمت إعادة حساب الغياب تلقائياً');
+        }
+
+        function clearAllScores() {
+            appState.students.forEach(st => {
+                st.scores = new Array(appState.questions.length).fill(null);
+                st.note = '';
+            });
+            appState.manualAbsent = null;
+            appState.forceShowStats = null;
+            saveState();
+            renderAnalysisSheet();
+            showToast('تم تصفير جميع العلامات');
+        }
+
+        function updateDashboardKPIs(stats) {
+            document.getElementById('kpi-avg').textContent = stats.overall.average;
+            document.getElementById('kpi-avg-max').textContent = `/ ${stats.totalMaxMark}`;
+            const avgPct = stats.totalMaxMark > 0 ? ((stats.overall.average / stats.totalMaxMark) * 100).toFixed(1) : 0;
+            document.getElementById('kpi-avg-pct').textContent = `${avgPct}% من العلامة الكلية`;
+
+            document.getElementById('kpi-pass-rate').textContent = `${stats.overall.passPct}%`;
+            document.getElementById('kpi-pass-count').textContent = `${stats.overall.passed} ناجح من ${stats.presentCount} حاضر`;
+
+            document.getElementById('kpi-max').textContent = stats.overall.max;
+            document.getElementById('kpi-max-student').textContent = stats.overall.maxStudent;
+
+            document.getElementById('kpi-min').textContent = stats.overall.min;
+            document.getElementById('kpi-min-student').textContent = stats.overall.minStudent;
+
+            const chartContainer = document.getElementById('questions-chart');
+            chartContainer.innerHTML = '';
+
+            stats.questionStats.forEach((qs, idx) => {
+                const pct = qs.passPct;
+                let barColor = 'bg-emerald-500';
+                let badgeText = 'نقطة قوة';
+                let badgeClass = 'bg-emerald-100 text-emerald-800';
+
+                if (pct < 50) {
+                    barColor = 'bg-rose-500';
+                    badgeText = 'يحتاج خطة علاجية';
+                    badgeClass = 'bg-rose-100 text-rose-800';
+                } else if (pct < 75) {
+                    barColor = 'bg-amber-500';
+                    badgeText = 'مستوى متوسط';
+                    badgeClass = 'bg-amber-100 text-amber-800';
+                }
+
+                const row = document.createElement('div');
+                row.className = 'space-y-1';
+                row.innerHTML = `
+                    <div class="flex items-center justify-between text-xs font-extrabold">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-900">السؤال س${idx + 1} (من ${qs.maxMark})</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <span class="text-slate-700">${pct}% (${qs.passed}/${stats.presentCount})</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full ${barColor} rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                chartContainer.appendChild(row);
+            });
+        }
+
+        // =========================================================================
+        // 7. الخطة العلاجية الذكية: تعتمد مباشرة على درجات الأسئلة وأسماء الطلبة
+        // =========================================================================
+        async function loadExamFile(file) {
+            if (!file) return;
+            const status = document.getElementById('exam-file-status');
+            const preview = document.getElementById('exam-text-preview');
+            status.textContent = 'جارٍ قراءة ملف الاختبار...';
+            try {
+                let text = '';
+                const ext = file.name.toLowerCase().split('.').pop();
+                if (ext === 'pdf') {
+                    if (!window.pdfjsLib) throw new Error('تعذّر تحميل قارئ PDF. تحقق من اتصال الإنترنت.');
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+                    for (let pageNo=1; pageNo<=pdf.numPages; pageNo++) {
+                        const page = await pdf.getPage(pageNo);
+                        const content = await page.getTextContent();
+                        text += content.items.map(x=>x.str).join(' ') + '\n';
+                    }
+                } else if (ext === 'docx') {
+                    if (!window.mammoth) throw new Error('تعذّر تحميل قارئ Word. تحقق من اتصال الإنترنت.');
+                    const result = await mammoth.extractRawText({arrayBuffer: await file.arrayBuffer()});
+                    text = result.value;
+                } else if (ext === 'txt') text = await file.text();
+                else throw new Error('الصيغ المدعومة: PDF وWord (DOCX) وTXT.');
+                if (!text.trim()) throw new Error('لم أستطع استخراج نص من الملف. إذا كان PDF مصوّراً، ارفع نسخة Word أو PDF قابلة لتحديد النص.');
+                examTextContent = text;
+                examQuestionTexts = splitExamQuestions(text);
+                preview.textContent = text.slice(0,5000) + (text.length>5000?'\n...':'');
+                preview.classList.remove('hidden');
+                status.textContent = `تمت قراءة ${file.name} — عُثر على ${Object.keys(examQuestionTexts).length} مقطع/سؤال مرقّم.`;
+                renderTreatmentPlan();
+                showToast('تم تحميل الاختبار وقراءة نصه بنجاح.');
+            } catch (err) {
+                status.textContent = err.message || 'حدث خطأ أثناء قراءة الملف.';
+                showToast(status.textContent);
+            }
+        }
+
+        function splitExamQuestions(text) {
+            const normalized = String(text).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\r/g,'\n');
+            const lines = normalized.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+            const starts = [];
+            lines.forEach((line, i) => {
+                const m = line.match(/^(?:السؤال\s*)?(?:رقم\s*)?(?:س\s*)?([1-9]\d?)\s*[\-\).:：ـ]/i) || line.match(/^السؤال\s+([1-9]\d?)\b/i);
+                if (m) starts.push({n:Number(m[1]), i});
+            });
+            const out = {};
+            starts.forEach((st,j)=> { const end = j+1<starts.length ? starts[j+1].i : lines.length; out[st.n-1]=lines.slice(st.i,end).join(' '); });
+            return out;
+        }
+
+        function inferSkillFromQuestion(qIdx) {
+            const qText = examQuestionTexts[qIdx];
+            if (!qText) return {skill:`المهارة التي يقيسها السؤال ${qIdx+1}`, source:'لم يُعثر على نص مطابق لهذا الرقم في ملف الاختبار؛ راجع ترقيم الأسئلة.'};
+            const rules = [
+                [/\b(?:عرّف|ما المقصود|مفهوم|تعريف)\b/,'فهم المصطلحات والتعريفات وتفسير المفهوم'],
+                [/(قارن|الفرق بين|أوجه الشبه|أوجه الاختلاف)/,'المقارنة والتمييز بين المفاهيم أو الأنظمة'],
+                [/(علل|فسر|لماذا|السبب)/,'التفسير العلمي وربط السبب بالنتيجة'],
+                [/(رتب|خطوات|مراحل|تسلسل)/,'ترتيب الخطوات وفهم تسلسل العملية'],
+                [/(ارسم|مخطط|شكل|صمم)/,'التمثيل بالرسم أو المخطط وتطبيق قواعد التصميم'],
+                [/(احسب|أوجد|كم يساوي|ناتج)/,'التطبيق وإجراء العمليات الحسابية'],
+                [/(اذكر|عدد|سمّ|اكتب)/,'استدعاء المعلومات وتحديد العناصر'],
+                [/(وظيفة|استخدام|فائدة|أهمية)/,'تحديد الوظائف والاستخدامات وربطها بالتطبيقات']
+            ];
+            const found = rules.find(([re])=>re.test(qText));
+            return {skill:found?found[1]:'فهم محتوى السؤال وتطبيق المعرفة المرتبطة به', source:qText};
+        }
+
+        function ensureTreatmentPlans() {
+            if (!appState.treatmentPlans) appState.treatmentPlans = {};
+        }
+
+        function getTreatmentQuestionData() {
+            const stats = calculateStatistics();
+            return appState.questions.map((maxMark, qIdx) => {
+                const failedStudents = stats.studentResults.filter(st => st.hasName && !st.isAbsent && !st.isIncomplete && Number(st.scores[qIdx]) < maxMark / 2)
+                    .map(st => ({ name: st.name, score: st.scores[qIdx] ?? 0, maxMark }));
+                const qs = stats.questionStats[qIdx];
+                return { qIdx, maxMark, failedStudents, failed: failedStudents.length, failPct: stats.presentCount ? +(failedStudents.length / stats.presentCount * 100).toFixed(1) : 0, presentCount: stats.presentCount };
+            }).sort((a,b) => b.failed - a.failed || b.failPct - a.failPct || a.qIdx - b.qIdx);
+        }
+
+        function renderTreatmentPlan() {
+            ensureTreatmentPlans();
+            // لا تدخل في الخطة إلا الأسئلة التي يوجد فيها طالب واحد على الأقل حصل على أقل من 50%.
+            const data = getTreatmentQuestionData().filter(q => q.failedStudents.length > 0);
+            const stats = calculateStatistics();
+            const totalAtRisk = new Set(data.flatMap(q => q.failedStudents.map(st => st.name))).size;
+            document.getElementById('treatment-summary').innerHTML = `
+                <div class="bg-white rounded-xl p-4 border border-slate-200"><div class="text-xs text-slate-500 font-bold">عدد الطلبة الحاضرين</div><div class="text-2xl font-extrabold text-slate-900">${stats.presentCount}</div></div>
+                <div class="bg-white rounded-xl p-4 border border-rose-200"><div class="text-xs text-rose-600 font-bold">طلبة لديهم تعثر في سؤال أو أكثر</div><div class="text-2xl font-extrabold text-rose-700">${totalAtRisk}</div></div>
+                <div class="bg-white rounded-xl p-4 border border-amber-200"><div class="text-xs text-amber-700 font-bold">أكثر سؤال يحتاج علاجاً</div><div class="text-2xl font-extrabold text-amber-700">${data.length && data[0].failed ? 'س' + (data[0].qIdx+1) : '—'}</div></div>
+                <div class="bg-white rounded-xl p-4 border border-indigo-200"><div class="text-xs text-indigo-600 font-bold">أسئلة تحتاج علاجاً</div><div class="text-2xl font-extrabold text-indigo-700">${data.length}</div></div>`;
+            document.getElementById('treatment-question-ranking').innerHTML = data.map((q, rank) => `
+                <button onclick="selectTreatmentQuestion(${q.qIdx})" class="w-full text-right border rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 hover:border-amber-400 hover:bg-amber-50 ${rank===0 && q.failed ? 'border-rose-300 bg-rose-50' : 'border-slate-200'}">
+                    <span class="font-extrabold text-slate-800">${rank+1}. السؤال س${q.qIdx+1} <span class="text-xs text-slate-500 font-semibold">(من ${q.maxMark})</span></span>
+                    <span class="flex items-center gap-3 text-xs"><b class="text-rose-700">${q.failed} حالات إخفاق</b><b class="text-slate-600">${q.failPct}%</b><span class="text-blue-700 font-extrabold">عرض التفاصيل ←</span></span>
+                </button>`).join('') || '<p class="text-sm text-slate-500">أضف أسئلة ونتائج لعرض التحليل.</p>';
+            const select = document.getElementById('treatment-question-select');
+            const previous = select.value;
+            select.innerHTML = data.map(q => `<option value="${q.qIdx}">السؤال س${q.qIdx+1} — ${q.failed} إخفاق</option>`).join('');
+            if (previous && [...select.options].some(o=>o.value===previous)) select.value=previous;
+            renderTreatmentDetails();
+            lucide.createIcons();
+        }
+
+        function selectTreatmentQuestion(qIdx) {
+            document.getElementById('treatment-question-select').value = String(qIdx);
+            renderTreatmentDetails();
+            document.getElementById('treatment-details').scrollIntoView({behavior:'smooth',block:'start'});
+        }
+
+        // توليد خطة علاجية تلقائياً من نتائج كل سؤال دون مطالبة المعلم بإدخال تشخيص أو إجراءات.
+        // ملاحظة: العلامات تكشف مستوى التعثر وشدته، لكنها لا تكشف موضوع السؤال نفسه.
+        function buildAutomaticTreatment(q) {
+            const ratios = q.failedStudents.map(st => Number(st.score || 0) / Number(st.maxMark || 1));
+            const avgRatio = ratios.length ? ratios.reduce((a,b)=>a+b,0) / ratios.length : 0;
+            const severe = q.failedStudents.filter(st => Number(st.score || 0) < st.maxMark * 0.25);
+            const moderate = q.failedStudents.filter(st => Number(st.score || 0) >= st.maxMark * 0.25);
+            const failureRate = q.presentCount ? q.failed / q.presentCount : 0;
+            let diagnosis;
+            if (avgRatio < 0.25) diagnosis = 'تعثر شديد في أداء المهارة التي يقيسها السؤال؛ تدل العلامات على حاجة معظم الطلبة المتعثرين إلى إعادة بناء الفهم من الأساس والتدرج في التدريب.';
+            else if (failureRate >= 0.5) diagnosis = 'التعثر واسع الانتشار بين الطلبة؛ يُرجّح وجود مفهوم أو خطوة تعليمية غير متقنة لدى عدد كبير منهم، وتحتاج إلى معالجة صفية جماعية.';
+            else diagnosis = 'التعثر يتركز لدى مجموعة من الطلبة؛ يحتاجون إلى دعم موجّه وتدريب متدرج مع المحافظة على متابعة بقية الصف.';
+            const activities = [
+                'تمهيد تشخيصي قصير: عرض مثال مماثل للسؤال وملاحظة خطوات الحل لتحديد موضع التعثر قبل بدء الشرح.',
+                'إعادة تعليم المهارة المستهدفة على خطوات صغيرة باستخدام شرح مبسط، وأمثلة محسوسة أو صور/رسوم توضيحية مناسبة لطبيعة الدرس.',
+                'حل مثال نموذجي أمام الطلبة مع التفكير بصوت مرتفع، ثم حل مثال ثانٍ بمشاركة الطلبة وتصحيح الأخطاء فور ظهورها.',
+                'تدريب موجّه متدرج: مثال سهل، ثم متوسط، ثم سؤال جديد مماثل لمستوى السؤال الأصلي، مع تغذية راجعة مباشرة.',
+                'تقسيم الطلبة إلى مجموعات دعم: دعم تأسيسي مكثف لمن حصلوا على أقل من 25% من علامة السؤال، وتدريب تثبيتي لمن حصلوا من 25% إلى أقل من 50%.',
+                'إنهاء المعالجة بتقويم فردي قصير، وتسجيل نتيجة كل طالب لتحديد من أتقن المهارة ومن يحتاج إلى جولة دعم إضافية.'
+            ];
+            return {
+                diagnosis,
+                skill: inferSkillFromQuestion(q.qIdx).skill,
+                questionText: inferSkillFromQuestion(q.qIdx).source,
+                objective: 'أن ينجز الطالب سؤالاً مماثلاً يقيس المهارة نفسها، ويحقق 50% على الأقل من علامته.',
+                activities,
+                tools: 'الكتاب المدرسي، السبورة، أمثلة محلولة، بطاقات تدريب متدرجة، ووسيلة بصرية أو عملية مناسبة لموضوع الدرس.',
+                duration: 'حصتان علاجيّتان، مع تقويم قصير في نهاية الحصة الثانية.',
+                assessment: 'تقويم فردي من 3 فقرات قصيرة مماثلة في المهارة وليست منسوخة عن السؤال الأصلي. يُعد الطالب متقناً عند تحقيق 50% فأكثر، وتُعاد المعالجة لمن لم يحقق ذلك.',
+                severeCount: severe.length,
+                moderateCount: moderate.length,
+                average: Math.round(avgRatio*100)
+            };
+        }
+
+        function renderTreatmentDetails() {
+            const target = document.getElementById('treatment-details');
+            if (!target) return;
+            const qIdx = Number(document.getElementById('treatment-question-select').value || 0);
+            const q = getTreatmentQuestionData().find(x => x.qIdx === qIdx && x.failedStudents.length > 0);
+            if (!q) { target.innerHTML = '<p class="text-sm text-slate-500">لا توجد أسئلة فيها طلبة حصلوا على أقل من 50%.</p>'; return; }
+            const plan = buildAutomaticTreatment(q);
+            const names = q.failedStudents.map((st,i)=>`<tr class="border-b border-slate-100"><td class="p-2 text-center">${i+1}</td><td class="p-2 font-bold">${escapeHtml(st.name)}</td><td class="p-2 text-center text-rose-700 font-extrabold">${st.score} / ${st.maxMark}</td><td class="p-2 text-xs">${Number(st.score) < st.maxMark*0.25 ? 'دعم تأسيسي وإعادة تعليم المهارة خطوة بخطوة' : 'تدريب موجّه متدرج وتغذية راجعة'}</td></tr>`).join('');
+            target.innerHTML = `
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div class="rounded-xl bg-slate-50 p-3"><div class="text-xs text-slate-500">العلامة القصوى</div><b>${q.maxMark}</b></div>
+                    <div class="rounded-xl bg-rose-50 p-3"><div class="text-xs text-rose-600">عدد المتعثرين</div><b class="text-rose-700">${q.failed}</b></div>
+                    <div class="rounded-xl bg-rose-50 p-3"><div class="text-xs text-rose-600">نسبة الإخفاق</div><b class="text-rose-700">${q.failPct}%</b></div>
+                    <div class="rounded-xl bg-slate-50 p-3"><div class="text-xs text-slate-500">متوسط أداء المتعثرين</div><b>${plan.average}%</b></div>
+                </div>
+                <div class="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-1"><h4 class="font-extrabold text-amber-900">التشخيص التلقائي</h4><p class="text-sm">${plan.diagnosis}</p><p class="text-xs text-amber-800">المهارة المستهدفة: ${escapeHtml(plan.skill)}</p><p class="text-xs text-slate-600 mt-1">نص السؤال: ${escapeHtml(plan.questionText || "غير متوفر")}</p></div>
+                <div class="rounded-xl border border-sky-200 bg-sky-50 p-3 space-y-2"><h4 class="font-extrabold text-sky-900">الخطة العلاجية الجاهزة للتنفيذ</h4><p class="text-sm"><b>الهدف:</b> ${plan.objective}</p><ol class="list-decimal pr-5 text-sm space-y-1">${plan.activities.map(x=>`<li>${x}</li>`).join('')}</ol><p class="text-sm"><b>الوسائل:</b> ${plan.tools}</p><p class="text-sm"><b>المدة المقترحة:</b> ${plan.duration}</p><p class="text-sm"><b>التقويم البعدي:</b> ${plan.assessment}</p></div>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl"><div class="p-3 bg-slate-50 font-extrabold text-sm">الطلبة الذين أخفقوا في السؤال س${qIdx+1}</div><table class="w-full text-sm"><thead class="bg-slate-100"><tr><th class="p-2">#</th><th class="p-2 text-right">اسم الطالب</th><th class="p-2">علامته</th><th class="p-2 text-right">الدعم الفردي المقترح</th></tr></thead><tbody>${names}</tbody></table></div>
+                <div class="text-xs text-slate-500">الخطة تُنشأ تلقائياً من العلامات ولا تتطلب من المعلم تعبئة حقول. العلامات تحدد شدة التعثر، أما تحديد مفهوم السؤال بدقة فيتطلب توفر نص السؤال أو عنوان الدرس.</div>`;
+        }
+
+        // تنزيل الخطة كملف PDF مباشرة، دون تحويل المستخدم إلى نافذة الطباعة.
+        function saveTreatmentPlanPDF() {
+            if (typeof html2pdf === 'undefined') {
+                showToast('تعذر تحميل أداة PDF. تأكد من اتصال الإنترنت ثم أعد المحاولة.');
+                return;
+            }
+            printTreatmentPlan(true);
+        }
+
+        function printTreatmentPlan(saveAsPdf = false) {
+            ensureTreatmentPlans();
+            const data = getTreatmentQuestionData().filter(q => q.failedStudents.length > 0);
+            const stats = calculateStatistics();
+            const meta = appState.meta || {};
+            const totalAtRisk = new Set(data.flatMap(q => q.failedStudents.map(st => st.name))).size;
+            const questionSections = data.map((q, rank) => {
+                const plan = buildAutomaticTreatment(q);
+                const studentRows = q.failedStudents.length ? q.failedStudents.map((st, i) => `
+                    <tr><td class="center">${i+1}</td><td>${escapeHtml(st.name)}</td><td class="center">${escapeHtml(String(st.score))} / ${escapeHtml(String(st.maxMark))}</td><td>${Number(st.score) < st.maxMark*0.25 ? 'دعم تأسيسي وإعادة تعليم المهارة خطوة بخطوة' : 'تدريب موجّه متدرج وتغذية راجعة'}</td></tr>`).join('') : '<tr><td colspan="4" class="center">لا يوجد طلبة راسبين في هذا السؤال حسب العلامات المرصودة.</td></tr>';
+                return `
+                <section class="question-block">
+                    <h3>السؤال ${q.qIdx+1} <small>— الأولوية العلاجية: ${rank+1}</small></h3>
+                    <div class="stats"><span>العلامة القصوى: <b>${q.maxMark}</b></span><span>عدد المتعثرين: <b>${q.failed}</b></span><span>نسبة الإخفاق: <b>${q.failPct}%</b></span><span>الحاضرون: <b>${q.presentCount}</b></span></div>
+                    <p><b>المهارة أو المفهوم:</b> ${escapeHtml(plan.skill)}</p>
+                    <p><b>التشخيص التلقائي:</b> ${escapeHtml(plan.diagnosis)}</p>
+                    <p><b>الهدف العلاجي:</b> ${escapeHtml(plan.objective)}</p>
+                    <div><b>خطوات التنفيذ:</b><ol>${plan.activities.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ol></div>
+                    <p><b>الوسائل التعليمية:</b> ${escapeHtml(plan.tools)}</p>
+                    <p><b>المدة الزمنية:</b> ${escapeHtml(plan.duration)}</p>
+                    <p><b>التقويم البعدي:</b> ${escapeHtml(plan.assessment)}</p>
+                    <h4>الطلبة الذين أخفقوا في السؤال ${q.qIdx+1}</h4>
+                    <table><thead><tr><th>#</th><th>اسم الطالب</th><th>العلامة</th><th>مقترح الدعم الفردي</th></tr></thead><tbody>${studentRows}</tbody></table>
+                </section>`;
+            }).join('');
+            const w = window.open('', '_blank');
+            if (!w) { showToast('اسمح بفتح النوافذ المنبثقة لطباعة الخطة'); return; }
+            w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>الخطة العلاجية الشاملة</title>
+            <style>
+                @page{size:A4 portrait;margin:12mm 11mm 14mm}
+                *{box-sizing:border-box}body{font-family:Arial,Tahoma,sans-serif;color:#172033;direction:rtl;font-size:10pt;line-height:1.55;margin:0}
+                header{text-align:center;border-bottom:2px solid #1e4e79;padding-bottom:9px;margin-bottom:10px}
+                h1{font-size:18pt;margin:0 0 4px;color:#173e63}header p{margin:2px 0;font-size:9pt}
+                .meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;background:#f1f5f9;border:1px solid #cbd5e1;padding:8px;margin:8px 0}
+                .overview{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.overview span{border:1px solid #cbd5e1;border-radius:4px;padding:4px 7px;font-size:9pt}
+                h2{font-size:12pt;margin:12px 0 6px;color:#173e63}h3{font-size:12pt;background:#eaf1f8;border-right:4px solid #2563eb;padding:6px 8px;margin:0 0 7px;color:#173e63}
+                h3 small{font-size:9pt;color:#475569;font-weight:normal}h4{font-size:10pt;margin:9px 0 4px}
+                p{margin:5px 0}.stats{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.stats span{border:1px solid #d5dce5;padding:3px 6px;border-radius:4px;font-size:9pt}
+                ol{margin:4px 0;padding-right:20px}li{margin:2px 0}table{width:100%;border-collapse:collapse;margin:5px 0 9px;table-layout:auto}
+                th,td{border:1px solid #9aa8b8;padding:5px 6px;text-align:right;vertical-align:top;font-size:8.5pt}th{background:#e8edf3;font-weight:bold}.center{text-align:center}
+                .question-block{border:1px solid #cbd5e1;border-radius:5px;padding:8px;margin:10px 0;break-inside:avoid;page-break-inside:avoid}
+                footer{border-top:1px solid #9aa8b8;margin-top:12px;padding-top:5px;text-align:center;font-size:8pt;color:#475569}
+                @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.question-block{break-inside:avoid;page-break-inside:avoid}}
+            </style></head><body>
+            <header><h1>الخطة العلاجية الشاملة</h1><p>${escapeHtml(meta.school || 'المدرسة')}</p><p>نظام تحليل نتائج الاختبارات — عسقلان EduTech</p></header>
+            <div class="meta"><div><b>المبحث:</b> ${escapeHtml(meta.subject || '—')}</div><div><b>الصف:</b> ${escapeHtml(meta.grade || '—')}</div><div><b>الشعبة:</b> ${escapeHtml(meta.section || '—')}</div><div><b>المعلم:</b> ${escapeHtml(meta.teacher || '—')}</div><div><b>الاختبار:</b> ${escapeHtml(meta.examTitle || '—')}</div><div><b>التاريخ:</b> ${escapeHtml(meta.date || '—')}</div></div>
+            <div class="overview"><span>عدد الحاضرين: <b>${stats.presentCount}</b></span><span>طلبة لديهم تعثر: <b>${totalAtRisk}</b></span><span>عدد الأسئلة التي تحتاج علاجاً: <b>${data.length}</b></span><span>أكثر سؤال إخفاقاً: <b>${data.length && data[0].failed ? 'السؤال '+(data[0].qIdx+1) : 'لا يوجد'}</b></span></div>
+            <h2>تفاصيل الأسئلة التي يوجد فيها رسوب (أقل من 50%)</h2>${questionSections || '<p style="text-align:center;padding:24px;font-weight:bold">لا توجد أسئلة فيها طلبة راسبون بأقل من 50%.</p>'}
+            <footer>تشمل هذه الخطة الأسئلة التي حصل فيها طالب واحد أو أكثر على أقل من 50% من علامة السؤال. لا يُحتسب الغائب ضمن النسبة.<br>تطوير الأستاذ فادي أبو الكباش — عسقلان EduTech</footer>
+            </body></html>`);
+            w.document.close();
+            if (saveAsPdf) {
+                let pdfStarted = false;
+                const generatePdf = () => {
+                    if (pdfStarted) return;
+                    pdfStarted = true;
+                    html2pdf().set({
+                        margin: [10, 10, 12, 10],
+                        filename: 'الخطة_العلاجية.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: ['css', 'legacy'], avoid: ['.question-block'] }
+                    }).from(w.document.body).save().then(() => { w.close(); showToast('تم تنزيل الخطة العلاجية PDF'); }).catch(() => { w.close(); showToast('تعذر إنشاء ملف PDF، حاول مرة ثانية.'); });
+                };
+                w.onload = generatePdf;
+                setTimeout(generatePdf, 500);
+            } else {
+                w.focus(); setTimeout(() => w.print(), 500);
+            }
+        }
+
+        // =========================================================================
+        // 8. معاينة الطباعة (مع زر العودة الواضح) والطباعة المباشرة (A4)
+        // =========================================================================
+        function openPrintPreview() {
+            switchTab('analysis');
+            // إظهار جدول الإحصائيات النهائي أثناء المعاينة
+            document.getElementById('analysis-table-foot').classList.remove('hidden');
+            const container = document.getElementById('printable-container');
+            const toolbar = document.getElementById('preview-toolbar');
+            container.classList.add('preview-mode-active');
+            toolbar.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        function closePrintPreview() {
+            const container = document.getElementById('printable-container');
+            const toolbar = document.getElementById('preview-toolbar');
+            container.classList.remove('preview-mode-active');
+            toolbar.classList.add('hidden');
+            document.body.style.overflow = '';
+            renderAnalysisSheet();
+        }
+
+        function printSheet() {
+            const viewAnalysis = document.getElementById('view-analysis');
+            if (viewAnalysis.classList.contains('hidden')) {
+                switchTab('analysis');
+            }
+            closePrintPreview();
+            // ضمان ظهور جدول الإحصائيات في نهاية الورقة عند الطباعة
+            document.getElementById('analysis-table-foot').classList.remove('hidden');
+
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    window.print();
+                }, 200);
+            });
+        }
+
+        // =========================================================================
+        // 8. التصدير إلى ملف Excel (.xlsx) بدوال حقيقية 100% ومضغوط في صفحة A4 واحدة
+        // =========================================================================
+        async function exportToExcel() {
+            try {
+                if (typeof ExcelJS === 'undefined') {
+                    showToast('تعذر تحميل مكتبة الإكسل، تأكد من الاتصال بالإنترنت');
+                    return;
+                }
+
+                showToast('جاري تجهيز ملف الإكسل بتنسيق A4 وربط المعادلات...');
+
+                const workbook = new ExcelJS.Workbook();
+                workbook.creator = appState.meta.teacher || 'معلم المادة';
+                workbook.created = new Date();
+
+                // -----------------------------------------------------------------
+                // الورقة الأولى: بيانات الاختبار
+                // -----------------------------------------------------------------
+                const setupSheetName = 'بيانات الاختبار';
+                const wsSetup = workbook.addWorksheet(setupSheetName, {
+                    views: [{ rightToLeft: true }],
+                    pageSetup: {
+                        paperSize: 9, // A4
+                        orientation: 'portrait',
+                        fitToPage: true,
+                        fitToWidth: 1,
+                        fitToHeight: 1,
+                        horizontalCentered: true,
+                        margins: { left: 0.35, right: 0.35, top: 0.4, bottom: 0.4, header: 0.2, footer: 0.2 }
+                    }
+                });
+
+                wsSetup.columns = [
+                    { width: 4 },
+                    { width: 28 },
+                    { width: 38 },
+                    { width: 22 }
+                ];
+
+                wsSetup.mergeCells('B2:D2');
+                const titleCell = wsSetup.getCell('B2');
+                titleCell.value = 'بطاقة بيانات وإعدادات الاختبار';
+                titleCell.font = { name: 'Cairo', size: 15, bold: true, color: { argb: 'FFFFFFFF' } };
+                titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0284C7' } };
+                titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                wsSetup.getRow(2).height = 34;
+
+                const metaRows = [
+                    ['اسم المعلم', appState.meta.teacher || ''],
+                    ['المديرية', appState.meta.directorate || ''],
+                    ['المدرسة', appState.meta.school || ''],
+                    ['عنوان الاختبار', appState.meta.examTitle || ''],
+                    ['المبحث / المادة', appState.meta.subject || ''],
+                    ['الصف', appState.meta.grade || ''],
+                    ['الشعبة', appState.meta.section || ''],
+                    ['تاريخ الاختبار', appState.meta.date || ''],
+                    ['عدد الأسئلة', appState.questions.length]
+                ];
+
+                metaRows.forEach((item, index) => {
+                    const rowNum = 4 + index;
+                    const row = wsSetup.getRow(rowNum);
+                    row.height = 24;
+                    wsSetup.mergeCells(`C${rowNum}:D${rowNum}`);
+                    const lblCell = row.getCell(2);
+                    const valCell = row.getCell(3);
+
+                    lblCell.value = item[0];
+                    lblCell.font = { name: 'Cairo', size: 11, bold: true, color: { argb: 'FF1E293B' } };
+                    lblCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+                    lblCell.alignment = { horizontal: 'right', vertical: 'middle' };
+
+                    valCell.value = item[1];
+                    valCell.font = { name: 'Cairo', size: 11, bold: true, color: { argb: 'FF0F172A' } };
+                    valCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+                    [lblCell, valCell, row.getCell(4)].forEach(c => {
+                        c.border = {
+                            top: { style: 'thin', color: { argb: 'FF94A3B8' } },
+                            bottom: { style: 'thin', color: { argb: 'FF94A3B8' } },
+                            left: { style: 'thin', color: { argb: 'FF94A3B8' } },
+                            right: { style: 'thin', color: { argb: 'FF94A3B8' } }
+                        };
+                    });
+                });
+
+                wsSetup.mergeCells('B14:D14');
+                const qHeaderTitle = wsSetup.getCell('B14');
+                qHeaderTitle.value = 'توزيع العلامات على أسئلة الاختبار';
+                qHeaderTitle.font = { name: 'Cairo', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
+                qHeaderTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF059669' } };
+                qHeaderTitle.alignment = { horizontal: 'center', vertical: 'middle' };
+                wsSetup.getRow(14).height = 26;
+
+                const qSubHeader = wsSetup.getRow(15);
+                qSubHeader.height = 22;
+                ['رقم السؤال', 'العلامة العظمى', 'علامة النجاح (50%)'].forEach((h, i) => {
+                    const c = qSubHeader.getCell(2 + i);
+                    c.value = h;
+                    c.font = { name: 'Cairo', size: 11, bold: true };
+                    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+                    c.alignment = { horizontal: 'center', vertical: 'middle' };
+                    c.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+                });
+
+                const firstQRowInSetup = 16;
+                appState.questions.forEach((maxMark, idx) => {
+                    const rNum = firstQRowInSetup + idx;
+                    const r = wsSetup.getRow(rNum);
+                    r.height = 21;
+
+                    const c1 = r.getCell(2);
+                    const c2 = r.getCell(3);
+                    const c3 = r.getCell(4);
+
+                    c1.value = `السؤال ${idx + 1}`;
+                    c2.value = maxMark;
+                    c3.value = { formula: `C${rNum}/2` };
+
+                    [c1, c2, c3].forEach(c => {
+                        c.font = { name: 'Cairo', size: 11, bold: true };
+                        c.alignment = { horizontal: 'center', vertical: 'middle' };
+                        c.border = { top: { style: 'thin' }, bottom: { style: 'thin' }, left: { style: 'thin' }, right: { style: 'thin' } };
+                    });
+                });
+
+                const lastQRowInSetup = firstQRowInSetup + appState.questions.length - 1;
+                const totalRowInSetup = lastQRowInSetup + 1;
+                const totRow = wsSetup.getRow(totalRowInSetup);
+                totRow.height = 25;
+
+                const tLbl = totRow.getCell(2);
+                const tVal = totRow.getCell(3);
+                const tPass = totRow.getCell(4);
+
+                tLbl.value = 'مجموع العلامات الكلي';
+                tVal.value = { formula: `SUM(C${firstQRowInSetup}:C${lastQRowInSetup})` };
+                tPass.value = { formula: `C${totalRowInSetup}/2` };
+
+                [tLbl, tVal, tPass].forEach(c => {
+                    c.font = { name: 'Cairo', size: 11, bold: true, color: { argb: 'FF0F2540' } };
+                    c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
+                    c.alignment = { horizontal: 'center', vertical: 'middle' };
+                    c.border = { top: { style: 'medium' }, bottom: { style: 'medium' }, left: { style: 'thin' }, right: { style: 'thin' } };
+                });
+
+                // -----------------------------------------------------------------
+                // الورقة الثانية: كشف تحليل النتائج (مضغوط ليتسع لـ 45 طالباً في A4 واحدة)
+                // -----------------------------------------------------------------
+                const rawSheetTitle = `${appState.meta.grade || 'الصف'} ${appState.meta.section || 'أ'}`.trim();
+                const safeSheetTitle = rawSheetTitle.replace(/[\\/*?:[\]]/g, '').substring(0, 31) || 'تحليل النتائج';
+
+                const wsClass = workbook.addWorksheet(safeSheetTitle, {
+                    views: [{ rightToLeft: true }],
+                    pageSetup: {
+                        paperSize: 9, // A4
+                        orientation: 'portrait',
+                        fitToPage: true,
+                        fitToWidth: 1,
+                        fitToHeight: 1,
+                        horizontalCentered: true,
+                        margins: { left: 0.2, right: 0.2, top: 0.25, bottom: 0.25, header: 0.1, footer: 0.1 }
+                    }
+                });
+
+                const qCount = appState.questions.length;
+                const totalColIndex = 3 + qCount;
+                const noteColIndex = totalColIndex + 1;
+                const totalColLetter = getExcelColLetter(totalColIndex);
+                const noteColLetter = getExcelColLetter(noteColIndex);
+
+                wsClass.getColumn(1).width = 5;
+                wsClass.getColumn(2).width = 27;
+                const qColWidth = qCount <= 6 ? 7 : (qCount <= 10 ? 5.5 : 4.8);
+                for (let q = 0; q < qCount; q++) {
+                    wsClass.getColumn(3 + q).width = qColWidth;
+                }
+                wsClass.getColumn(totalColIndex).width = 8.5;
+                wsClass.getColumn(noteColIndex).width = 12;
+
+                // الترويسة الرسمية
+                wsClass.mergeCells(`A1:${noteColLetter}1`);
+                wsClass.getCell('A1').value = 'بسم الله الرحمن الرحيم';
+                wsClass.getCell('A1').font = { name: 'Cairo', size: 10, bold: true };
+                wsClass.getCell('A1').alignment = { horizontal: 'center' };
+                wsClass.getRow(1).height = 16;
+
+                wsClass.mergeCells('A2:B2');
+                wsClass.getCell('A2').value = 'تطوير الأستاذ فادي أبو الكباش';
+                wsClass.getCell('A2').font = { name: 'Cairo', size: 9.5, bold: true };
+
+                wsClass.mergeCells(`C2:${noteColLetter}2`);
+                wsClass.getCell('C2').value = { formula: `'${setupSheetName}'!C5` };
+                wsClass.getCell('C2').font = { name: 'Cairo', size: 9.5, bold: true };
+                wsClass.getCell('C2').alignment = { horizontal: 'left' };
+                wsClass.getRow(2).height = 16;
+
+                wsClass.mergeCells('A3:B3');
+                wsClass.getCell('A3').value = { formula: `'${setupSheetName}'!C6` };
+                wsClass.getCell('A3').font = { name: 'Cairo', size: 9.5, bold: true };
+
+                wsClass.mergeCells(`C3:${noteColLetter}3`);
+                wsClass.getCell('C3').value = { formula: `"التاريخ: "&'${setupSheetName}'!C11` };
+                wsClass.getCell('C3').font = { name: 'Cairo', size: 9.5, bold: true };
+                wsClass.getCell('C3').alignment = { horizontal: 'left' };
+                wsClass.getRow(3).height = 16;
+
+                wsClass.mergeCells(`A4:${noteColLetter}4`);
+                const examBanner = wsClass.getCell('A4');
+                examBanner.value = { formula: `'${setupSheetName}'!C7` };
+                examBanner.font = { name: 'Cairo', size: 11.5, bold: true, color: { argb: 'FF0F2540' } };
+                examBanner.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+                examBanner.alignment = { horizontal: 'center', vertical: 'middle' };
+                wsClass.getRow(4).height = 22;
+
+                wsClass.mergeCells('A5:B5');
+                wsClass.getCell('A5').value = { formula: `"معلم المادة: "&'${setupSheetName}'!C4` };
+                wsClass.getCell('A5').font = { name: 'Cairo', size: 9.5, bold: true };
+
+                wsClass.mergeCells(`C5:${totalColLetter}5`);
+                wsClass.getCell('C5').value = { formula: `"المبحث: "&'${setupSheetName}'!C8&"  |  الصف: "&'${setupSheetName}'!C9` };
+                wsClass.getCell('C5').font = { name: 'Cairo', size: 9.5, bold: true };
+                wsClass.getCell('C5').alignment = { horizontal: 'center' };
+
+                wsClass.getCell(`${noteColLetter}5`).value = { formula: `"الشعبة: "&'${setupSheetName}'!C10` };
+                wsClass.getCell(`${noteColLetter}5`).font = { name: 'Cairo', size: 9.5, bold: true };
+                wsClass.getCell(`${noteColLetter}5`).alignment = { horizontal: 'left' };
+                wsClass.getRow(5).height = 17;
+
+                const stats = calculateStatistics();
+                const firstStudentRow = 9;
+                const lastStudentRow = firstStudentRow + appState.students.length - 1;
+
+                wsClass.mergeCells('A6:B6');
+                wsClass.getCell('A6').value = { formula: `"العدد الكلي: "&COUNTA(B${firstStudentRow}:B${lastStudentRow})` };
+                wsClass.getCell('A6').font = { name: 'Cairo', size: 9.5, bold: true };
+
+                wsClass.getCell('C6').value = 'الغياب:';
+                wsClass.getCell('C6').font = { name: 'Cairo', size: 9.5, bold: true };
+                wsClass.getCell('C6').alignment = { horizontal: 'left' };
+
+                const absentCellRef = 'D6';
+                wsClass.getCell(absentCellRef).value = stats.absentCount;
+                wsClass.getCell(absentCellRef).font = { name: 'Cairo', size: 9.5, bold: true, color: { argb: 'FFB91C1C' } };
+                wsClass.getCell(absentCellRef).alignment = { horizontal: 'center' };
+
+                const presentColLetter = getExcelColLetter(Math.min(5, totalColIndex));
+                const presentCellRef = `${presentColLetter}6`;
+                if (totalColIndex >= 5) {
+                    wsClass.mergeCells(`${presentCellRef}:${noteColLetter}6`);
+                }
+                wsClass.getCell(presentCellRef).value = { formula: `COUNTA(B${firstStudentRow}:B${lastStudentRow})-${absentCellRef}` };
+                wsClass.getCell(presentCellRef).numFmt = '"الحضور الفعلي: "0';
+                wsClass.getCell(presentCellRef).font = { name: 'Cairo', size: 9.5, bold: true, color: { argb: 'FF047857' } };
+                wsClass.getCell(presentCellRef).alignment = { horizontal: 'left' };
+                wsClass.getRow(6).height = 17;
+
+                // رأس جدول الطلاب (الصف 7 والصف 8)
+                wsClass.mergeCells('A7:A8');
+                wsClass.getCell('A7').value = 'الرقم';
+
+                wsClass.mergeCells('B7:B8');
+                wsClass.getCell('B7').value = 'اسم الطالب';
+
+                for (let q = 0; q < qCount; q++) {
+                    const colLet = getExcelColLetter(3 + q);
+                    wsClass.getCell(`${colLet}7`).value = `س${q + 1}`;
+                    wsClass.getCell(`${colLet}8`).value = { formula: `'${setupSheetName}'!C${firstQRowInSetup + q}` };
+                }
+
+                wsClass.getCell(`${totalColLetter}7`).value = 'العلامة';
+                wsClass.getCell(`${totalColLetter}8`).value = { formula: `'${setupSheetName}'!C${totalRowInSetup}` };
+
+                wsClass.mergeCells(`${noteColLetter}7:${noteColLetter}8`);
+                wsClass.getCell(`${noteColLetter}7`).value = 'ملاحظات';
+
+                [7, 8].forEach(rIdx => {
+                    const row = wsClass.getRow(rIdx);
+                    row.height = 17;
+                    for (let cIdx = 1; cIdx <= noteColIndex; cIdx++) {
+                        const cell = row.getCell(cIdx);
+                        cell.font = { name: 'Cairo', size: 9.5, bold: true };
+                        cell.fill = {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: cIdx === totalColIndex ? 'FFFEF3C7' : 'FFE2E8F0' }
+                        };
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                        cell.border = {
+                            top: { style: 'thin' }, bottom: { style: 'thin' },
+                            left: { style: 'thin' }, right: { style: 'thin' }
+                        };
+                    }
+                });
+
+                // صفوف الطلاب (ارتفاع ذكي يتناسب مع 45 طالباً في صفحة A4 واحدة)
+                const firstQColLetter = getExcelColLetter(3);
+                const lastQColLetter = getExcelColLetter(2 + qCount);
+                const studentCount = appState.students.length;
+                const studentRowHeight = studentCount <= 25 ? 18 : (studentCount <= 35 ? 15.5 : 13.8);
+                const studentFontSize = studentCount <= 35 ? 9.5 : 8.5;
+
+                appState.students.forEach((st, stIdx) => {
+                    const rNum = firstStudentRow + stIdx;
+                    const row = wsClass.getRow(rNum);
+                    row.height = studentRowHeight;
+
+                    row.getCell(1).value = stIdx + 1;
+                    row.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+                    row.getCell(2).value = st.name;
+                    row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
+
+                    for (let q = 0; q < qCount; q++) {
+                        const val = st.scores[q];
+                        const c = row.getCell(3 + q);
+                        c.value = (val === null || val === undefined || val === '') ? null : Number(val);
+                        c.alignment = { horizontal: 'center', vertical: 'middle' };
+                    }
+
+                    const totalCell = row.getCell(totalColIndex);
+                    totalCell.value = {
+                        formula: `IF(COUNT(${firstQColLetter}${rNum}:${lastQColLetter}${rNum})=0, "", SUM(${firstQColLetter}${rNum}:${lastQColLetter}${rNum}))`
+                    };
+                    totalCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                    totalCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFBEB' } };
+
+                    const noteCell = row.getCell(noteColIndex);
+                    if (st.note && st.note.trim() !== '') {
+                        noteCell.value = st.note.trim();
+                    } else {
+                        noteCell.value = {
+                            formula: `IF(AND(B${rNum}<>"", COUNT(${firstQColLetter}${rNum}:${lastQColLetter}${rNum})=0), "غائب", "")`
+                        };
+                    }
+                    noteCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+                    for (let cIdx = 1; cIdx <= noteColIndex; cIdx++) {
+                        const cell = row.getCell(cIdx);
+                        cell.font = { name: 'Cairo', size: studentFontSize, bold: cIdx === totalColIndex };
+                        cell.border = {
+                            top: { style: 'thin' }, bottom: { style: 'thin' },
+                            left: { style: 'thin' }, right: { style: 'thin' }
+                        };
+                    }
+                });
+
+                // صفوف التحليل الإحصائي الـ 4 أسفل الجدول بدوال COUNTIF حقيقية
+                const passCountRow = lastStudentRow + 1;
+                const passPctRow = lastStudentRow + 2;
+                const failCountRow = lastStudentRow + 3;
+                const failPctRow = lastStudentRow + 4;
+
+                const statLabels = [
+                    { r: passCountRow, text: 'عدد الطلاب الناجحين', bg: 'FFD1FAE5' },
+                    { r: passPctRow, text: 'نسبة النجاح %', bg: 'FFECFDF5' },
+                    { r: failCountRow, text: 'عدد الطلاب الراسبين', bg: 'FFFFE4E6' },
+                    { r: failPctRow, text: 'نسبة الرسوب %', bg: 'FFFFF1F2' }
+                ];
+
+                statLabels.forEach(sl => {
+                    wsClass.mergeCells(`A${sl.r}:B${sl.r}`);
+                    const lbl = wsClass.getCell(`A${sl.r}`);
+                    lbl.value = sl.text;
+                    lbl.font = { name: 'Cairo', size: 9.5, bold: true };
+                    lbl.alignment = { horizontal: 'right', vertical: 'middle' };
+                    wsClass.getRow(sl.r).height = 17;
+                });
+
+                for (let cIdx = 3; cIdx <= totalColIndex; cIdx++) {
+                    const colLet = getExcelColLetter(cIdx);
+
+                    const cPass = wsClass.getCell(`${colLet}${passCountRow}`);
+                    cPass.value = { formula: `COUNTIF(${colLet}${firstStudentRow}:${colLet}${lastStudentRow}, ">="&(${colLet}8/2))` };
+
+                    const cPassPct = wsClass.getCell(`${colLet}${passPctRow}`);
+                    cPassPct.value = { formula: `IF($${presentColLetter}$6>0, ROUND((${colLet}${passCountRow}/$${presentColLetter}$6)*100, 2), 0)` };
+                    cPassPct.numFmt = '0.00"%"';
+
+                    const cFail = wsClass.getCell(`${colLet}${failCountRow}`);
+                    cFail.value = { formula: `MAX(0, $${presentColLetter}$6-${colLet}${passCountRow})` };
+
+                    const cFailPct = wsClass.getCell(`${colLet}${failPctRow}`);
+                    cFailPct.value = { formula: `IF($${presentColLetter}$6>0, ROUND((${colLet}${failCountRow}/$${presentColLetter}$6)*100, 2), 0)` };
+                    cFailPct.numFmt = '0.00"%"';
+                }
+
+                statLabels.forEach(sl => {
+                    const row = wsClass.getRow(sl.r);
+                    for (let cIdx = 1; cIdx <= noteColIndex; cIdx++) {
+                        const cell = row.getCell(cIdx);
+                        cell.font = { name: 'Cairo', size: 9.5, bold: true };
+                        if (cIdx < noteColIndex) {
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: sl.bg } };
+                        }
+                        if (cIdx >= 3 && cIdx <= totalColIndex) {
+                            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                        }
+                        cell.border = {
+                            top: { style: 'thin' }, bottom: { style: 'thin' },
+                            left: { style: 'thin' }, right: { style: 'thin' }
+                        };
+                    }
+                });
+
+                const signRowNum = failPctRow + 2;
+                wsClass.getRow(signRowNum).height = 20;
+                wsClass.mergeCells(`A${signRowNum}:C${signRowNum}`);
+                wsClass.getCell(`A${signRowNum}`).value = 'توقيع معلم المادة: ...........................';
+                wsClass.getCell(`A${signRowNum}`).font = { name: 'Cairo', size: 9.5, bold: true };
+
+                wsClass.mergeCells(`${getExcelColLetter(Math.max(4, totalColIndex - 1))}${signRowNum}:${noteColLetter}${signRowNum}`);
+                wsClass.getCell(`${getExcelColLetter(Math.max(4, totalColIndex - 1))}${signRowNum}`).value = 'توقيع مدير المدرسة: ...........................';
+                wsClass.getCell(`${getExcelColLetter(Math.max(4, totalColIndex - 1))}${signRowNum}`).font = { name: 'Cairo', size: 9.5, bold: true };
+                wsClass.getCell(`${getExcelColLetter(Math.max(4, totalColIndex - 1))}${signRowNum}`).alignment = { horizontal: 'left' };
+
+                wsClass.pageSetup.printArea = `A1:${noteColLetter}${signRowNum}`;
+
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const subName = appState.meta.subject || 'اختبار';
+                const grdName = appState.meta.grade || 'الصف';
+                const secName = appState.meta.section || '';
+                const fileName = `تحليل_${subName}_${grdName}_${secName}.xlsx`.replace(/\s+/g, '_');
+
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+
+                showToast('تم حفظ ملف الإكسل بالمعادلات وتنسيق A4 في صفحة واحدة!');
+            } catch (err) {
+                console.error(err);
+                showToast('حدث خطأ أثناء إنشاء ملف الإكسل');
+            }
+        }
+
+        function getExcelColLetter(colNum) {
+            let letter = '';
+            while (colNum > 0) {
+                let mod = (colNum - 1) % 26;
+                letter = String.fromCharCode(65 + mod) + letter;
+                colNum = Math.floor((colNum - mod) / 26);
+            }
+            return letter;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
